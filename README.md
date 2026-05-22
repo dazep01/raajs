@@ -43,25 +43,25 @@ RaaJS is designed for instant use. Simply add `<script>` tags to your HTML—no 
 ### 🔗 Core Engine + Extensions (Full Recommended Setup)
 
 ```html
-<!-- Core Engine: The heart and brain of reactivity -->
-<script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@main/engine/raa.min.js"></script>
+<!-- Core Engine: Jantung dan otak reaktivitas -->
+<script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@2.2.0/engine/raa.min.js"></script>
 
-<!-- Extensions: Additional superpowers as needed -->
+<!-- Extensions: Superpower tambahan sesuai kebutuhan -->
 
 <!-- 1. Data & Logic Extensions -->
-<script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@main/engine/extensions/raa-http.min.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@main/engine/extensions/raa-eventbus.min.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@main/engine/extensions/raa-computed-watch.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@2.2.0/engine/extensions/raa-http.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@2.2.0/engine/extensions/raa-eventbus.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@2.2.0/engine/extensions/raa-computed-watch.min.js"></script>
 
 <!-- 2. UI & Experience Extensions -->
-<script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@main/engine/extensions/raa-animation.min.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@main/engine/extensions/raa-ui.min.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@main/engine/extensions/raa-validate.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@2.2.0/engine/extensions/raa-animation.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@2.2.0/engine/extensions/raa-ui.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@2.2.0/engine/extensions/raa-validate.min.js"></script>
 
 <!-- 3. Structure, Scaling & Debugging -->
-<script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@main/engine/extensions/raa-template.min.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@main/engine/extensions/raa-i18n.min.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@main/engine/extensions/raa-devtools.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@2.2.0/engine/extensions/raa-template.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@2.2.0/engine/extensions/raa-i18n.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@2.2.0/engine/extensions/raa-devtools.min.js"></script>
 ```
 
 ### 🎯 Other Installation Options
