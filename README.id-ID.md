@@ -80,12 +80,16 @@ RaaJS dirancang untuk langsung digunakan. Cukup tambahkan tag `<script>` ke dala
 
 ### 🌍 Browser Support
 RaaJS v2.2 mendukung browser modern dengan ES6+ support:
-- ✅ Chrome 80+
-- ✅ Firefox 75+
-- ✅ Safari 14+
-- ✅ Edge 80+
+- ✅ Chrome 49+
+- ✅ Firefox 18+
+- ✅ Safari 10+
+- ✅ Edge 49+
+- ✅ Opera 36+
 - ✅ Android WebView & Chrome for Android
-- ✅ iOS Safari 14+
+- ✅ iOS Safari 10+
+
+> ❌ Internet Explorer — TIDAK DIDUKUNG
+> *IE tidak memiliki dukungan Proxy. RaaJS memilih tidak menggunakan polyfill berat demi menjaga ukuran "sepeda karbon" tetap ringan dan performa tetap tinggi. Saatnya move on.*
 
 ---
 
