@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RaaJS Test Runner</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: #f5f5f5;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 20px;
+      font-size: 1.8rem;
+    }
+    .summary {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+    }
+    .summary-card {
+      padding: 15px 30px;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 1.2rem;
+      min-width: 120px;
+      text-align: center;
+    }
+    .summary-card.pass {
+      background: #d4edda;
+      color: #155724;
+      border: 2px solid #c3e6cb;
+    }
+    .summary-card.fail {
+      background: #f8d7da;
+      color: #721c24;
+      border: 2px solid #f5c6cb;
+    }
+    .summary-card.total {
+      background: #e2e3e5;
+      color: #383d41;
+      border: 2px solid #d6d8db;
+    }
+    .test-suite {
+      background: white;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    .suite-header {
+      padding: 12px 20px;
+      background: #f8f9fa;
+      border-bottom: 1px solid #dee2e6;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .suite-header:hover {
+      background: #e9ecef;
+    }
+    .suite-status {
+      font-size: 0.9rem;
+      padding: 3px 10px;
+      border-radius: 4px;
+    }
+    .suite-status.all-pass {
+      background: #d4edda;
+      color: #155724;
+    }
+    .suite-status.has-fail {
+      background: #f8d7da;
+      color: #721c24;
+    }
+    .suite-body {
+      padding: 0;
+    }
+    .suite-body.collapsed {
+      display: none;
+    }
+    .test-item {
+      padding: 10px 20px 10px 40px;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .test-item:last-child {
+      border-bottom: none;
+    }
+    .test-item.pass {
+      background: #f8fff8;
+    }
+    .test-item.fail {
+      background: #fff8f8;
+    }
+    .test-icon {
+      font-weight: bold;
+      min-width: 20px;
+    }
+    .test-item.pass .test-icon {
+      color: #28a745;
+    }
+    .test-item.fail .test-icon {
+      color: #dc3545;
+    }
+    .test-name {
+      flex: 1;
+      font-size: 0.95rem;
+    }
+    .test-error {
+      display: block;
+      margin-top: 8px;
+      padding: 8px 12px;
+      background: #fff5f5;
+      border-left: 3px solid #dc3545;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      color: #721c24;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #666;
+    }
+    .running-indicator {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #3498db;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-right: 10px;
+      vertical-align: middle;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🧪 RaaJS Test Runner</h1>
+    
+    <div id="loading" class="loading">
+      <span class="running-indicator"></span>
+      Loading RaaJS and running tests...
+    </div>
+    
+    <div id="results" style="display: none;">
+      <div class="summary">
+        <div class="summary-card pass" id="passCount">PASS: 0</div>
+        <div class="summary-card fail" id="failCount">FAIL: 0</div>
+        <div class="summary-card total" id="totalCount">TOTAL: 0</div>
+      </div>
+      <div id="suites"></div>
+    </div>
+  </div>
+
+  <!-- Load RaaJS source -->
+  <script src="../engine/raa.js"></script>
+  
+  <!-- Test Runner Script -->
+  <script>
+    // ============================================
+    // Custom Test Framework (Vanilla JS)
+    // ============================================
+    
+    const TestRunner = {
+      suites: [],
+      currentSuite: null,
+      passCount: 0,
+      failCount: 0,
+      
+      describe(name, fn) {
+        const suite = {
+          name: name,
+          tests: [],
+          beforeEachFns: [],
+          parent: this.currentSuite
+        };
+        
+        const prevSuite = this.currentSuite;
+        this.currentSuite = suite;
+        
+        if (prevSuite) {
+          prevSuite.tests.push(suite);
+        } else {
+          this.suites.push(suite);
+        }
+        
+        fn();
+        this.currentSuite = prevSuite;
+      },
+      
+      beforeEach(fn) {
+        if (this.currentSuite) {
+          this.currentSuite.beforeEachFns.push(fn);
+        }
+      },
+      
+      test(name, fn) {
+        if (this.currentSuite) {
+          this.currentSuite.tests.push({
+            type: 'test',
+            name: name,
+            fn: fn,
+            pass: null,
+            error: null
+          });
+        }
+      },
+      
+      async runSuite(suite, context = {}) {
+        for (const testItem of suite.tests) {
+          if (testItem.type === 'test') {
+            // Run beforeEach hooks
+            for (const beforeFn of suite.beforeEachFns) {
+              try {
+                beforeFn.call(context);
+              } catch (e) {}
+            }
+            
+            // Also run parent beforeEach hooks
+            let parent = suite.parent;
+            while (parent) {
+              for (const beforeFn of parent.beforeEachFns) {
+                try {
+                  beforeFn.call(context);
+                } catch (e) {}
+              }
+              parent = parent.parent;
+            }
+            
+            // Run the test
+            try {
+              await testItem.fn.call(context);
+              testItem.pass = true;
+              this.passCount++;
+            } catch (error) {
+              testItem.pass = false;
+              testItem.error = error.message || String(error);
+              this.failCount++;
+            }
+          } else if (testItem.type === 'describe') {
+            await this.runSuite(testItem, context);
+          }
+        }
+      },
+      
+      async runAll() {
+        this.passCount = 0;
+        this.failCount = 0;
+        
+        for (const suite of this.suites) {
+          await this.runSuite(suite, {});
+        }
+        
+        return {
+          pass: this.passCount,
+          fail: this.failCount,
+          total: this.passCount + this.failCount
+        };
+      }
+    };
+    
+    // Assertion helpers
+    function expect(actual) {
+      return {
+        toBe(expected) {
+          if (actual !== expected) {
+            throw new Error(`Expected ${expected} but got ${actual}`);
+          }
+        },
+        toEqual(expected) {
+          const actualStr = JSON.stringify(actual);
+          const expectedStr = JSON.stringify(expected);
+          if (actualStr !== expectedStr) {
+            throw new Error(`Expected ${expectedStr} but got ${actualStr}`);
+          }
+        },
+        toBeTrue() {
+          if (actual !== true) {
+            throw new Error(`Expected true but got ${actual}`);
+          }
+        },
+        toBeFalse() {
+          if (actual !== false) {
+            throw new Error(`Expected false but got ${actual}`);
+          }
+        },
+        toBeNull() {
+          if (actual !== null) {
+            throw new Error(`Expected null but got ${actual}`);
+          }
+        },
+        toBeUndefined() {
+          if (actual !== undefined) {
+            throw new Error(`Expected undefined but got ${actual}`);
+          }
+        },
+        toBeDefined() {
+          if (actual === undefined) {
+            throw new Error(`Expected defined value but got undefined`);
+          }
+        },
+        toBeFalsy() {
+          if (actual) {
+            throw new Error(`Expected falsy value but got ${actual}`);
+          }
+        },
+        toBeTruthy() {
+          if (!actual) {
+            throw new Error(`Expected truthy value but got ${actual}`);
+          }
+        },
+        toContain(substr) {
+          if (typeof actual !== 'string' || !actual.includes(substr)) {
+            throw new Error(`Expected string to contain "${substr}" but got "${actual}"`);
+          }
+        },
+        notToContain(substr) {
+          if (typeof actual === 'string' && actual.includes(substr)) {
+            throw new Error(`Expected string not to contain "${substr}" but got "${actual}"`);
+          }
+        },
+        toThrow(expectedError) {
+          // This is used differently - see toThrowFn below
+        },
+        toHaveBeenCalled() {
+          if (!actual || typeof actual._callCount !== 'number' || actual._callCount === 0) {
+            throw new Error(`Expected function to have been called`);
+          }
+        },
+        toHaveBeenCalledTimes(n) {
+          if (!actual || typeof actual._callCount !== 'number' || actual._callCount !== n) {
+            throw new Error(`Expected function to have been called ${n} times but got ${actual ? actual._callCount : 0}`);
+          }
+        },
+        toHaveProperty(prop) {
+          if (actual === null || actual === undefined || !(prop in actual)) {
+            throw new Error(`Expected object to have property "${prop}"`);
+          }
+        }
+      };
+    }
+    
+    function toThrowFn(fn, expectedMessage) {
+      try {
+        fn();
+        throw new Error('Expected function to throw but it did not');
+      } catch (error) {
+        if (expectedMessage && !error.message.includes(expectedMessage)) {
+          throw new Error(`Expected error message to include "${expectedMessage}" but got "${error.message}"`);
+        }
+      }
+    }
+    
+    // Mock function helper
+    function mockFn(impl) {
+      const fn = impl || function() {};
+      fn._callCount = 0;
+      fn._calls = [];
+      
+      const wrapped = function(...args) {
+        fn._callCount++;
+        fn._calls.push(args);
+        return fn.apply(this, args);
+      };
+      
+      wrapped.mockClear = function() {
+        fn._callCount = 0;
+        fn._calls = [];
+      };
+      
+      wrapped.mockImplementation = function(newImpl) {
+        impl = newImpl;
+        return wrapped;
+      };
+      
+      return wrapped;
+    }
+    
+    function spyOn(obj, method) {
+      const original = obj[method];
+      const mock = mockFn(original);
+      obj[method] = mock;
+      mock.restore = function() {
+        obj[method] = original;
+      };
+      return mock;
+    }
+    
+    // ============================================
+    // Test Definitions (Converted from Jest)
+    // ============================================
+    
+    TestRunner.describe('RaaJS Core', () => {
+      
+      TestRunner.beforeEach(() => {
+        document.body.innerHTML = '';
+        if (window.RaaJS && window.RaaJS.apps) {
+          Object.keys(window.RaaJS.apps).forEach(key => {
+            delete window.RaaJS.apps[key];
+          });
+        }
+      });
+      
+      TestRunner.describe('PRIORITY Constants', () => {
+        TestRunner.test('should have correct priority values', () => {
+          expect(PRIORITY.HIGH).toBe(0);
+          expect(PRIORITY.NORMAL).toBe(1);
+          expect(PRIORITY.LOW).toBe(2);
+          expect(PRIORITY.IDLE).toBe(3);
+        });
+        
+        TestRunner.test('should be frozen', () => {
+          expect(Object.isFrozen(PRIORITY)).toBeTrue();
+        });
+      });
+      
+      TestRunner.describe('ARRAY_MUTATION_METHODS', () => {
+        TestRunner.test('should contain all array mutation methods', () => {
+          const expectedMethods = [
+            'push', 'pop', 'shift', 'unshift', 
+            'splice', 'sort', 'reverse', 'fill', 'copyWithin'
+          ];
+          
+          expectedMethods.forEach(method => {
+            expect(ARRAY_MUTATION_METHODS.has(method)).toBeTrue();
+          });
+        });
+      });
+      
+      TestRunner.describe('RaaLiteralParser', () => {
+        let parser;
+        
+        TestRunner.test('should parse simple object literals', () => {
+          const tokens = [
+            { value: '{', type: 'Punctuator' },
+            { name: 'foo', type: 'Identifier' },
+            { value: ':', type: 'Punctuator' },
+            { value: 'bar', type: 'Literal' },
+            { value: '}', type: 'Punctuator' },
+            { type: 'EOF' }
+          ];
+          
+          parser = new RaaLiteralParser(tokens);
+          const result = parser.parse();
+          
+          expect(result).toEqual({ foo: 'bar' });
+        });
+        
+        TestRunner.test('should parse nested objects', () => {
+          const tokens = [
+            { value: '{', type: 'Punctuator' },
+            { name: 'outer', type: 'Identifier' },
+            { value: ':', type: 'Punctuator' },
+            { value: '{', type: 'Punctuator' },
+            { name: 'inner', type: 'Identifier' },
+            { value: ':', type: 'Punctuator' },
+            { value: 42, type: 'Literal' },
+            { value: '}', type: 'Punctuator' },
+            { value: '}', type: 'Punctuator' },
+            { type: 'EOF' }
+          ];
+          
+          parser = new RaaLiteralParser(tokens);
+          const result = parser.parse();
+          
+          expect(result).toEqual({ outer: { inner: 42 } });
+        });
+        
+        TestRunner.test('should parse arrays', () => {
+          const tokens = [
+            { value: '[', type: 'Punctuator' },
+            { value: 1, type: 'Literal' },
+            { value: ',', type: 'Punctuator' },
+            { value: 2, type: 'Literal' },
+            { value: ',', type: 'Punctuator' },
+            { value: 3, type: 'Literal' },
+            { value: ']', type: 'Punctuator' },
+            { type: 'EOF' }
+          ];
+          
+          parser = new RaaLiteralParser(tokens);
+          const result = parser.parse();
+          
+          expect(result).toEqual([1, 2, 3]);
+        });
+        
+        TestRunner.test('should throw error on unexpected token', () => {
+          const tokens = [
+            { value: '{', type: 'Punctuator' },
+            { value: '}', type: 'Punctuator' },
+            { value: 'extra', type: 'Literal' },
+            { type: 'EOF' }
+          ];
+          
+          parser = new RaaLiteralParser(tokens);
+          
+          toThrowFn(() => parser.parse(), 'Unexpected token');
+        });
+        
+        TestRunner.test('should handle empty objects', () => {
+          const tokens = [
+            { value: '{', type: 'Punctuator' },
+            { value: '}', type: 'Punctuator' },
+            { type: 'EOF' }
+          ];
+          
+          parser = new RaaLiteralParser(tokens);
+          const result = parser.parse();
+          
+          expect(result).toEqual({});
+        });
+        
+        TestRunner.test('should handle empty arrays', () => {
+          const tokens = [
+            { value: '[', type: 'Punctuator' },
+            { value: ']', type: 'Punctuator' },
+            { type: 'EOF' }
+          ];
+          
+          parser = new RaaLiteralParser(tokens);
+          const result = parser.parse();
+          
+          expect(result).toEqual([]);
+        });
+      });
+      
+      TestRunner.describe('levenshtein distance', () => {
+        TestRunner.test('should calculate distance between identical strings', () => {
+          expect(levenshtein('abc', 'abc')).toBe(0);
+        });
+        
+        TestRunner.test('should calculate distance between different strings', () => {
+          expect(levenshtein('kitten', 'sitting')).toBe(3);
+        });
+        
+        TestRunner.test('should handle empty strings', () => {
+          expect(levenshtein('', 'abc')).toBe(3);
+          expect(levenshtein('abc', '')).toBe(3);
+        });
+        
+        TestRunner.test('should handle single character differences', () => {
+          expect(levenshtein('cat', 'bat')).toBe(1);
+          expect(levenshtein('cat', 'cut')).toBe(1);
+        });
+      });
+      
+      TestRunner.describe('suggestClosest', () => {
+        TestRunner.test('should find closest match within threshold', () => {
+          const candidates = ['name', 'age', 'email', 'address'];
+          
+          expect(suggestClosest('nam', candidates)).toBe('name');
+          expect(suggestClosest('emai', candidates)).toBe('email');
+        });
+        
+        TestRunner.test('should return null for distant matches', () => {
+          const candidates = ['name', 'age', 'email'];
+          
+          expect(suggestClosest('xyz', candidates)).toBeNull();
+        });
+        
+        TestRunner.test('should return null for empty candidates', () => {
+          expect(suggestClosest('test', [])).toBeNull();
+        });
+      });
+      
+      TestRunner.describe('RaaJS Class', () => {
+        let raa;
+        
+        TestRunner.beforeEach(() => {
+          raa = new RaaJS();
+        });
+        
+        TestRunner.test('should initialize with default config', () => {
+          expect(raa.globalStore).toEqual({});
+          expect(raa.rootSelector).toBe('[raa-core\\\\:app]');
+          expect(raa.debug).toBeFalse();
+        });
+        
+        TestRunner.test('should initialize with custom config', () => {
+          const customStore = { user: 'test' };
+          const customRaa = new RaaJS({
+            store: customStore,
+            rootSelector: '[data-app]',
+            debug: true
+          });
+          
+          expect(customRaa.globalStore).toBe(customStore);
+          expect(customRaa.rootSelector).toBe('[data-app]');
+          expect(customRaa.debug).toBeTrue();
+        });
+        
+        TestRunner.test('should have safe globals defined', () => {
+          expect(raa._safeGlobals.Math).toBe(Math);
+          expect(raa._safeGlobals.JSON).toBe(JSON);
+          expect(raa._safeGlobals.Array).toBe(Array);
+          expect(raa._safeGlobals.Promise).toBe(Promise);
+        });
+        
+        TestRunner.test('should expose blocked call properties', () => {
+          expect(raa._blockedCallProps.indexOf('constructor')).toBeGreaterThan(-1);
+          expect(raa._blockedCallProps.indexOf('__proto__')).toBeGreaterThan(-1);
+          expect(raa._blockedCallProps.indexOf('prototype')).toBeGreaterThan(-1);
+        });
+      });
+      
+      TestRunner.describe('RaaJS.define', () => {
+        TestRunner.test('should register app factory', () => {
+          const factory = () => ({ data: { count: 0 } });
+          
+          RaaJS.define('testApp', factory);
+          
+          expect(RaaJS.apps.testApp).toBe(factory);
+        });
+        
+        TestRunner.test('should throw error for invalid app name', () => {
+          toThrowFn(() => RaaJS.define('', () => ({})), 'App name must be a non-empty string');
+          toThrowFn(() => RaaJS.define(123, () => ({})), 'App name must be a non-empty string');
+        });
+        
+        TestRunner.test('should throw error for invalid factory', () => {
+          toThrowFn(() => RaaJS.define('app', {}), 'App factory must be a function');
+          toThrowFn(() => RaaJS.define('app', null), 'App factory must be a function');
+        });
+      });
+      
+      TestRunner.describe('RaaJS instance methods', () => {
+        let raa;
+        
+        TestRunner.beforeEach(() => {
+          raa = new RaaJS();
+        });
+        
+        TestRunner.describe('use', () => {
+          TestRunner.test('should call plugin with raa instance', async () => {
+            const pluginMock = mockFn();
+            
+            await raa.use(pluginMock);
+            
+            expect(pluginMock._callCount).toBeGreaterThan(0);
+          });
+        });
+        
+        TestRunner.describe('mount', () => {
+          TestRunner.test('should compile root when target is element', () => {
+            const div = document.createElement('div');
+            div.setAttribute('raa-core:app', '');
+            document.body.appendChild(div);
+            
+            const compileRootSpy = spyOn(raa, 'compileRoot');
+            
+            raa.mount(div);
+            
+            expect(compileRootSpy._callCount).toBeGreaterThan(0);
+            compileRootSpy.restore();
+          });
+          
+          TestRunner.test('should compile root when target is selector string', () => {
+            const div = document.createElement('div');
+            div.setAttribute('raa-core:app', '');
+            div.id = 'test-app';
+            document.body.appendChild(div);
+            
+            const compileRootSpy = spyOn(raa, 'compileRoot');
+            
+            raa.mount('#test-app');
+            
+            expect(compileRootSpy._callCount).toBeGreaterThan(0);
+            compileRootSpy.restore();
+          });
+          
+          TestRunner.test('should do nothing when target is null', () => {
+            const compileRootSpy = spyOn(raa, 'compileRoot');
+            
+            raa.mount(null);
+            
+            expect(compileRootSpy._callCount).toBe(0);
+            compileRootSpy.restore();
+          });
+        });
+        
+        TestRunner.describe('nextTick', () => {
+          TestRunner.test('should resolve promise on next microtask', async () => {
+            let executed = false;
+            
+            const promise = raa.nextTick(() => {
+              executed = true;
+            });
+            
+            expect(executed).toBeFalse();
+            
+            await promise;
+            
+            expect(executed).toBeTrue();
+          });
+          
+          TestRunner.test('should resolve without callback', async () => {
+            const promise = raa.nextTick();
+            
+            await promise;
+            // If we get here without error, test passes
+          });
+        });
+        
+        TestRunner.describe('effect', () => {
+          TestRunner.test('should create and run effect', () => {
+            const fn = mockFn();
+            
+            const effect = raa.effect(fn);
+            
+            expect(effect.active).toBeTrue();
+            expect(effect.fn).toBe(fn);
+            expect(fn._callCount).toBeGreaterThan(0);
+          });
+          
+          TestRunner.test('should track dependencies', () => {
+            const state = { count: 0 };
+            let accessCount = 0;
+            
+            raa.effect(() => {
+              raa.track(state, 'count');
+              accessCount++;
+            });
+            
+            expect(accessCount).toBe(1);
+          });
+        });
+        
+        TestRunner.describe('track and trigger', () => {
+          TestRunner.test('should track property access', () => {
+            const obj = { value: 1 };
+            const effectFn = mockFn();
+            
+            raa.effect(() => {
+              raa.track(obj, 'value');
+              effectFn();
+            });
+            
+            expect(effectFn._callCount).toBe(1);
+          });
+          
+          TestRunner.test('should trigger effects on property change', () => {
+            const obj = { value: 1 };
+            let currentValue;
+            
+            raa.effect(() => {
+              raa.track(obj, 'value');
+              currentValue = obj.value;
+            });
+            
+            expect(currentValue).toBe(1);
+            
+            obj.value = 2;
+            raa.trigger(obj, 'value');
+            
+            // Effect should be scheduled to re-run
+            expect(raa._pendingEffects.size).toBeGreaterThan(0);
+          });
+        });
+        
+        TestRunner.describe('isReactiveCandidate', () => {
+          TestRunner.test('should return true for plain objects', () => {
+            expect(raa.isReactiveCandidate({})).toBeTrue();
+            expect(raa.isReactiveCandidate({ key: 'value' })).toBeTrue();
+          });
+          
+          TestRunner.test('should return true for arrays', () => {
+            expect(raa.isReactiveCandidate([])).toBeTrue();
+            expect(raa.isReactiveCandidate([1, 2, 3])).toBeTrue();
+          });
+          
+          TestRunner.test('should return false for primitives', () => {
+            expect(raa.isReactiveCandidate(null)).toBeFalse();
+            expect(raa.isReactiveCandidate(undefined)).toBeFalse();
+            expect(raa.isReactiveCandidate(42)).toBeFalse();
+            expect(raa.isReactiveCandidate('string')).toBeFalse();
+            expect(raa.isReactiveCandidate(true)).toBeFalse();
+          });
+          
+          TestRunner.test('should return false for functions', () => {
+            expect(raa.isReactiveCandidate(() => {})).toBeFalse();
+            expect(raa.isReactiveCandidate(function() {})).toBeFalse();
+          });
+          
+          TestRunner.test('should return false for Date objects', () => {
+            expect(raa.isReactiveCandidate(new Date())).toBeFalse();
+          });
+          
+          TestRunner.test('should return false for RegExp objects', () => {
+            expect(raa.isReactiveCandidate(/test/)).toBeFalse();
+          });
+        });
+        
+        TestRunner.describe('sanitizeHTML', () => {
+          TestRunner.test('should remove script tags', () => {
+            const input = '<script>alert("xss")</script><p>Safe</p>';
+            const result = raa.sanitizeHTML(input);
+            
+            expect(result).notToContain('<script>');
+            expect(result).toContain('Safe');
+          });
+          
+          TestRunner.test('should remove event handlers', () => {
+            const input = '<div onclick="alert(1)">Click</div>';
+            const result = raa.sanitizeHTML(input);
+            
+            expect(result).notToContain('onclick');
+          });
+          
+          TestRunner.test('should allow safe HTML', () => {
+            const input = '<p class="test">Hello <strong>World</strong></p>';
+            const result = raa.sanitizeHTML(input);
+            
+            expect(result).toContain('<p>');
+            expect(result).toContain('<strong>');
+            expect(result).toContain('Hello');
+            expect(result).toContain('World');
+          });
+        });
+        
+        TestRunner.describe('parseAST', () => {
+          TestRunner.test('should tokenize simple expression', () => {
+            const tokens = raa._tokenize('user.name');
+            
+            expect(tokens.length).toBeGreaterThan(0);
+            expect(tokens.some(t => t.name === 'user')).toBeTrue();
+            expect(tokens.some(t => t.name === 'name')).toBeTrue();
+          });
+          
+          TestRunner.test('should tokenize string literals', () => {
+            const tokens = raa._tokenize("'hello'");
+            
+            expect(tokens.some(t => t.type === 'Literal' && t.value === 'hello')).toBeTrue();
+          });
+          
+          TestRunner.test('should tokenize numbers', () => {
+            const tokens = raa._tokenize('42');
+            
+            expect(tokens.some(t => t.type === 'Literal' && t.value === 42)).toBeTrue();
+          });
+          
+          TestRunner.test('should tokenize boolean literals', () => {
+            const tokensTrue = raa._tokenize('true');
+            const tokensFalse = raa._tokenize('false');
+            
+            expect(tokensTrue.some(t => t.type === 'Literal' && t.value === true)).toBeTrue();
+            expect(tokensFalse.some(t => t.type === 'Literal' && t.value === false)).toBeTrue();
+          });
+        });
+        
+        TestRunner.describe('evaluateAST', () => {
+          TestRunner.test('should evaluate simple property access', () => {
+            const context = { user: { name: 'John' } };
+            const result = raa.evaluateAST('user.name', context);
+            
+            expect(result).toBe('John');
+          });
+          
+          TestRunner.test('should evaluate arithmetic expressions', () => {
+            const context = { a: 5, b: 3 };
+            const result = raa.evaluateAST('a + b', context);
+            
+            expect(result).toBe(8);
+          });
+          
+          TestRunner.test('should evaluate comparison expressions', () => {
+            const context = { x: 10, y: 5 };
+            const result = raa.evaluateAST('x > y', context);
+            
+            expect(result).toBeTrue();
+          });
+          
+          TestRunner.test('should evaluate logical expressions', () => {
+            const context = { a: true, b: false };
+            
+            expect(raa.evaluateAST('a && b', context)).toBeFalse();
+            expect(raa.evaluateAST('a || b', context)).toBeTrue();
+          });
+          
+          TestRunner.test('should evaluate ternary expressions', () => {
+            const context = { condition: true, a: 1, b: 2 };
+            
+            expect(raa.evaluateAST('condition ? a : b', context)).toBe(1);
+            
+            context.condition = false;
+            expect(raa.evaluateAST('condition ? a : b', context)).toBe(2);
+          });
+          
+          TestRunner.test('should evaluate array access', () => {
+            const context = { items: [10, 20, 30] };
+            
+            expect(raa.evaluateAST('items[0]', context)).toBe(10);
+            expect(raa.evaluateAST('items[1]', context)).toBe(20);
+          });
+          
+          TestRunner.test('should evaluate method calls on safe objects', () => {
+            const context = { text: 'hello' };
+            
+            expect(raa.evaluateAST('text.toUpperCase()', context)).toBe('HELLO');
+          });
+          
+          TestRunner.test('should block constructor access', () => {
+            const context = { obj: {} };
+            
+            toThrowFn(() => raa.evaluateAST('obj.constructor', context));
+          });
+          
+          TestRunner.test('should block __proto__ access', () => {
+            const context = { obj: {} };
+            
+            toThrowFn(() => raa.evaluateAST('obj.__proto__', context));
+          });
+        });
+      });
+      
+      TestRunner.describe('DOM Integration', () => {
+        let raa;
+        
+        TestRunner.beforeEach(() => {
+          document.body.innerHTML = '';
+          raa = new RaaJS();
+        });
+        
+        TestRunner.test('should initialize with DOM observer', () => {
+          expect(raa._domObserver).toBeDefined();
+        });
+        
+        TestRunner.test('should observe document for changes', () => {
+          expect(raa.observeDocument).toBeDefined();
+          expect(typeof raa.observeDocument).toBe('function');
+        });
+        
+        TestRunner.test('should have directive cache', () => {
+          expect(raa._directiveCache).toBeDefined();
+        });
+        
+        TestRunner.test('should have reactive cache', () => {
+          expect(raa._reactiveCache).toBeDefined();
+        });
+        
+        TestRunner.test('should have AST cache', () => {
+          expect(raa._astCache).toBeDefined();
+        });
+      });
+      
+      TestRunner.describe('Global Exposure', () => {
+        TestRunner.test('should expose RaaJS to window', () => {
+          expect(window.RaaJS).toBeDefined();
+          expect(window.RaaJS).toBe(RaaJS);
+        });
+        
+        TestRunner.test('should have apps registry on RaaJS', () => {
+          expect(RaaJS.apps).toBeDefined();
+          expect(typeof RaaJS.apps).toBe('object');
+        });
+        
+        TestRunner.test('should have define method on RaaJS', () => {
+          expect(RaaJS.define).toBeDefined();
+          expect(typeof RaaJS.define).toBe('function');
+        });
+      });
+      
+      TestRunner.describe('Scheduler', () => {
+        let raa;
+        
+        TestRunner.beforeEach(() => {
+          raa = new RaaJS();
+        });
+        
+        TestRunner.test('should schedule effect', () => {
+          const fn = mockFn();
+          const effect = { fn, active: true, deps: new Set(), cleanup: [] };
+          
+          raa.scheduleEffect(effect);
+          
+          expect(raa._pendingEffects.has(effect)).toBeTrue();
+        });
+        
+        TestRunner.test('should flush pending effects', () => {
+          let runCount = 0;
+          const effect = {
+            fn: () => runCount++,
+            active: true,
+            deps: new Set(),
+            cleanup: [],
+            root: null
+          };
+          
+          raa.scheduleEffect(effect);
+          raa.flushEffects();
+          
+          expect(runCount).toBeGreaterThan(0);
+        });
+        
+        TestRunner.test('should prevent infinite loops with max effect runs', () => {
+          expect(raa._maxEffectRunsPerFlush).toBe(50);
+        });
+      });
+      
+      TestRunner.describe('Error Handling', () => {
+        let raa;
+        
+        TestRunner.beforeEach(() => {
+          raa = new RaaJS({ debug: true });
+        });
+        
+        TestRunner.test('should have warn method', () => {
+          expect(raa.warn).toBeDefined();
+          expect(typeof raa.warn).toBe('function');
+        });
+        
+        TestRunner.test('should have error method', () => {
+          expect(raa.error).toBeDefined();
+          expect(typeof raa.error).toBe('function');
+        });
+        
+        TestRunner.test('should log warning with code', () => {
+          const consoleWarn = console.warn;
+          let capturedMsg = '';
+          console.warn = function(msg) {
+            capturedMsg = msg;
+          };
+          
+          raa.warn('TEST_CODE', 'Test warning message');
+          
+          expect(capturedMsg.indexOf('[RaaJS warn:TEST_CODE]')).toBeGreaterThan(-1);
+          console.warn = consoleWarn;
+        });
+        
+        TestRunner.test('should log error with code', () => {
+          const consoleError = console.error;
+          let capturedMsg = '';
+          console.error = function(msg) {
+            capturedMsg = msg;
+          };
+          
+          raa.error('TEST_CODE', 'Test error message');
+          
+          expect(capturedMsg.indexOf('[RaaJS error:TEST_CODE]')).toBeGreaterThan(-1);
+          console.error = consoleError;
+        });
+      });
+    });
+    
+    // ============================================
+    // UI Rendering Functions
+    // ============================================
+    
+    function renderResults() {
+      const resultsDiv = document.getElementById('results');
+      const suitesDiv = document.getElementById('suites');
+      const loadingDiv = document.getElementById('loading');
+      
+      // Update summary
+      document.getElementById('passCount').textContent = `PASS: ${TestRunner.passCount}`;
+      document.getElementById('failCount').textContent = `FAIL: ${TestRunner.failCount}`;
+      document.getElementById('totalCount').textContent = `TOTAL: ${TestRunner.passCount + TestRunner.failCount}`;
+      
+      // Render suites
+      suitesDiv.innerHTML = '';
+      renderSuites(TestRunner.suites, suitesDiv);
+      
+      // Show results, hide loading
+      loadingDiv.style.display = 'none';
+      resultsDiv.style.display = 'block';
+    }
+    
+    function renderSuites(items, container, level = 0) {
+      for (const item of items) {
+        if (item.type === 'test' || item.fn) {
+          // It's a test
+          const testDiv = document.createElement('div');
+          testDiv.className = `test-item ${item.pass === true ? 'pass' : (item.pass === false ? 'fail' : '')}`;
+          
+          const icon = document.createElement('span');
+          icon.className = 'test-icon';
+          icon.textContent = item.pass === true ? '✓' : (item.pass === false ? '✗' : '○');
+          
+          const nameSpan = document.createElement('span');
+          nameSpan.className = 'test-name';
+          nameSpan.textContent = item.name || item.fn;
+          
+          testDiv.appendChild(icon);
+          testDiv.appendChild(nameSpan);
+          
+          if (item.error) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'test-error';
+            errorDiv.textContent = item.error;
+            testDiv.appendChild(errorDiv);
+          }
+          
+          container.appendChild(testDiv);
+        } else {
+          // It's a suite
+          const suiteDiv = document.createElement('div');
+          suiteDiv.className = 'test-suite';
+          
+          // Count pass/fail in this suite
+          let suitePass = 0;
+          let suiteFail = 0;
+          countTests(item, suitePass, suiteFail);
+          const counts = countTests(item);
+          const hasFail = counts.fail > 0;
+          
+          const header = document.createElement('div');
+          header.className = 'suite-header';
+          
+          const titleSpan = document.createElement('span');
+          titleSpan.textContent = item.name;
+          
+          const statusSpan = document.createElement('span');
+          statusSpan.className = `suite-status ${hasFail ? 'has-fail' : 'all-pass'}`;
+          statusSpan.textContent = `${counts.pass}/${counts.pass + counts.fail}`;
+          
+          header.appendChild(titleSpan);
+          header.appendChild(statusSpan);
+          
+          const body = document.createElement('div');
+          body.className = 'suite-body';
+          
+          // Toggle collapse on click
+          header.addEventListener('click', () => {
+            body.classList.toggle('collapsed');
+          });
+          
+          suiteDiv.appendChild(header);
+          suiteDiv.appendChild(body);
+          
+          // Recursively render nested items
+          renderSuites(item.tests, body, level + 1);
+          
+          container.appendChild(suiteDiv);
+        }
+      }
+    }
+    
+    function countTests(suite) {
+      let pass = 0;
+      let fail = 0;
+      
+      for (const item of suite.tests) {
+        if (item.fn) {
+          // It's a test
+          if (item.pass === true) pass++;
+          else if (item.pass === false) fail++;
+        } else {
+          // It's a nested suite
+          const nested = countTests(item);
+          pass += nested.pass;
+          fail += nested.fail;
+        }
+      }
+      
+      return { pass, fail };
+    }
+    
+    // ============================================
+    // Run Tests on Load
+    // ============================================
+    
+    window.addEventListener('DOMContentLoaded', async () => {
+      // Wait a bit for RaaJS to load
+      setTimeout(async () => {
+        try {
+          await TestRunner.runAll();
+          renderResults();
+        } catch (error) {
+          document.getElementById('loading').innerHTML = 
+            `<div style="color: red; padding: 20px;">
+              <h2>Error running tests:</h2>
+              <pre>${error.message}\n${error.stack}</pre>
+            </div>`;
+        }
+      }, 100);
+    });
+  </script>
+</body>
+</html>
