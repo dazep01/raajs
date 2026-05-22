@@ -1,0 +1,2330 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RaaJS · Micro Reactive Runtime</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <meta name="description" content="RaaJS: Micro reactive runtime yang ringan, CSP-aware, dan tanpa build step. Alternatif AlpineJS yang lebih fleksibel dan minimalis.">
+  <meta property="og:title" content="RaaJS · Micro Reactive Runtime">
+  <meta property="og:description" content="HTML-first reactivity tanpa virtual DOM. Coba demo interaktifnya sekarang.">
+  <meta property="og:type" content="website">
+  
+  <!-- Core Engine: Jantung dan otak reaktivitas -->
+<script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@2.2.0/engine/raa.min.js"></script>
+
+<!-- Extensions: Superpower tambahan sesuai kebutuhan -->
+
+<!-- 1. Data & Logic Extensions -->
+<script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@2.2.0/engine/extensions/raa-http.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@2.2.0/engine/extensions/raa-eventbus.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@2.2.0/engine/extensions/raa-computed-watch.min.js"></script>
+
+<!-- 2. UI & Experience Extensions -->
+<script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@2.2.0/engine/extensions/raa-animation.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@2.2.0/engine/extensions/raa-ui.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@2.2.0/engine/extensions/raa-validate.min.js"></script>
+
+<!-- 3. Structure, Scaling & Debugging -->
+<script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@2.2.0/engine/extensions/raa-template.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@2.2.0/engine/extensions/raa-i18n.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@2.2.0/engine/extensions/raa-devtools.min.js"></script>
+
+    <style>
+        :root {
+            --bg-base: #06080d;
+            --bg-elevated: #0a0e16;
+            --bg-surface: #0d111c;
+            --bg-surface-hover: #111827;
+            --bg-glass: rgba(13, 17, 28, 0.72);
+            --bg-glass-strong: rgba(10, 14, 22, 0.88);
+            --border-subtle: rgba(255, 255, 255, 0.05);
+            --border-default: rgba(255, 255, 255, 0.08);
+            --border-strong: rgba(255, 255, 255, 0.12);
+            --border-accent: rgba(180, 150, 110, 0.25);
+            --text-primary: #edeae4;
+            --text-secondary: #b8b2a6;
+            --text-muted: #7a7368;
+            --text-accent: #c8a87c;
+            --accent: #b8945c;
+            --accent-soft: #c8a87c;
+            --accent-dim: rgba(184, 148, 92, 0.13);
+            --accent-glow: rgba(200, 168, 124, 0.08);
+            --blue-soft: #7eaac8;
+            --blue-dim: rgba(126, 170, 200, 0.1);
+            --green-soft: #7eb89c;
+            --red-soft: #c87e7e;
+            --radius-xs: 6px;
+            --radius-sm: 10px;
+            --radius-md: 16px;
+            --radius-lg: 22px;
+            --radius-xl: 28px;
+            --radius-2xl: 36px;
+            --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.35);
+            --shadow-md: 0 8px 28px rgba(0, 0, 0, 0.45);
+            --shadow-lg: 0 20px 55px rgba(0, 0, 0, 0.55);
+            --shadow-glow: 0 0 60px rgba(180, 150, 110, 0.06);
+            --transition-fast: 0.14s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-smooth: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-spring: 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', ui-monospace, monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+        html {
+            scroll-behavior: smooth;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        body {
+            margin: 0;
+            font-family: var(--font-sans);
+            color: var(--text-primary);
+            background: var(--bg-base);
+            line-height: 1.58;
+            letter-spacing: -0.008em;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            background:
+                radial-gradient(ellipse 80% 60% at 15% 8%, rgba(180, 150, 110, 0.06), transparent 55%),
+                radial-gradient(ellipse 70% 50% at 82% 12%, rgba(126, 170, 200, 0.05), transparent 55%),
+                radial-gradient(ellipse 90% 70% at 50% 90%, rgba(180, 150, 110, 0.04), transparent 60%);
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.024;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0v60M0 30h60' stroke='%23ffffff' stroke-width='0.3'/%3E%3C/svg%3E");
+            background-size: 60px 60px;
+            mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, black 30%, transparent 70%);
+            -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, black 30%, transparent 70%);
+        }
+
+        body.light-theme {
+            --bg-base: #fafaf8;
+            --bg-elevated: #f5f3ef;
+            --bg-surface: #ffffff;
+            --bg-surface-hover: #f8f6f2;
+            --bg-glass: rgba(255, 255, 255, 0.78);
+            --bg-glass-strong: rgba(255, 255, 255, 0.92);
+            --border-subtle: rgba(0, 0, 0, 0.04);
+            --border-default: rgba(0, 0, 0, 0.07);
+            --border-strong: rgba(0, 0, 0, 0.1);
+            --border-accent: rgba(160, 130, 90, 0.22);
+            --text-primary: #1a1814;
+            --text-secondary: #5c5548;
+            --text-muted: #8c8476;
+            --text-accent: #8b6d3f;
+            --accent: #8b6d3f;
+            --accent-soft: #a08050;
+            --accent-dim: rgba(140, 110, 60, 0.08);
+            --accent-glow: rgba(160, 130, 90, 0.05);
+            --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+            --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 6px 20px rgba(0, 0, 0, 0.07);
+            --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.1);
+            --shadow-glow: 0 0 50px rgba(160, 130, 90, 0.04);
+            --blue-dim: rgba(100, 140, 170, 0.06);
+        }
+
+        body.light-theme::before {
+            background:
+                radial-gradient(ellipse 80% 60% at 15% 8%, rgba(160, 130, 90, 0.04), transparent 55%),
+                radial-gradient(ellipse 70% 50% at 82% 12%, rgba(100, 140, 170, 0.03), transparent 55%),
+                radial-gradient(ellipse 90% 70% at 50% 90%, rgba(160, 130, 90, 0.03), transparent 60%);
+        }
+        body.light-theme::after {
+            opacity: 0.018;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+        code {
+            font-family: var(--font-mono);
+            font-size: 0.88em;
+            color: #d4c8b0;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 2px 7px;
+            border-radius: var(--radius-xs);
+            letter-spacing: -0.01em;
+        }
+        body.light-theme code {
+            color: #6b5a3e;
+            background: rgba(0, 0, 0, 0.03);
+        }
+
+        .shell {
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 36px 32px 60px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ── Hero ───────────────────── */
+        .hero {
+            background: var(--bg-glass-strong);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-2xl);
+            padding: 40px 44px;
+            box-shadow: var(--shadow-lg), var(--shadow-glow);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            transition: border-color var(--transition-smooth);
+        }
+        .hero:hover {
+            border-color: var(--border-strong);
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -120px;
+            right: -80px;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            background: radial-gradient(circle, var(--accent-glow), transparent 68%);
+            pointer-events: none;
+            filter: blur(30px);
+            opacity: 0.7;
+        }
+        .hero::after {
+            content: '';
+            position: absolute;
+            bottom: -160px;
+            left: -60px;
+            width: 420px;
+            height: 420px;
+            border-radius: 50%;
+            background: radial-gradient(circle, var(--blue-dim), transparent 68%);
+            pointer-events: none;
+            filter: blur(30px);
+            opacity: 0.6;
+        }
+
+        .hero-inner {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            grid-template-columns: 1.2fr auto;
+            gap: 28px;
+            align-items: start;
+        }
+
+        .hero-kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 7px 14px;
+            border-radius: 999px;
+            border: 1px solid var(--border-accent);
+            background: var(--accent-dim);
+            color: var(--text-accent);
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+        }
+        .hero-kicker .kicker-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--accent-soft);
+            box-shadow: 0 0 10px var(--accent-soft);
+            animation: pulse-dot 2.2s ease-in-out infinite;
+        }
+        @keyframes pulse-dot {
+            0%,
+            100% {
+                box-shadow: 0 0 6px var(--accent-soft);
+            }
+            50% {
+                box-shadow: 0 0 18px var(--accent-soft), 0 0 32px rgba(200, 168, 124, 0.25);
+            }
+        }
+
+        .hero h1 {
+            margin: 18px 0 8px;
+            font-size: clamp(2.6rem, 5.5vw, 5.4rem);
+            line-height: 0.94;
+            letter-spacing: -0.06em;
+            font-weight: 900;
+            max-width: 14ch;
+            background: linear-gradient(175deg, #edeae4 20%, #c8b898 70%, #b8945c 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        body.light-theme .hero h1 {
+            background: linear-gradient(175deg, #1a1814 20%, #5c4020 70%, #7a5530 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-tagline {
+            margin: 0 0 14px;
+            max-width: 60ch;
+            color: var(--text-secondary);
+            font-size: 1.06rem;
+            font-weight: 400;
+            letter-spacing: -0.01em;
+        }
+        .hero-desc {
+            margin: 0 0 8px;
+            max-width: 65ch;
+            color: var(--text-muted);
+            font-size: 0.92rem;
+            line-height: 1.6;
+        }
+
+        .hero-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 18px;
+        }
+        .pill-accent {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 13px;
+            border-radius: 999px;
+            background: var(--accent-dim);
+            border: 1px solid var(--border-accent);
+            color: var(--text-accent);
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.01em;
+        }
+        .pill-subtle {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 13px;
+            border-radius: 999px;
+            border: 1px solid var(--border-subtle);
+            background: rgba(255, 255, 255, 0.02);
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .hero-stat-card {
+            align-self: start;
+            padding: 22px 24px;
+            border-radius: var(--radius-xl);
+            border: 1px solid var(--border-default);
+            background: var(--bg-glass);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            box-shadow: var(--shadow-md);
+            min-width: 150px;
+            text-align: center;
+            transition: border-color var(--transition-smooth), box-shadow var(--transition-smooth);
+        }
+        .hero-stat-card:hover {
+            border-color: var(--border-accent);
+            box-shadow: var(--shadow-lg), 0 0 40px rgba(180, 150, 110, 0.06);
+        }
+        .hero-stat-card .stat-value {
+            font-size: clamp(2.8rem, 5vw, 4.8rem);
+            font-weight: 900;
+            letter-spacing: -0.07em;
+            line-height: 1;
+            color: var(--text-primary);
+        }
+        .hero-stat-card .stat-label {
+            color: var(--text-muted);
+            margin-top: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+        }
+        .hero-stat-card .stat-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+            margin-top: 14px;
+            justify-content: center;
+        }
+
+        /* ── Buttons ───────────────── */
+        button {
+            appearance: none;
+            border: 1px solid transparent;
+            cursor: pointer;
+            font-family: var(--font-sans);
+            font-weight: 600;
+            font-size: 0.85rem;
+            letter-spacing: -0.01em;
+            transition: all var(--transition-fast);
+            white-space: nowrap;
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            justify-content: center;
+        }
+        .btn-primary {
+            background: linear-gradient(160deg, #c8a87c 0%, #a07840 100%);
+            color: #0d0b06;
+            padding: 10px 18px;
+            border-radius: var(--radius-sm);
+            box-shadow: 0 4px 16px rgba(160, 120, 60, 0.2), 0 1px 3px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 24px rgba(160, 120, 60, 0.3), 0 2px 6px rgba(0, 0, 0, 0.35);
+        }
+        .btn-primary:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 8px rgba(160, 120, 60, 0.15);
+        }
+        body.light-theme .btn-primary {
+            background: linear-gradient(160deg, #9b7a4a 0%, #7a5a30 100%);
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(120, 90, 50, 0.18);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-default);
+            color: var(--text-secondary);
+            padding: 10px 18px;
+            border-radius: var(--radius-sm);
+        }
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.07);
+            border-color: var(--border-strong);
+            color: var(--text-primary);
+        }
+        body.light-theme .btn-secondary {
+            background: rgba(0, 0, 0, 0.02);
+            border-color: var(--border-default);
+            color: var(--text-secondary);
+        }
+        body.light-theme .btn-secondary:hover {
+            background: rgba(0, 0, 0, 0.04);
+            color: var(--text-primary);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            border: 1px solid var(--border-subtle);
+            color: var(--text-muted);
+            padding: 9px 16px;
+            border-radius: var(--radius-sm);
+        }
+        .btn-ghost:hover {
+            border-color: var(--border-default);
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .btn-danger {
+            background: rgba(200, 100, 100, 0.12);
+            border: 1px solid rgba(200, 100, 100, 0.2);
+            color: #d4a0a0;
+            padding: 9px 16px;
+            border-radius: var(--radius-sm);
+        }
+        .btn-danger:hover {
+            background: rgba(200, 100, 100, 0.2);
+            color: #e8b8b8;
+            border-color: rgba(200, 100, 100, 0.35);
+        }
+
+        .btn-active {
+            background: linear-gradient(160deg, rgba(180, 150, 110, 0.25), rgba(140, 110, 60, 0.18));
+            border: 1px solid var(--border-accent);
+            color: var(--text-accent);
+            padding: 9px 16px;
+            border-radius: var(--radius-sm);
+            box-shadow: 0 0 0 1px rgba(180, 150, 110, 0.08);
+        }
+
+        .btn-xs {
+            padding: 6px 10px;
+            font-size: 0.78rem;
+            border-radius: var(--radius-xs);
+        }
+
+        /* ── Layout Grid ──────────── */
+        .layout-2col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .layout-3col {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 16px;
+        }
+        .layout-4col {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        /* ── Cards ────────────────── */
+        .card {
+            background: var(--bg-glass);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-xl);
+            padding: 24px 26px;
+            box-shadow: var(--shadow-sm);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            transition: border-color var(--transition-smooth), box-shadow var(--transition-smooth), transform var(--transition-smooth);
+            position: relative;
+            overflow: hidden;
+        }
+        .card:hover {
+            border-color: var(--border-strong);
+            box-shadow: var(--shadow-md);
+        }
+        .card-accent-top {
+            border-top: 2px solid transparent;
+            transition: border-top-color var(--transition-smooth);
+        }
+        .card-accent-top:hover {
+            border-top-color: var(--border-accent);
+        }
+        .card-sticky {
+            position: sticky;
+            top: 28px;
+            align-self: start;
+        }
+        .card-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 14px;
+            margin-bottom: 14px;
+        }
+        .card-header h2,
+        .card-header h3 {
+            margin: 0;
+            line-height: 1.15;
+            letter-spacing: -0.03em;
+            font-weight: 700;
+            font-size: 1.12rem;
+        }
+        .card-header h3 {
+            font-size: 1rem;
+        }
+        .card-title-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .card-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--accent-dim);
+            flex-shrink: 0;
+        }
+        .card-icon svg {
+            width: 16px;
+            height: 16px;
+            stroke: var(--text-accent);
+            fill: none;
+            stroke-width: 1.8;
+        }
+        .card-subtitle {
+            color: var(--text-muted);
+            font-size: 0.82rem;
+            margin: 0;
+            line-height: 1.4;
+        }
+        .card-pill-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 5px 10px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        /* ── Sub Cards ────────────── */
+        .subcard {
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-subtle);
+            background: rgba(255, 255, 255, 0.015);
+            padding: 16px 18px;
+            margin-top: 12px;
+            transition: border-color var(--transition-fast);
+        }
+        .subcard:hover {
+            border-color: var(--border-default);
+        }
+        .subcard-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+            font-weight: 600;
+            font-size: 0.88rem;
+            letter-spacing: -0.02em;
+            color: var(--text-secondary);
+        }
+        .subcard-title svg {
+            width: 14px;
+            height: 14px;
+            stroke: var(--text-muted);
+            fill: none;
+            stroke-width: 1.8;
+        }
+
+        /* ── Form Elements ────────── */
+        input,
+        textarea,
+        select {
+            width: 100%;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-default);
+            background: rgba(0, 0, 0, 0.25);
+            color: var(--text-primary);
+            padding: 12px 14px;
+            outline: none;
+            font-family: var(--font-sans);
+            font-size: 0.9rem;
+            letter-spacing: -0.01em;
+            transition: all var(--transition-fast);
+        }
+        body.light-theme input,
+        body.light-theme textarea,
+        body.light-theme select {
+            background: rgba(0, 0, 0, 0.02);
+            border-color: var(--border-default);
+        }
+        input:focus,
+        textarea:focus,
+        select:focus {
+            border-color: var(--border-accent);
+            box-shadow: 0 0 0 4px var(--accent-dim);
+        }
+        textarea {
+            min-height: 90px;
+            resize: vertical;
+            font-size: 0.88rem;
+        }
+        label {
+            display: block;
+            font-size: 0.82rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+            letter-spacing: -0.01em;
+        }
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        /* ── Stats / Metrics ──────── */
+        .stat-card {
+            padding: 18px 16px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-subtle);
+            background: rgba(255, 255, 255, 0.015);
+            text-align: center;
+            transition: all var(--transition-smooth);
+        }
+        .stat-card:hover {
+            border-color: var(--border-default);
+            background: rgba(255, 255, 255, 0.03);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+        .stat-card .stat-value {
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            line-height: 1.1;
+            color: var(--text-primary);
+        }
+        .stat-card .stat-label {
+            margin-top: 4px;
+            color: var(--text-muted);
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+        }
+
+        .metric-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 14px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-subtle);
+            background: rgba(255, 255, 255, 0.01);
+            margin-top: 8px;
+        }
+        .metric-row .metric-label {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+        .metric-row .metric-val {
+            font-weight: 700;
+            font-size: 0.92rem;
+            letter-spacing: -0.02em;
+            color: var(--text-primary);
+        }
+
+        /* ── Todo List ────────────── */
+        .todo-list {
+            display: grid;
+            gap: 8px;
+            margin-top: 14px;
+        }
+        .todo-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 13px 15px;
+            border-radius: var(--radius-md);
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-subtle);
+            transition: all var(--transition-fast);
+        }
+        .todo-item:hover {
+            border-color: var(--border-default);
+            background: rgba(255, 255, 255, 0.04);
+        }
+        .todo-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+            flex: 1;
+        }
+        .todo-done {
+            text-decoration: line-through;
+            color: var(--text-muted);
+            opacity: 0.6;
+        }
+        .todo-status {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        /* ── Route Box ────────────── */
+        .route-box {
+            margin-top: 10px;
+            padding: 14px 18px;
+            border-radius: var(--radius-md);
+            background: var(--accent-dim);
+            border: 1px solid var(--border-accent);
+            color: var(--text-accent);
+            font-size: 0.88rem;
+            font-weight: 500;
+            letter-spacing: -0.01em;
+        }
+
+        /* ── Snippet / Code ───────── */
+        .snippet-block {
+            margin: 12px 0 0;
+            padding: 16px 18px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            color: #c8bfb0;
+            overflow: auto;
+            white-space: pre;
+            font-size: 0.8rem;
+            line-height: 1.7;
+            font-family: var(--font-mono);
+            letter-spacing: -0.01em;
+        }
+        body.light-theme .snippet-block {
+            background: rgba(0, 0, 0, 0.025);
+            color: #4a3f30;
+        }
+        .code-label {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 6px;
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            font-weight: 600;
+        }
+        .code-label .code-tag {
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: var(--accent-dim);
+            border: 1px solid var(--border-accent);
+            color: var(--text-accent);
+            font-size: 10px;
+            letter-spacing: 0.02em;
+        }
+
+        /* ── Chips / Tags ─────────── */
+        .soft-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 11px;
+            margin: 3px 4px 3px 0;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-secondary);
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: -0.01em;
+            transition: all var(--transition-fast);
+        }
+        .soft-chip:hover {
+            border-color: var(--border-default);
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        /* ── Divider ──────────────── */
+        .divider {
+            height: 1px;
+            background: var(--border-subtle);
+            margin: 18px 0;
+        }
+
+        /* ── Flex Utilities ───────── */
+        .flex-between {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .flex-wrap-gap {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .gap-8 {
+            gap: 8px;
+        }
+        .gap-12 {
+            gap: 12px;
+        }
+        .mt-2 {
+            margin-top: 8px;
+        }
+        .mt-3 {
+            margin-top: 12px;
+        }
+        .mt-4 {
+            margin-top: 16px;
+        }
+        .mt-5 {
+            margin-top: 20px;
+        }
+        .mb-2 {
+            margin-bottom: 8px;
+        }
+        .mb-3 {
+            margin-bottom: 12px;
+        }
+        .text-muted {
+            color: var(--text-muted);
+            font-size: 0.84rem;
+        }
+        .text-secondary {
+            color: var(--text-secondary);
+        }
+        .text-accent {
+            color: var(--text-accent);
+        }
+        .text-sm {
+            font-size: 0.82rem;
+        }
+        .fw-600 {
+            font-weight: 600;
+        }
+        .fw-700 {
+            font-weight: 700;
+        }
+        .fw-800 {
+            font-weight: 800;
+        }
+
+        /* ── Overview chips ───────── */
+        .overview-chip {
+            padding: 16px 18px;
+            border-radius: var(--radius-md);
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-subtle);
+            transition: all var(--transition-smooth);
+        }
+        .overview-chip:hover {
+            border-color: var(--border-default);
+            background: rgba(255, 255, 255, 0.04);
+            transform: translateY(-1px);
+        }
+        .overview-chip .ov-name {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+        .overview-chip .ov-val {
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            color: var(--text-primary);
+        }
+
+        /* ── Footer ───────────────── */
+        .footer-strip {
+            margin-top: 22px;
+            text-align: center;
+            padding: 28px 20px;
+            border-radius: var(--radius-xl);
+            background: var(--bg-glass);
+            border: 1px solid var(--border-subtle);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .footer-strip .badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 14px;
+        }
+        .footer-strip .footer-text {
+            color: var(--text-muted);
+            font-size: 0.84rem;
+            margin: 0;
+            max-width: 55ch;
+            margin-inline: auto;
+        }
+        .footer-strip .footer-note {
+            color: var(--text-muted);
+            font-size: 0.76rem;
+            margin-top: 8px;
+            opacity: 0.7;
+        }
+
+        /* ── Doc list ─────────────── */
+        .doc-list {
+            margin: 0;
+            padding-left: 18px;
+            list-style: none;
+        }
+        .doc-list li {
+            margin: 7px 0;
+            color: var(--text-secondary);
+            font-size: 0.88rem;
+            position: relative;
+            padding-left: 16px;
+            letter-spacing: -0.01em;
+        }
+        .doc-list li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 8px;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: var(--accent-soft);
+            opacity: 0.6;
+        }
+
+        .feature-list {
+            margin: 0;
+            padding-left: 0;
+            list-style: none;
+        }
+        .feature-list li {
+            margin: 6px 0;
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            background: rgba(255, 255, 255, 0.015);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-secondary);
+            font-size: 0.86rem;
+            letter-spacing: -0.01em;
+            transition: all var(--transition-fast);
+        }
+        .feature-list li:hover {
+            border-color: var(--border-default);
+            background: rgba(255, 255, 255, 0.03);
+        }
+        .feature-list li::before {
+            content: '—';
+            color: var(--text-accent);
+            margin-right: 8px;
+            font-weight: 600;
+        }
+
+        /* ── Responsive ───────────── */
+        @media (max-width: 500px) {
+            .hero-inner,
+            .layout-2col,
+            .layout-3col,
+            .layout-4col {
+                grid-template-columns: 1fr;
+            }
+            .shell {
+                padding: 20px 14px 40px;
+            }
+            .hero {
+                padding: 24px 20px;
+            }
+            .hero h1 {
+                font-size: clamp(1.8rem, 7vw, 3rem);
+            }
+            .card-sticky {
+                position: static;
+            }
+        }
+    </style>
+</head>
+<body raa-core:app="showcaseApp" raa-bind:class="themeClass()" raa-eco:persist="raa_showcase_state_v2" raa-eco:router>
+
+    <div class="shell">
+        <main>
+            <!-- ═══════════ 1. HERO ═══════════ -->
+            <section class="hero">
+                <div class="hero-inner">
+                    <div>
+                        <div class="hero-kicker">
+                            <span class="kicker-dot"></span> Micro Reactive Runtime
+                        </div>
+                        <h1 raa-bind:text="brand.name"></h1>
+                        <p class="hero-tagline" raa-bind:text="brand.slogan"></p>
+                        <p class="hero-desc">
+                            RaaJS hadir di ruang tengah antara AlpineJS dan VanillaJS: ringan, deklaratif,
+                            dan tetap bersahabat untuk aplikasi mandiri. Tanpa build step, tanpa virtual DOM,
+                            sepenuhnya CSP-aware.
+                        </p>
+                        <div class="hero-pills">
+                            <span class="pill-accent">Standalone</span>
+                            <span class="pill-accent">No build</span>
+                            <span class="pill-accent">CSP-aware</span>
+                            <span class="pill-subtle">Method-driven mutation</span>
+                            <span class="pill-subtle">HTML-first runtime</span>
+                        </div>
+                    </div>
+                    <div class="hero-stat-card">
+                        <div class="stat-label">Live Counter</div>
+                        <div class="stat-value" raa-bind:text="counter"></div>
+                        <div class="stat-label" raa-bind:text="status" style="text-transform:none;letter-spacing:-0.01em;"></div>
+                        <div class="stat-actions">
+                            <button class="btn-primary btn-xs" raa-on:click="incCounter()">+</button>
+                            <button class="btn-secondary btn-xs" raa-on:click="decCounter()">−</button>
+                            <button class="btn-ghost btn-xs" raa-on:click="resetCounter()">Reset</button>
+                            <button class="btn-ghost btn-xs" raa-on:click="toggleDark()">Tema</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="layout-4col mt-5">
+                    <div class="overview-chip">
+                        <div class="ov-name">Current Theme</div>
+                        <div class="ov-val" raa-bind:text="dark ? 'Dark' : 'Light'"></div>
+                    </div>
+                    <div class="overview-chip">
+                        <div class="ov-name">Todo Count</div>
+                        <div class="ov-val" raa-bind:text="todos.length"></div>
+                    </div>
+                    <div class="overview-chip">
+                        <div class="ov-name">Nested Score</div>
+                        <div class="ov-val" raa-bind:text="nested.score"></div>
+                    </div>
+                    <div class="overview-chip">
+                        <div class="ov-name">UI State</div>
+                        <div class="ov-val" raa-bind:text="visible ? 'Visible' : 'Hidden'"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ═══════════ 2. DEMO DASAR ═══════════ -->
+            <div class="layout-2col">
+                <!-- Interaction Card -->
+                <section class="card card-accent-top">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title-row">
+                                <div class="card-icon">
+                                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M1 12h4M19 12h4"/></svg>
+                                </div>
+                                <h2>Interaksi Dasar</h2>
+                            </div>
+                            <p class="card-subtitle">Text binding, show/if, dan HTML binding dengan sanitasi.</p>
+                        </div>
+                        <span class="card-pill-tag">Core UI</span>
+                    </div>
+                    <div class="subcard">
+                        <div class="subcard-title">
+                            <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            Visibility Control
+                        </div>
+                        <button class="btn-secondary" raa-on:click="toggleVisible()">Toggle Visibility</button>
+                        <div raa-flow:show="visible" class="route-box">
+                            Blok ini dikendalikan oleh <code>raa-flow:show</code>
+                        </div>
+                        <template raa-flow:if="visible">
+                            <div class="route-box">
+                                <code>raa-flow:if</code> — hanya dirender saat kondisi true.
+                            </div>
+                        </template>
+                    </div>
+                    <div class="subcard">
+                        <div class="subcard-title">
+                            <svg viewBox="0 0 24 24"><polyline points="4 7 12 3 20 7"/><polyline points="4 12 12 8 20 12"/><line x1="4" y1="17" x2="12" y2="13"/><line x1="20" y1="17" x2="12" y2="13"/></svg>
+                            HTML Binding + Sanitasi
+                        </div>
+                        <textarea raa-bind:model="htmlSource" placeholder="Ketik HTML di sini..."></textarea>
+                        <div class="route-box" raa-bind:html="htmlSource"></div>
+                    </div>
+                    <div class="code-label mt-4"><span>Snippet</span><span class="code-tag">Beginner</span></div>
+                    <pre class="snippet-block">&lt;button raa-on:click="toggleVisible()"&gt;Toggle&lt;/button&gt;
+
+&lt;div raa-flow:show="visible"&gt;...&lt;/div&gt;
+&lt;textarea raa-bind:model="htmlSource"&gt;&lt;/textarea&gt;
+&lt;div raa-bind:html="htmlSource"&gt;&lt;/div&gt;</pre>
+                </section>
+
+                <!-- Two-way Binding -->
+                <section class="card card-accent-top">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title-row">
+                                <div class="card-icon">
+                                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="12" y1="8" x2="12" y2="16"/></svg>
+                                </div>
+                                <h2>Two-way Binding</h2>
+                            </div>
+                            <p class="card-subtitle">Form, select, textarea, dan data state hidup bersama.</p>
+                        </div>
+                        <span class="card-pill-tag">raa-bind:model</span>
+                    </div>
+                    <div class="subcard">
+                        <div class="form-group"><label>Nama Proyek</label>
+                            <input raa-bind:model="projectName" placeholder="Nama proyek" />
+                        </div>
+                        <div class="form-group"><label>Framework</label>
+                            <select raa-bind:model="selected">
+                                <option>RaaJS</option>
+                                <option>Vanilla JS</option>
+                                <option>AlpineJS</option>
+                                <option>Vue-like runtime</option>
+                            </select>
+                        </div>
+                        <div class="form-group"><label>Catatan</label>
+                            <textarea raa-bind:model="projectNote" placeholder="Catatan proyek"></textarea>
+                        </div>
+                        <button class="btn-secondary" raa-on:click="appendTag()">+ Tambah Tag</button>
+                        <div class="mt-3">
+                            <template raa-flow:for="tag in nested.tags" raa-key="tag">
+                                <span class="soft-chip" raa-bind:text="tag"></span>
+                            </template>
+                        </div>
+                    </div>
+                    <div class="code-label mt-4"><span>Snippet</span><span class="code-tag">Form</span></div>
+                    <pre class="snippet-block">&lt;input raa-bind:model="projectName" /&gt;
+&lt;select raa-bind:model="selected"&gt;...&lt;/select&gt;
+&lt;textarea raa-bind:model="projectNote"&gt;&lt;/textarea&gt;</pre>
+                </section>
+            </div>
+
+            <!-- Todo List (Full Width) -->
+            <section class="card card-accent-top mt-4">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title-row">
+                            <div class="card-icon">
+                                <svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                            </div>
+                            <h2>Todo List</h2>
+                        </div>
+                        <p class="card-subtitle">List rendering dengan reuse key dan mutasi lewat method JS.</p>
+                    </div>
+                    <span class="card-pill-tag">raa-flow:for</span>
+                </div>
+                <div class="flex-between mb-3">
+                    <input raa-bind:model="todoInput" placeholder="Tugas baru..." style="flex:1; min-width:180px;" />
+                    <button class="btn-primary" raa-on:click="addTodo()">Tambah</button>
+                    <button class="btn-secondary" raa-on:click="sortTodos()">Sortir</button>
+                    <button class="btn-ghost" raa-on:click="clearCompleted()">Hapus Selesai</button>
+                </div>
+                <div class="todo-list">
+                    <template raa-flow:for="todo in todos" raa-key="todo.id">
+                        <div class="todo-item">
+                            <div class="todo-left">
+                                <button class="btn-ghost btn-xs" raa-on:click="toggleTodo(todo.id)" style="padding:5px 7px;">◉</button>
+                                <div>
+                                    <div raa-bind:class="todoClass(todo.done)" raa-bind:text="todo.text" style="font-size:0.9rem;"></div>
+                                    <div class="todo-status" raa-bind:text="todo.done ? 'Completed' : 'Pending'"></div>
+                                </div>
+                            </div>
+                            <div class="flex-wrap-gap gap-8">
+                                <button class="btn-ghost btn-xs" raa-on:click="moveUp(todo.id)">↑</button>
+                                <button class="btn-ghost btn-xs" raa-on:click="moveDown(todo.id)">↓</button>
+                                <button class="btn-danger btn-xs" raa-on:click="removeTodo(todo.id)">Hapus</button>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+                <div class="code-label mt-4"><span>Snippet</span><span class="code-tag">List</span></div>
+                <pre class="snippet-block">&lt;template raa-flow:for="todo in todos"
+  raa-key="todo.id"&gt;
+  &lt;span raa-bind:text="todo.text"&gt;&lt;/span&gt;
+&lt;/template&gt;</pre>
+            </section>
+
+            <!-- ═══════════ 3. DEMO LANJUTAN ═══════════ -->
+            <div class="layout-2col">
+                <!-- Nested Reactivity -->
+                <section class="card card-accent-top">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title-row">
+                                <div class="card-icon">
+                                    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                                </div>
+                                <h2>Nested Reactivity</h2>
+                            </div>
+                            <p class="card-subtitle">Object graph yang tetap reaktif saat dimutasi dari method.</p>
+                        </div>
+                        <span class="card-pill-tag">Nested graph</span>
+                    </div>
+                    <div class="subcard">
+                        <p class="fw-600 mb-2" raa-bind:text="nested.title"></p>
+                        <p class="text-sm text-secondary">Owner: <span raa-bind:text="nested.owner" class="text-accent fw-600"></span></p>
+                        <p class="text-sm text-secondary">Score: <strong raa-bind:text="nested.score" class="fw-800"></strong></p>
+                        <div class="flex-wrap-gap gap-8 mt-3">
+                            <button class="btn-primary btn-xs" raa-on:click="bumpScore()">+1 Score</button>
+                            <button class="btn-secondary btn-xs" raa-on:click="renameOwner()">Ganti Owner</button>
+                        </div>
+                        <div class="mt-3">
+                            <template raa-flow:for="tag in nested.tags" raa-key="tag">
+                                <span class="soft-chip" raa-bind:text="tag"></span>
+                            </template>
+                        </div>
+                    </div>
+                    <div class="code-label mt-4"><span>Snippet</span><span class="code-tag">Nested</span></div>
+                    <pre class="snippet-block">&lt;strong raa-bind:text="nested.title"&gt;&lt;/strong&gt;
+&lt;button raa-on:click="bumpScore()"&gt;+1&lt;/button&gt;
+&lt;template raa-flow:for="tag in nested.tags"
+  raa-key="tag"&gt;...&lt;/template&gt;</pre>
+                </section>
+
+                <!-- Navigasi Halaman (Router) -->
+                <section class="card card-accent-top">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title-row">
+                                <div class="card-icon">
+                                    <svg viewBox="0 0 24 24"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 0-8 8c0 5.4 8 12 8 12s8-6.6 8-12a8 8 0 0 0-8-8z"/></svg>
+                                </div>
+                                <h2>Navigasi Halaman</h2>
+                            </div>
+                            <p class="card-subtitle">Router hash internal dengan konten interaktif. RaaJS mendukung <strong>client-side routing</strong> tanpa library tambahan.</p>
+                        </div>
+                        <span class="card-pill-tag">raa-eco:route</span>
+                    </div>
+
+                    <div class="flex-wrap-gap gap-8 mb-3">
+                        <button class="btn-ghost btn-xs" onclick="location.hash='/'">Home</button>
+                        <button class="btn-ghost btn-xs" onclick="location.hash='/about'">About</button>
+                        <button class="btn-ghost btn-xs" onclick="location.hash='/contact'">Contact</button>
+                    </div>
+
+                    <!-- Home Route -->
+                    <div raa-eco:route="/" class="route-box" style="background:var(--accent-dim); border-color:var(--border-accent);">
+                        <h3 style="margin:0 0 8px;">🏠 Selamat Datang di RaaJS Showcase</h3>
+                        <p style="margin:0 0 12px;">Halaman ini mendemonstrasikan kemampuan reaktivitas RaaJS secara langsung. Semua data di bawah ini terhubung dengan state dan akan berubah secara real-time.</p>
+                        <div class="metric-row">
+                            <span class="metric-label">Counter saat ini</span>
+                            <span class="metric-val" raa-bind:text="counter"></span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Tema aktif</span>
+                            <span class="metric-val" raa-bind:text="dark ? 'Gelap' : 'Terang'"></span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Status visibilitas</span>
+                            <span class="metric-val" raa-bind:text="visible ? 'Terlihat' : 'Tersembunyi'"></span>
+                        </div>
+                        <div class="flex-wrap-gap gap-8 mt-3">
+                            <button class="btn-primary btn-xs" raa-on:click="incCounter()">➕ Tambah Counter</button>
+                            <button class="btn-secondary btn-xs" raa-on:click="toggleVisible()">Toggle Visibility</button>
+                        </div>
+                    </div>
+
+                    <!-- About Route -->
+                    <div raa-eco:route="/about" class="route-box">
+                        <h3 style="margin:0 0 8px;">📖 Tentang RaaJS</h3>
+                        <p style="margin:0 0 10px;">RaaJS adalah <strong class="text-accent">micro reactive runtime</strong> yang menjembatani kesederhanaan AlpineJS dan fleksibilitas VanillaJS. Dibangun dengan filosofi HTML-first, tidak memerlukan build step, dan sepenuhnya CSP-aware.</p>
+                        <ul class="doc-list" style="margin:0 0 10px;">
+                            <li>State dan method didefinisikan dalam <code>RaaJS.define()</code>.</li>
+                            <li>Method-driven mutation: event memanggil method JavaScript murni.</li>
+                            <li>Parser ekspresi aman tanpa <code>eval</code> atau <code>new Function</code>.</li>
+                            <li>Ukuran sangat kecil: ~9 KB gzipped.</li>
+                            <li>Dukungan router hash, persistence, dan real DOM.</li>
+                        </ul>
+                        <p class="text-sm text-muted">Cocok untuk proyek kecil hingga menengah yang menginginkan reaktivitas deklaratif tanpa beban framework besar.</p>
+                        <div class="code-label mt-3"><span>Contoh deklarasi</span></div>
+                        <pre class="snippet-block" style="margin-top:6px;">&lt;body raa-core:app="myApp"&gt;
+  &lt;button raa-on:click="increment()"&gt;+&lt;/button&gt;
+  &lt;span raa-bind:text="count"&gt;&lt;/span&gt;
+&lt;/body&gt;</pre>
+                    </div>
+
+                    <!-- Contact Route -->
+                    <div raa-eco:route="/contact" class="route-box">
+                        <h3 style="margin:0 0 8px;">📧 Hubungi Kami</h3>
+                        <template raa-flow:if="!contactSubmitted">
+                            <div class="form-group">
+                                <label>Nama</label>
+                                <input raa-bind:model="contactName" placeholder="Nama Anda">
+                            </div>
+                            <div class="form-group">
+                                <label>Pesan</label>
+                                <textarea raa-bind:model="contactMessage" placeholder="Tulis pesan..."></textarea>
+                            </div>
+                            <button class="btn-primary" raa-on:click="submitContact()">Kirim Pesan</button>
+                        </template>
+                        <template raa-flow:if="contactSubmitted">
+                            <div class="subcard" style="margin-top:0;">
+                                <p class="fw-600 text-accent" style="margin:0 0 8px;">✅ Pesan terkirim!</p>
+                                <p class="text-sm" style="margin:0 0 8px;">Terima kasih, <strong raa-bind:text="contactName"></strong>. Kami akan merespon segera.</p>
+                                <button class="btn-secondary btn-xs" raa-on:click="resetContact()">Kirim lagi</button>
+                            </div>
+                        </template>
+                        <p class="text-sm text-muted mt-3">Form ini menggunakan two-way binding dan conditional rendering.</p>
+                    </div>
+
+                    <div class="code-label mt-4"><span>Snippet</span><span class="code-tag">Router</span></div>
+                    <pre class="snippet-block">&lt;div raa-eco:route="/"&gt;Konten Home&lt;/div&gt;
+&lt;div raa-eco:route="/about"&gt;Tentang&lt;/div&gt;
+&lt;div raa-eco:route="/contact"&gt;
+  &lt;input raa-bind:model="contactName" /&gt;
+  &lt;button raa-on:click="submitContact()"&gt;
+    Kirim
+  &lt;/button&gt;
+&lt;/div&gt;</pre>
+                </section>
+            </div>
+
+            <!-- Loading + Disabled & Statistics -->
+            <div class="layout-2col">
+                <section class="card card-accent-top">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title-row">
+                                <div class="card-icon">
+                                    <svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="8" cy="12" r="2"/></svg>
+                                </div>
+                                <h2>Loading + Disabled States</h2>
+                            </div>
+                            <p class="card-subtitle">UI yang mengikuti status loading dari state.</p>
+                        </div>
+                        <span class="card-pill-tag">UX directives</span>
+                    </div>
+                    <p class="text-muted text-sm">Tombol dikendalikan state loading, cocok untuk operasi simpan atau proses async.</p>
+                    <div class="flex-wrap-gap gap-8 mt-3">
+                        <button raa-ux:loading="loading" raa-ux:disable="loading" raa-on:click="toggleLoading()" class="btn-primary">Toggle Loading</button>
+                        <button class="btn-secondary" raa-on:click="simulateSave()">Simulate Save</button>
+                    </div>
+                    <div class="route-box mt-3">
+                        <p class="m-0">Status aplikasi: <strong raa-bind:text="loading ? 'Loading...' : 'Idle'"></strong></p>
+                        <p class="text-sm text-muted m-0 mt-2">UI mengikuti state tanpa build step.</p>
+                    </div>
+                    <div class="code-label mt-4"><span>Snippet</span><span class="code-tag">UX</span></div>
+                    <pre class="snippet-block">&lt;button raa-ux:loading="loading"
+  raa-ux:disable="loading"
+  raa-on:click="toggleLoading()"&gt;
+  Toggle Loading
+&lt;/button&gt;</pre>
+                </section>
+
+                <section class="card card-accent-top">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title-row">
+                                <div class="card-icon">
+                                    <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                                </div>
+                                <h2>Looped Statistics</h2>
+                            </div>
+                            <p class="card-subtitle">Read-only cards untuk metrik ringkas.</p>
+                        </div>
+                        <span class="card-pill-tag">Summary</span>
+                    </div>
+                    <div class="layout-3col">
+                        <template raa-flow:for="stat in stats" raa-key="stat.label">
+                            <div class="stat-card">
+                                <div class="stat-value" raa-bind:text="stat.value"></div>
+                                <div class="stat-label" raa-bind:text="stat.label"></div>
+                            </div>
+                        </template>
+                    </div>
+                    <div class="divider"></div>
+                    <template raa-flow:for="metric in metrics" raa-key="metric.label">
+                        <div class="metric-row">
+                            <span class="metric-label" raa-bind:text="metric.label"></span>
+                            <span class="metric-val" raa-bind:text="metric.value"></span>
+                        </div>
+                    </template>
+                    <div class="code-label mt-4"><span>Snippet</span><span class="code-tag">Stats</span></div>
+                    <pre class="snippet-block">&lt;template raa-flow:for="stat in stats"
+  raa-key="stat.label"&gt;
+  &lt;div raa-bind:text="stat.value"&gt;&lt;/div&gt;
+&lt;/template&gt;</pre>
+                </section>
+            </div>
+
+            <!-- ═══════════ 4. BUKTI KEUNGGULAN ═══════════ -->
+            <!-- Browser Support Matrix -->
+            <section class="card card-accent-top mt-4">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title-row">
+                            <div class="card-icon">
+                                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                            </div>
+                            <h2>Browser Support Matrix</h2>
+                        </div>
+                        <p class="card-subtitle">"Mesin yang bagus, juga butuh jalan mulus." RaaJS hanya berlari di browser modern yang mendukung ES6+ secara native.</p>
+                    </div>
+                    <span class="card-pill-tag">Modern Only</span>
+                </div>
+
+                <div class="layout-4col">
+                    <div class="stat-card">
+                        <div class="stat-value" style="font-size:1.3rem;">Chrome</div>
+                        <div class="stat-label">Versi 49+</div>
+                        <span class="soft-chip" style="margin-top:6px;">✅ Didukung</span>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" style="font-size:1.3rem;">Firefox</div>
+                        <div class="stat-label">Versi 18+</div>
+                        <span class="soft-chip" style="margin-top:6px;">✅ Didukung</span>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" style="font-size:1.3rem;">Safari</div>
+                        <div class="stat-label">Versi 10+ (iOS)</div>
+                        <span class="soft-chip" style="margin-top:6px;">✅ Didukung</span>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" style="font-size:1.3rem;">Edge / Opera</div>
+                        <div class="stat-label">Edge 49+, Opera 36+</div>
+                        <span class="soft-chip" style="margin-top:6px;">✅ Didukung</span>
+                    </div>
+                </div>
+
+                <div class="route-box mt-3" style="background:rgba(200,126,126,0.08); border-color:rgba(200,126,126,0.2);">
+                    <p style="margin:0;font-weight:600;color:#d4a0a0;">⛔ Internet Explorer — TIDAK DIDUKUNG</p>
+                    <p class="text-sm text-muted mt-2" style="color:#c0a0a0;">IE tidak memiliki dukungan <code>Proxy</code>. RaaJS memilih tidak menggunakan polyfill berat demi menjaga ukuran "sepeda karbon" tetap ringan dan performa tetap tinggi. <strong>Saatnya move on.</strong></p>
+                </div>
+
+                <div class="subcard mt-3">
+                    <div class="subcard-title">
+                        <svg viewBox="0 0 24 24"><polyline points="4 7 12 3 20 7"/><polyline points="4 12 12 8 20 12"/><line x1="4" y1="17" x2="12" y2="13"/><line x1="20" y1="17" x2="12" y2="13"/></svg>
+                        Teknologi Andalan yang Dipakai
+                    </div>
+                    <ul class="doc-list">
+                        <li><strong>JavaScript Proxy</strong> — Jantung reaktivitas, memantau setiap perubahan state tanpa getter/setter manual.</li>
+                        <li><strong>MutationObserver</strong> — Mengawasi DOM tree secara efisien untuk directive seperti <code>raa-ux:lazy</code>.</li>
+                        <li><strong>IntersectionObserver</strong> — Mendeteksi elemen masuk viewport, kunci fitur lazy loading dan animasi scroll.</li>
+                    </ul>
+                    <p class="text-sm text-muted mt-2">Kombinasi ini membuat RaaJS bisa <strong>zero build</strong> tapi tetap berkemampuan tinggi — tanpa menyentuh polyfill usang.</p>
+                </div>
+            </section>
+
+            <!-- Perbandingan Framework -->
+            <section class="card card-accent-top mt-4">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title-row">
+                            <div class="card-icon">
+                                <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                            </div>
+                            <h2>RaaJS vs. The World</h2>
+                        </div>
+                        <p class="card-subtitle">Di mana posisi "Sepeda Balap Karbon" kita di antara "Kapal Perang" dan "Lari Telanjang"?</p>
+                    </div>
+                    <span class="card-pill-tag">Comparison</span>
+                </div>
+
+                <div style="overflow-x:auto;">
+                    <table style="width:100%;border-collapse:collapse;font-size:0.85rem;">
+                        <thead>
+                            <tr style="border-bottom:1px solid var(--border-default);text-align:left;">
+                                <th style="padding:10px 12px;color:var(--text-accent);font-weight:600;">Fitur</th>
+                                <th style="padding:10px 12px;color:var(--text-accent);font-weight:600;">RaaJS v2.2 🚲</th>
+                                <th style="padding:10px 12px;color:var(--text-accent);font-weight:600;">AlpineJS 🛵</th>
+                                <th style="padding:10px 12px;color:var(--text-accent);font-weight:600;">Vanilla JS 🏃‍♂️</th>
+                                <th style="padding:10px 12px;color:var(--text-accent);font-weight:600;">Vue/React 🚢</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-bottom:1px solid var(--border-subtle);">
+                                <td style="padding:10px 12px;font-weight:600;">Paradigma</td>
+                                <td style="padding:10px 12px;">HTML-First</td>
+                                <td style="padding:10px 12px;">HTML-First</td>
+                                <td style="padding:10px 12px;">Imperatif (Manual)</td>
+                                <td style="padding:10px 12px;">JS-First (V-DOM)</td>
+                            </tr>
+                            <tr style="border-bottom:1px solid var(--border-subtle);">
+                                <td style="padding:10px 12px;font-weight:600;">Build Step</td>
+                                <td style="padding:10px 12px;color:var(--green-soft);font-weight:600;">Zero Build</td>
+                                <td style="padding:10px 12px;color:var(--green-soft);font-weight:600;">Zero Build</td>
+                                <td style="padding:10px 12px;">None</td>
+                                <td style="padding:10px 12px;color:#c87e7e;">Wajib (Vite/Webpack)</td>
+                            </tr>
+                            <tr style="border-bottom:1px solid var(--border-subtle);">
+                                <td style="padding:10px 12px;font-weight:600;">Reaktivitas</td>
+                                <td style="padding:10px 12px;">Proxy-based (Smart)</td>
+                                <td style="padding:10px 12px;">Proxy-based</td>
+                                <td style="padding:10px 12px;color:#c87e7e;">Nggak Ada</td>
+                                <td style="padding:10px 12px;">V-DOM / Proxy</td>
+                            </tr>
+                            <tr style="border-bottom:1px solid var(--border-subtle);">
+                                <td style="padding:10px 12px;font-weight:600;">Ukuran</td>
+                                <td style="padding:10px 12px;color:var(--text-accent);font-weight:700;">Micro (< 10KB)</td>
+                                <td style="padding:10px 12px;">Kecil (~15KB)</td>
+                                <td style="padding:10px 12px;">0KB</td>
+                                <td style="padding:10px 12px;color:#c87e7e;">Besar (50KB+)</td>
+                            </tr>
+                            <tr style="border-bottom:1px solid var(--border-subtle);">
+                                <td style="padding:10px 12px;font-weight:600;">Arsitektur</td>
+                                <td style="padding:10px 12px;color:var(--text-accent);font-weight:600;">Island Architecture</td>
+                                <td style="padding:10px 12px;">Global / Component</td>
+                                <td style="padding:10px 12px;">Bebas (Tapi Capek)</td>
+                                <td style="padding:10px 12px;">Component-based</td>
+                            </tr>
+                            <tr style="border-bottom:1px solid var(--border-subtle);">
+                                <td style="padding:10px 12px;font-weight:600;">XSS Protection</td>
+                                <td style="padding:10px 12px;color:var(--green-soft);font-weight:600;">Built-in Sanitasi</td>
+                                <td style="padding:10px 12px;">Terbatas</td>
+                                <td style="padding:10px 12px;color:#c87e7e;">Harus Manual</td>
+                                <td style="padding:10px 12px;">Sangat Kuat</td>
+                            </tr>
+                            <tr>
+                                <td style="padding:10px 12px;font-weight:600;">Learning Curve</td>
+                                <td style="padding:10px 12px;color:var(--green-soft);font-weight:600;">Sangat Rendah</td>
+                                <td style="padding:10px 12px;">Rendah</td>
+                                <td style="padding:10px 12px;color:#c87e7e;">Tinggi (Boilerplate)</td>
+                                <td style="padding:10px 12px;">Menengah-Tinggi</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="subcard mt-4">
+                    <div class="subcard-title">
+                        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                        Analogi Filosofis
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label"><strong>RaaJS vs. Vanilla JS</strong></span>
+                        <span style="color:var(--text-secondary);font-size:0.85rem;">Pakai Vanilla itu kayak lo lari maraton pakai kaki telanjang; murni, tapi capek banget karena setiap langkah (DOM manipulation) harus lo atur sendiri. RaaJS kasih lo sepeda karbon; lo tetap ngerasa napas aslinya, tapi jauh lebih cepat dan efisien.</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label"><strong>RaaJS vs. AlpineJS</strong></span>
+                        <span style="color:var(--text-secondary);font-size:0.85rem;">Alpine itu keren, tapi RaaJS v2.2 punya keunggulan di Island Architecture dan Namespaced Directives yang lebih disiplin, bikin kode lo nggak gampang "tabrakan" kalau aplikasinya makin gede.</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label"><strong>RaaJS vs. Vue / React</strong></span>
+                        <span style="color:var(--text-secondary);font-size:0.85rem;">Mereka itu kapal perang. Megah, penuh senjata (fitur), tapi buat keluar pelabuhan aja lo butuh ritual install ribuan dependencies. RaaJS? Lo tinggal naik, kayuh, dan sampai di tujuan tanpa drama.</span>
+                    </div>
+                    <p class="text-sm text-muted mt-2">Kesimpulannya, <strong>RaaJS</strong> adalah jalan tengah yang "genius" untukmu yang mau performa reaktif modern tanpa mau ribet dengan ritual dunia <i>frontend</i> yang makin overwhelming.</p>
+                </div>
+            </section>
+
+            <!-- ═══════════ 5. ALASAN MEMILIH & BRAND ═══════════ -->
+            <!-- Kenapa Memilih RaaJS -->
+            <section class="card card-accent-top mt-4">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title-row">
+                            <div class="card-icon">
+                                <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                            </div>
+                            <h2>Kenapa Memilih RaaJS?</h2>
+                        </div>
+                        <p class="card-subtitle">Karena kamu ingin reaktivitas modern tanpa ritual ribet yang menguras waktu.</p>
+                    </div>
+                    <span class="card-pill-tag">Why RaaJS</span>
+                </div>
+
+                <div class="layout-2col">
+                    <div>
+                        <ul class="feature-list">
+                            <li><strong>HTML-First, Tanpa Build Step.</strong> Cukup satu tag <code>&lt;script&gt;</code>, langsung hidup. Tidak ada Webpack, Vite, atau <code>npm install</code> yang bikin pusing.</li>
+                            <li><strong>Method-Driven Mutation.</strong> Semua logika berat tinggal di JavaScript methods. HTML hanya membaca state. Kode tetap bersih, mudah di-debug, dan mudah di-test.</li>
+                            <li><strong>Island Architecture.</strong> Bikin "pulau-pulau" interaktif dalam lautan konten statis. Cocok buat aplikasi yang tumbuh besar tanpa saling ganggu.</li>
+                            <li><strong>CSP-Aware & Sanitasi Built-in.</strong> Parser ekspresi tanpa <code>eval</code>. HTML binding otomatis disanitasi. Keamanan bukan fitur — ini fondasi.</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <ul class="feature-list">
+                            <li><strong>Super Ringan (< 10KB).</strong> Lebih kecil dari AlpineJS, lebih bertenaga dari Vanilla. "Sepeda karbon" yang efisien: ringan tapi kencang.</li>
+                            <li><strong>Proxy-Based Reactivity.</strong> Tidak ada getter/setter manual. State berubah, DOM mengikuti otomatis. Natural dan intuitif.</li>
+                            <li><strong>Ekosistem Modular.</strong> Tinggal tempel CDN: <code>raa-http</code>, <code>raa-ui</code>, <code>raa-validate</code>, dll. Hanya ambil yang kamu butuh.</li>
+                            <li><strong>Dokumentasi Langsung di Demo.</strong> Satu halaman yang juga jadi showcase, tutorial, dan referensi. Belajar sambil mencoba.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="route-box mt-4" style="background:var(--accent-dim); border-color:var(--border-accent); text-align:center;">
+                    <p style="margin:0;font-weight:700;font-size:1.05rem;color:var(--text-accent);">
+                        "RaaJS adalah jalan tengah yang genius: performa reaktif modern tanpa ritual overwhelming."
+                    </p>
+                    <p class="text-sm text-muted mt-2" style="margin:0;">🚲 Naik, kayuh, dan sampai tujuan — tanpa drama.</p>
+                </div>
+            </section>
+
+            <!-- Brand Positioning -->
+            <section class="card card-accent-top mt-4">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title-row">
+                            <div class="card-icon">
+                                <svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+                            </div>
+                            <h2>Brand Positioning</h2>
+                        </div>
+                        <p class="card-subtitle">Identitas produk yang jelas.</p>
+                    </div>
+                    <span class="card-pill-tag">Identity</span>
+                </div>
+                <p class="text-secondary"><strong class="text-accent">Tagline:</strong> HTML-first · Directive-driven · CSP-aware · No-build</p>
+                <p class="text-muted text-sm">
+                    <strong>Positioning:</strong> Mini reactive runtime di tengah antara AlpineJS dan VanillaJS,
+                    dengan rasa mini Vue yang tetap ringan.
+                </p>
+                <div class="divider"></div>
+                <ul class="doc-list">
+                    <li>Aplikasi & state terpusat di <code>RaaJS.define()</code>.</li>
+                    <li>Event memanggil method JS murni.</li>
+                    <li>Binding membaca state, bukan menaruh logika berat di atribut.</li>
+                    <li>Mutasi kompleks dikerjakan di method JavaScript standar.</li>
+                </ul>
+                <div class="code-label mt-4"><span>Snippet</span><span class="code-tag">Branding</span></div>
+                <pre class="snippet-block">Vue-like reactivity without
+the framework gravity.
+
+HTML-first · Directive-driven
+CSP-aware · No-build</pre>
+            </section>
+
+            <!-- ═══════════ 6. DOKUMENTASI REFERENSI ═══════════ -->
+            <!-- Mini Documentation & Ringkasan Kapabilitas -->
+            <div class="layout-2col">
+                <section class="card card-accent-top">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title-row">
+                                <div class="card-icon">
+                                    <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                                </div>
+                                <h2>Mini Documentation</h2>
+                            </div>
+                            <p class="card-subtitle">Snippet pembangun dan prinsip pakai yang mudah dipahami.</p>
+                        </div>
+                        <span class="card-pill-tag">Docs</span>
+                    </div>
+                    <div class="subcard">
+                        <div class="subcard-title">Markup Dasar</div>
+                        <pre class="snippet-block">&lt;body raa-core:app="myApp"&gt;
+  &lt;!-- State & method diambil dari RaaJS.define('myApp',...) --&gt;
+  &lt;input raa-bind:model="title" /&gt;
+
+  &lt;button raa-on:click="addItem()"&gt;
+    Tambah
+  &lt;/button&gt;
+
+  &lt;template raa-flow:for="item in items" raa-key="item.id"&gt;
+    &lt;span raa-bind:text="item.text"&gt;&lt;/span&gt;
+  &lt;/template&gt;
+&lt;/body&gt;</pre>
+                    </div>
+                    <div class="subcard">
+                        <div class="subcard-title">Logika Terpusat di JS</div>
+                        <pre class="snippet-block">RaaJS.define('myApp', () => ({
+  state: {
+    items: [],
+    title: ''
+  },
+  methods: {
+    addItem() {
+      if (!this.title.trim()) return;
+      this.items.push({
+        id: Date.now(),
+        text: this.title
+      });
+      this.title = '';
+    }
+  }
+}));</pre>
+                    </div>
+                    <div class="subcard">
+                        <div class="subcard-title">Prinsip Pemakaian</div>
+                        <ul class="doc-list">
+                            <li>State dan method didefinisikan dalam <code>RaaJS.define()</code>.</li>
+                            <li>Event memanggil method JS murni yang sudah di-bind ke state.</li>
+                            <li>Binding membaca state, bukan menaruh logika berat di atribut.</li>
+                            <li>Gunakan <code>raa-key</code> stabil untuk loop agar reuse DOM berjalan baik.</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <section class="card card-accent-top">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title-row">
+                                <div class="card-icon">
+                                    <svg viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+                                </div>
+                                <h2>Ringkasan Kapabilitas</h2>
+                            </div>
+                            <p class="card-subtitle">Yang ditunjukkan demo ini secara garis besar.</p>
+                        </div>
+                        <span class="card-pill-tag">Overview</span>
+                    </div>
+                    <ul class="feature-list">
+                        <li>Reactive state root dan nested object.</li>
+                        <li>Text, HTML, class, style, model, show, dan if binding.</li>
+                        <li>Event handling berbasis method JS murni.</li>
+                        <li>List rendering dengan key reuse.</li>
+                        <li>Router hash internal.</li>
+                        <li>Persistence state.</li>
+                        <li>Loading / disabled UX directives.</li>
+                        <li>Security-oriented expression evaluator.</li>
+                    </ul>
+                    <div class="divider"></div>
+                    <div class="subcard">
+                        <div class="subcard-title">Tagline Final</div>
+                        <p style="margin:0;font-weight:500;">Vue-like reactivity without the framework gravity.</p>
+                        <p class="text-sm text-muted mt-2">RaaJS = runtime reaktif HTML-first yang menjembatani kesederhanaan AlpineJS dan fleksibilitas VanillaJS.</p>
+                    </div>
+                    <div class="code-label mt-4"><span>Snippet</span><span class="code-tag">Mount</span></div>
+                    <pre class="snippet-block">&lt;script src="raa.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+  // Definisikan aplikasi Anda
+  RaaJS.define('myApp', () => ({ ... }));
+
+  // RaaJS akan otomatis mencari &
+  // menyalakan aplikasi di atas.
+&lt;/script&gt;</pre>
+                </section>
+            </div>
+
+            <!-- Dokumentasi Lengkap (Tab Panel) -->
+            <section class="card card-accent-top mt-4">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title-row">
+                            <div class="card-icon">
+                                <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                            </div>
+                            <h2>Dokumentasi & Sumber Daya</h2>
+                        </div>
+                        <p class="card-subtitle">Panduan lengkap directives, CDN, dan tautan penting RaaJS. Semua yang perlu kamu tahu setelah mencoba demo di atas.</p>
+                    </div>
+                    <span class="card-pill-tag">Reference</span>
+                </div>
+
+                <!-- Tab Navigation -->
+                <div class="flex-wrap-gap gap-8 mb-3">
+                    <button class="btn-primary btn-xs" raa-on:click="setDocTab('directives')"
+                            raa-bind:class="{'btn-active': docTab === 'directives', 'btn-ghost': docTab !== 'directives'}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 256 256"><path d="M224,48H32a8,8,0,0,0-8,8V192a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V56A8,8,0,0,0,224,48ZM40,112H80v32H40Zm56,0H216v32H96ZM216,64V96H40V64ZM40,160H80v32H40Zm176,32H96V160H216v32Z"></path></svg> Directives
+                    </button>
+                    <button class="btn-primary btn-xs" raa-on:click="setDocTab('cdn')"
+                            raa-bind:class="{'btn-active': docTab === 'cdn', 'btn-ghost': docTab !== 'cdn'}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 256 256"><path d="M96,104a8,8,0,0,1,8-8h64a8,8,0,0,1,0,16H104A8,8,0,0,1,96,104Zm8,40h64a8,8,0,0,0,0-16H104a8,8,0,0,0,0,16Zm128,48a32,32,0,0,1-32,32H88a32,32,0,0,1-32-32V64a16,16,0,0,0-32,0c0,5.74,4.83,9.62,4.88,9.66h0A8,8,0,0,1,24,88a7.89,7.89,0,0,1-4.79-1.61h0C18.05,85.54,8,77.61,8,64A32,32,0,0,1,40,32H176a32,32,0,0,1,32,32V168h8a8,8,0,0,1,4.8,1.6C222,170.46,232,178.39,232,192ZM96.26,173.48A8.07,8.07,0,0,1,104,168h88V64a16,16,0,0,0-16-16H67.69A31.71,31.71,0,0,1,72,64V192a16,16,0,0,0,32,0c0-5.74-4.83-9.62-4.88-9.66A7.82,7.82,0,0,1,96.26,173.48ZM216,192a12.58,12.58,0,0,0-3.23-8h-94a26.92,26.92,0,0,1,1.21,8,31.82,31.82,0,0,1-4.29,16H200A16,16,0,0,0,216,192Z"></path></svg> API CDN
+                    </button>
+                    <button class="btn-primary btn-xs" raa-on:click="setDocTab('links')"
+                            raa-bind:class="{'btn-active': docTab === 'links', 'btn-ghost': docTab !== 'links'}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 256 256"><path d="M165.66,90.34a8,8,0,0,1,0,11.32l-64,64a8,8,0,0,1-11.32-11.32l64-64A8,8,0,0,1,165.66,90.34ZM215.6,40.4a56,56,0,0,0-79.2,0L106.34,70.45a8,8,0,0,0,11.32,11.32l30.06-30a40,40,0,0,1,56.57,56.56l-30.07,30.06a8,8,0,0,0,11.31,11.32L215.6,119.6a56,56,0,0,0,0-79.2ZM138.34,174.22l-30.06,30.06a40,40,0,1,1-56.56-56.57l30.05-30.05a8,8,0,0,0-11.32-11.32L40.4,136.4a56,56,0,0,0,79.2,79.2l30.06-30.07a8,8,0,0,0-11.32-11.31Z"></path></svg> Tautan
+                    </button>
+                </div>
+
+                <!-- TAB 1: DIRECTIVES -->
+                <div raa-flow:show="docTab === 'directives'">
+                    <p class="text-sm text-muted mb-3">Berikut adalah daftar lengkap kemampuan deklaratif RaaJS. Setiap directive dirancang untuk menangani satu aspek spesifik dari reaktivitas dan interaksi UI.</p>
+                    
+                    <!-- 1. Core Directives -->
+                    <div class="subcard">
+                        <div class="subcard-title">
+                            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M1 12h4M19 12h4"/></svg>
+                            1. RaaJS Core Directives (Jantung Sistem)
+                        </div>
+                        <p class="text-sm text-muted mb-3">Disediakan langsung oleh <code>raa.js</code> untuk mengontrol siklus hidup dasar aplikasi.</p>
+                        <div style="overflow-x:auto;">
+                            <table style="width:100%;border-collapse:collapse;font-size:0.84rem;">
+                                <thead>
+                                    <tr style="border-bottom:1px solid var(--border-default);text-align:left;">
+                                        <th style="padding:10px 12px;color:var(--text-accent);font-weight:600;">Directive</th>
+                                        <th style="padding:10px 12px;color:var(--text-accent);font-weight:600;">Fungsi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr style="border-bottom:1px solid var(--border-subtle);">
+                                        <td style="padding:10px 12px;"><code>raa-core:app</code></td>
+                                        <td style="padding:10px 12px;color:var(--text-secondary);">Menentukan Root atau batas absolut wilayah kekuasaan sebuah aplikasi RaaJS.</td>
+                                    </tr>
+                                    <tr style="border-bottom:1px solid var(--border-subtle);">
+                                        <td style="padding:10px 12px;"><code>raa-core:data</code></td>
+                                        <td style="padding:10px 12px;color:var(--text-secondary);">Menyisipkan data mentah atau state awal berbentuk objek literal langsung dari HTML.</td>
+                                    </tr>
+                                    <tr style="border-bottom:1px solid var(--border-subtle);">
+                                        <td style="padding:10px 12px;"><code>raa-core:ref</code></td>
+                                        <td style="padding:10px 12px;color:var(--text-secondary);">Memberi label unik pada elemen agar bisa diakses langsung via kode JavaScript lewat <code>$refs</code>.</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding:10px 12px;"><code>raa-core:init</code></td>
+                                        <td style="padding:10px 12px;color:var(--text-secondary);">Mengeksekusi ekspresi logika instan tepat saat elemen tersebut selesai dirakit pertama kali.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 2. Data Binding & Flow Control -->
+                    <div class="subcard">
+                        <div class="subcard-title">
+                            <svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/></svg>
+                            2. Data Binding & Flow Control (Aliran Reaktivitas)
+                        </div>
+                        <p class="text-sm text-muted mb-3">Instruksi sakral untuk menghubungkan dunia data dengan dunia visual peramban.</p>
+                        <div style="overflow-x:auto;">
+                            <table style="width:100%;border-collapse:collapse;font-size:0.84rem;">
+                                <thead>
+                                    <tr style="border-bottom:1px solid var(--border-default);text-align:left;">
+                                        <th style="padding:10px 12px;color:var(--text-accent);font-weight:600;">Directive</th>
+                                        <th style="padding:10px 12px;color:var(--text-accent);font-weight:600;">Fungsi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr style="border-bottom:1px solid var(--border-subtle);">
+                                        <td style="padding:10px 12px;"><code>raa-bind:text</code></td>
+                                        <td style="padding:10px 12px;color:var(--text-secondary);">Merender teks biasa ke dalam elemen (sangat aman dari ancaman XSS).</td>
+                                    </tr>
+                                    <tr style="border-bottom:1px solid var(--border-subtle);">
+                                        <td style="padding:10px 12px;"><code>raa-bind:html</code></td>
+                                        <td style="padding:10px 12px;color:var(--text-secondary);">Menyuntikkan struktur HTML dinamis yang telah melewati proses sanitasi otomatis.</td>
+                                    </tr>
+                                    <tr style="border-bottom:1px solid var(--border-subtle);">
+                                        <td style="padding:10px 12px;"><code>raa-bind:model</code></td>
+                                        <td style="padding:10px 12px;color:var(--text-secondary);">Sinkronisasi dua arah (two-way binding) instan antara input formulir dengan properti state.</td>
+                                    </tr>
+                                    <tr style="border-bottom:1px solid var(--border-subtle);">
+                                        <td style="padding:10px 12px;"><code>raa-bind:class</code></td>
+                                        <td style="padding:10px 12px;color:var(--text-secondary);">Menambah atau menghapus kelas CSS secara dinamis berdasarkan kalkulasi boolean.</td>
+                                    </tr>
+                                    <tr style="border-bottom:1px solid var(--border-subtle);">
+                                        <td style="padding:10px 12px;"><code>raa-bind:style</code></td>
+                                        <td style="padding:10px 12px;color:var(--text-secondary);">Memanipulasi gaya inline CSS elemen secara reaktif.</td>
+                                    </tr>
+                                    <tr style="border-bottom:1px solid var(--border-subtle);">
+                                        <td style="padding:10px 12px;"><code>raa-bind:[attribute]</code></td>
+                                        <td style="padding:10px 12px;color:var(--text-secondary);">Menghubungkan semua atribut native (seperti <code>src</code>, <code>href</code>, <code>disabled</code>, <code>placeholder</code>) ke dalam data.</td>
+                                    </tr>
+                                    <tr style="border-bottom:1px solid var(--border-subtle);">
+                                        <td style="padding:10px 12px;"><code>raa-flow:show</code></td>
+                                        <td style="padding:10px 12px;color:var(--text-secondary);">Menyembunyikan visual elemen melalui CSS <code>display: none</code> tanpa membongkar strukturnya.</td>
+                                    </tr>
+                                    <tr style="border-bottom:1px solid var(--border-subtle);">
+                                        <td style="padding:10px 12px;"><code>raa-flow:if</code></td>
+                                        <td style="padding:10px 12px;color:var(--text-secondary);">Benar-benar menghapus atau memasukkan elemen ke dalam DOM (khusus dipasang pada tag <code>&lt;template&gt;</code>).</td>
+                                    </tr>
+                                    <tr style="border-bottom:1px solid var(--border-subtle);">
+                                        <td style="padding:10px 12px;"><code>raa-flow:for</code></td>
+                                        <td style="padding:10px 12px;color:var(--text-secondary);">Melakukan perulangan daftar data (list rendering) secara presisi menggunakan tag <code>&lt;template&gt;</code>.</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding:10px 12px;"><code>raa-on:[event]</code></td>
+                                        <td style="padding:10px 12px;color:var(--text-secondary);">Mendengarkan event bawaan browser (seperti <code>click</code>, <code>submit</code>, <code>input</code>) dilengkapi modifier taktis seperti <code>.prevent</code> atau <code>.stop</code>.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 3. Ecosystem & UX -->
+                    <div class="subcard">
+                        <div class="subcard-title">
+                            <svg viewBox="0 0 24 24"><polyline points="4 7 12 3 20 7"/><polyline points="4 12 12 8 20 12"/><line x1="4" y1="17" x2="12" y2="13"/><line x1="20" y1="17" x2="12" y2="13"/></svg>
+                            3. Ecosystem & UX Enhancements (Fitur Spesialis)
+                        </div>
+                        <p class="text-sm text-muted mb-3">Direktif bawaan sistem ekosistem inti untuk stabilitas aplikasi dan peningkatan fungsionalitas visual.</p>
+                        <div style="overflow-x:auto;">
+                            <table style="width:100%;border-collapse:collapse;font-size:0.84rem;">
+                                <thead>
+                                    <tr style="border-bottom:1px solid var(--border-default);text-align:left;">
+                                        <th style="padding:10px 12px;color:var(--text-accent);font-weight:600;">Directive</th>
+                                        <th style="padding:10px 12px;color:var(--text-accent);font-weight:600;">Fungsi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr style="border-bottom:1px solid var(--border-subtle);">
+                                        <td style="padding:10px 12px;"><code>raa-eco:island</code></td>
+                                        <td style="padding:10px 12px;color:var(--text-secondary);">Menciptakan sebuah Island—wilayah dengan state terisolasi dan mandiri di tengah aplikasi besar.</td>
+                                    </tr>
+                                    <tr style="border-bottom:1px solid var(--border-subtle);">
+                                        <td style="padding:10px 12px;"><code>raa-eco:persist</code></td>
+                                        <td style="padding:10px 12px;color:var(--text-secondary);">Menyimpan dan memulihkan data state secara otomatis dari <code>localStorage</code>.</td>
+                                    </tr>
+                                    <tr style="border-bottom:1px solid var(--border-subtle);">
+                                        <td style="padding:10px 12px;"><code>raa-eco:auth</code></td>
+                                        <td style="padding:10px 12px;color:var(--text-secondary);">Mengatur hak akses visibilitas elemen secara reaktif berdasarkan status login pengguna.</td>
+                                    </tr>
+                                    <tr style="border-bottom:1px solid var(--border-subtle);">
+                                        <td style="padding:10px 12px;"><code>raa-ux:focus</code></td>
+                                        <td style="padding:10px 12px;color:var(--text-secondary);">Memberikan fokus kursor otomatis (auto-focus) pada elemen saat ia pertama kali muncul di layar.</td>
+                                    </tr>
+                                    <tr style="border-bottom:1px solid var(--border-subtle);">
+                                        <td style="padding:10px 12px;"><code>raa-ux:loading</code></td>
+                                        <td style="padding:10px 12px;color:var(--text-secondary);">Menyuntikkan status visual memuat data serta memasangkan atribut aksesibilitas <code>aria-busy="true"</code>.</td>
+                                    </tr>
+                                    <tr style="border-bottom:1px solid var(--border-subtle);">
+                                        <td style="padding:10px 12px;"><code>raa-ux:disable</code></td>
+                                        <td style="padding:10px 12px;color:var(--text-secondary);">Menonaktifkan fungsionalitas elemen interaktif secara reaktif mengikuti kondisi state.</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding:10px 12px;"><code>raa-ux:lazy</code></td>
+                                        <td style="padding:10px 12px;color:var(--text-secondary);">Menunda proses kompilasi reaktif elemen sampai posisi fisiknya benar-benar masuk ke dalam wilayah pandang layar (viewport).</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 4. Extension Directives -->
+                    <div class="subcard">
+                        <div class="subcard-title">
+                            <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                            4. Extension Directives (Kekuatan Tambahan dari Modul)
+                        </div>
+                        <p class="text-sm text-muted mb-3">Melalui metode monkey-patching yang anggun ke dalam prototype utama, kamu bisa memasang "superpower" tambahan dari modul eksternal tanpa pernah mengotori kode inti aplikasi.</p>
+
+                        <div class="subcard" style="margin-top:12px;">
+                            <div class="subcard-title" style="font-size:0.8rem;">A. Animasi & Transisi (raa-animation.js)</div>
+                            <table style="width:100%;border-collapse:collapse;font-size:0.82rem;">
+                                <tr style="border-bottom:1px solid var(--border-subtle);">
+                                    <td style="padding:8px 10px;"><code>raa-animation:*</code></td>
+                                    <td style="padding:8px 10px;color:var(--text-secondary);">Mengaktifkan mesin animasi reaktif lewat wildcard taktis: <code>enter</code>, <code>leave</code>, <code>scroll</code>, <code>loop</code>, <code>trigger</code>, dan <code>group</code>.</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:8px 10px;"><code>raa-animation:config</code></td>
+                                    <td style="padding:8px 10px;color:var(--text-secondary);">Menulis konfigurasi durasi, easing, dan parameter detail animasi langsung di elemen terkait.</td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <div class="subcard" style="margin-top:12px;">
+                            <div class="subcard-title" style="font-size:0.8rem;">B. Jaringan & REST API (raa-http.js)</div>
+                            <table style="width:100%;border-collapse:collapse;font-size:0.82rem;">
+                                <tr style="border-bottom:1px solid var(--border-subtle);">
+                                    <td style="padding:8px 10px;"><code>raa-http:[method]</code></td>
+                                    <td style="padding:8px 10px;color:var(--text-secondary);">Menembak REST API endpoint (<code>get</code>, <code>post</code>, <code>put</code>, <code>patch</code>, <code>delete</code>) langsung dari interaksi elemen HTML.</td>
+                                </tr>
+                                <tr style="border-bottom:1px solid var(--border-subtle);">
+                                    <td style="padding:8px 10px;"><code>raa-http:reactive</code></td>
+                                    <td style="padding:8px 10px;color:var(--text-secondary);">Mengaktifkan mode pengamat cerdas; otomatis memicu pemanggilan ulang API setiap kali variabel di dalam string URL-nya berubah.</td>
+                                </tr>
+                                <tr style="border-bottom:1px solid var(--border-subtle);">
+                                    <td style="padding:8px 10px;"><code>raa-http:poll</code>, <code>raa-http:debounce</code>, <code>raa-http:throttle</code></td>
+                                    <td style="padding:8px 10px;color:var(--text-secondary);">Mengatur kontrol kecepatan interaksi jaringan, jeda ketikan, atau interval pengambilan data berkala.</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:8px 10px;"><code>raa-on:http:[event]</code></td>
+                                    <td style="padding:8px 10px;color:var(--text-secondary);">Menangkap siklus hidup respons jaringan secara reaktif lewat event <code>success</code>, <code>error</code>, <code>finally</code>, dan <code>abort</code>.</td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <div class="subcard" style="margin-top:12px;">
+                            <div class="subcard-title" style="font-size:0.8rem;">C. Antarmuka Komponen (raa-ui.js)</div>
+                            <table style="width:100%;border-collapse:collapse;font-size:0.82rem;">
+                                <tr style="border-bottom:1px solid var(--border-subtle);">
+                                    <td style="padding:8px 10px;"><code>raa-ui:tooltip</code></td>
+                                    <td style="padding:8px 10px;color:var(--text-secondary);">Memunculkan gelembung informasi bantuan (floating tooltip) otomatis saat elemen didekati kursor.</td>
+                                </tr>
+                                <tr style="border-bottom:1px solid var(--border-subtle);">
+                                    <td style="padding:8px 10px;"><code>raa-ui:clipboard</code></td>
+                                    <td style="padding:8px 10px;color:var(--text-secondary);">Menyalin teks target ke dalam papan klip (system clipboard) pengguna lewat sekali ketuk.</td>
+                                </tr>
+                                <tr style="border-bottom:1px solid var(--border-subtle);">
+                                    <td style="padding:8px 10px;"><code>raa-ui:scroll-to</code></td>
+                                    <td style="padding:8px 10px;color:var(--text-secondary);">Menggulirkan layar secara halus (smooth scrolling) menuju target elemen spesifik.</td>
+                                </tr>
+                                <tr style="border-bottom:1px solid var(--border-subtle);">
+                                    <td style="padding:8px 10px;"><code>raa-ui:mask</code></td>
+                                    <td style="padding:8px 10px;color:var(--text-secondary);">Mengunci pola input pengguna secara ketat (misalnya format nomor telepon, mata uang, atau kartu kredit).</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:8px 10px;"><code>raa-ui:outside</code></td>
+                                    <td style="padding:8px 10px;color:var(--text-secondary);">Mendeteksi interaksi klik yang terjadi di luar area elemen bersangkutan (sangat ideal untuk menutup modal/dropdown).</td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <div class="subcard" style="margin-top:12px;">
+                            <div class="subcard-title" style="font-size:0.8rem;">D. Validasi Formulir Otomatis (raa-validate.js)</div>
+                            <table style="width:100%;border-collapse:collapse;font-size:0.82rem;">
+                                <tr style="border-bottom:1px solid var(--border-subtle);">
+                                    <td style="padding:8px 10px;"><code>raa-validate:[rule]</code></td>
+                                    <td style="padding:8px 10px;color:var(--text-secondary);">Menerapkan aturan validasi instan pada kolom input seperti <code>required</code>, <code>email</code>, <code>min</code>, <code>max</code>, dan regex pattern.</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:8px 10px;"><code>raa-validate:group</code></td>
+                                    <td style="padding:8px 10px;color:var(--text-secondary);">Mengelompokkan seluruh indikator kesalahan (error messages) ke dalam satu kesatuan kolektif formulir.</td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <div class="subcard" style="margin-top:12px;">
+                            <div class="subcard-title" style="font-size:0.8rem;">E. Modular Template & Lokalisasi</div>
+                            <table style="width:100%;border-collapse:collapse;font-size:0.82rem;">
+                                <tr style="border-bottom:1px solid var(--border-subtle);">
+                                    <td style="padding:8px 10px;"><code>raa-template:define</code> & <code>raa-template:use</code></td>
+                                    <td style="padding:8px 10px;color:var(--text-secondary);">Deklarasi dan pemanggilan kembali fragmen blok HTML modular tanpa memerlukan arsitektur Web Components yang rumit.</td>
+                                </tr>
+                                <tr style="border-bottom:1px solid var(--border-subtle);">
+                                    <td style="padding:8px 10px;"><code>raa-i18n:locale</code></td>
+                                    <td style="padding:8px 10px;color:var(--text-secondary);">Mengubah bahasa aplikasi secara global dan instan di seluruh penjuru halaman tanpa proses reload.</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:8px 10px;"><code>raa-on:event:*</code></td>
+                                    <td style="padding:8px 10px;color:var(--text-secondary);">Jalur komunikasi super cepat untuk menangani pesan lintas komponen jarak jauh menggunakan sistem manajemen Event Bus.</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 2: API CDN -->
+                <div raa-flow:show="docTab === 'cdn'">
+                    <div class="subcard">
+                        <div class="subcard-title">
+                            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/></svg>
+                            Core Engine — Jantung dan Otak Reaktivitas
+                        </div>
+                        <div class="code-label"><span>Script</span><span class="code-tag" style="cursor:pointer;" raa-on:click="copyToClipboard('core')"><svg width="12" height="12" fill="currentColor" viewBox="0 0 256 256"><path d="M216,32H88a8,8,0,0,0-8,8V80H40a8,8,0,0,0-8,8V216a8,8,0,0,0,8,8H168a8,8,0,0,0,8-8V176h40a8,8,0,0,0,8-8V40A8,8,0,0,0,216,32Zm-8,128H176V88a8,8,0,0,0-8-8H96V48H208Z"></path></svg> Salin</span></div>
+                        <pre class="snippet-block" id="snippet-core">&lt;script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@2.2.0/engine/raa.min.js"&gt;&lt;/script&gt;</pre>
+                    </div>
+
+                    <div class="subcard">
+                        <div class="subcard-title">
+                            <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                            Extensions — Superpower Tambahan Sesuai Kebutuhan
+                        </div>
+
+                        <!-- Data & Logic -->
+                        <div class="code-label mt-3"><span>1. Data & Logic Extensions</span><span class="code-tag" style="cursor:pointer;" raa-on:click="copyToClipboard('data-logic')"><svg width="12" height="12" fill="currentColor" viewBox="0 0 256 256"><path d="M216,32H88a8,8,0,0,0-8,8V80H40a8,8,0,0,0-8,8V216a8,8,0,0,0,8,8H168a8,8,0,0,0,8-8V176h40a8,8,0,0,0,8-8V40A8,8,0,0,0,216,32Zm-8,128H176V88a8,8,0,0,0-8-8H96V48H208Z"></path></svg> Salin Semua</span></div>
+                        <pre class="snippet-block" id="snippet-data-logic">&lt;script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@2.2.0/engine/extensions/raa-http.min.js"&gt;&lt;/script&gt;
+&lt;script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@2.2.0/engine/extensions/raa-eventbus.min.js"&gt;&lt;/script&gt;
+&lt;script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@2.2.0/engine/extensions/raa-computed-watch.min.js"&gt;&lt;/script&gt;</pre>
+
+                        <!-- UI & Experience -->
+                        <div class="code-label mt-3"><span>2. UI & Experience Extensions</span><span class="code-tag" style="cursor:pointer;" raa-on:click="copyToClipboard('ui-exp')"><svg width="12" height="12" fill="currentColor" viewBox="0 0 256 256"><path d="M216,32H88a8,8,0,0,0-8,8V80H40a8,8,0,0,0-8,8V216a8,8,0,0,0,8,8H168a8,8,0,0,0,8-8V176h40a8,8,0,0,0,8-8V40A8,8,0,0,0,216,32Zm-8,128H176V88a8,8,0,0,0-8-8H96V48H208Z"></path></svg> Salin Semua</span></div>
+                        <pre class="snippet-block" id="snippet-ui-exp">&lt;script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@2.2.0/engine/extensions/raa-animation.min.js"&gt;&lt;/script&gt;
+&lt;script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@2.2.0/engine/extensions/raa-ui.min.js"&gt;&lt;/script&gt;
+&lt;script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@2.2.0/engine/extensions/raa-validate.min.js"&gt;&lt;/script&gt;</pre>
+
+                        <!-- Structure, Scaling & Debugging -->
+                        <div class="code-label mt-3"><span>3. Structure, Scaling & Debugging</span><span class="code-tag" style="cursor:pointer;" raa-on:click="copyToClipboard('structure')"><svg width="12" height="12" fill="currentColor" viewBox="0 0 256 256"><path d="M216,32H88a8,8,0,0,0-8,8V80H40a8,8,0,0,0-8,8V216a8,8,0,0,0,8,8H168a8,8,0,0,0,8-8V176h40a8,8,0,0,0,8-8V40A8,8,0,0,0,216,32Zm-8,128H176V88a8,8,0,0,0-8-8H96V48H208Z"></path></svg> Salin Semua</span></div>
+                        <pre class="snippet-block" id="snippet-structure">&lt;script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@2.2.0/engine/extensions/raa-template.min.js"&gt;&lt;/script&gt;
+&lt;script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@2.2.0/engine/extensions/raa-i18n.min.js"&gt;&lt;/script&gt;
+&lt;script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@2.2.0/engine/extensions/raa-devtools.min.js"&gt;&lt;/script&gt;</pre>
+                    </div>
+
+                    <div class="route-box mt-3" style="font-size:0.82rem;">
+                        <strong><svg width="12" height="12" fill="currentColor" viewBox="0 0 256 256"><path d="M176 232a8 8 0 0 1-8 8H88a8 8 0 0 1 0-16h80a8 8 0 0 1 8 8m40-128a87.55 87.55 0 0 1-33.64 69.21A16.24 16.24 0 0 0 176 186v6a16 16 0 0 1-16 16H96a16 16 0 0 1-16-16v-6a16 16 0 0 0-6.23-12.66A87.59 87.59 0 0 1 40 104.49C39.74 56.83 78.26 17.14 125.88 16A88 88 0 0 1 216 104m-32.11-9.34a57.6 57.6 0 0 0-46.56-46.55 8 8 0 0 0-2.66 15.78c16.57 2.79 30.63 16.85 33.44 33.45A8 8 0 0 0 176 104a9 9 0 0 0 1.35-.11 8 8 0 0 0 6.54-9.23"/></svg> Tips:</strong> Klik tombol <span class="text-accent"><svg width="12" height="12" fill="currentColor" viewBox="0 0 256 256"><path d="M216,32H88a8,8,0,0,0-8,8V80H40a8,8,0,0,0-8,8V216a8,8,0,0,0,8,8H168a8,8,0,0,0,8-8V176h40a8,8,0,0,0,8-8V40A8,8,0,0,0,216,32Zm-8,128H176V88a8,8,0,0,0-8-8H96V48H208Z"></path></svg> Salin</span> di samping setiap blok untuk menyalin kode script ke clipboard.
+                    </div>
+                </div>
+
+                <!-- TAB 3: LINKS -->
+                <div raa-flow:show="docTab === 'links'">
+                    <div class="subcard">
+                        <div class="subcard-title">
+                            <svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                            Tautan & Sumber Daya
+                        </div>
+                        <p class="text-sm text-muted mb-3">Jelajahi repositori, dokumentasi, dan komunitas RaaJS.</p>
+
+                        <div class="layout-2col" style="margin-top:0;">
+                            <a href="https://github.com/dazep01/raajs" target="_blank" rel="noopener" style="text-decoration:none;">
+                                <div class="overview-chip" style="cursor:pointer;">
+                                    <div class="ov-name"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 256 256"><path d="M245,110.64A16,16,0,0,0,232,104H216V88a16,16,0,0,0-16-16H130.67L102.94,51.2a16.14,16.14,0,0,0-9.6-3.2H40A16,16,0,0,0,24,64V208h0a8,8,0,0,0,8,8H211.1a8,8,0,0,0,7.59-5.47l28.49-85.47A16.05,16.05,0,0,0,245,110.64ZM93.34,64,123.2,86.4A8,8,0,0,0,128,88h72v16H69.77a16,16,0,0,0-15.18,10.94L40,158.7V64Zm112,136H43.1l26.67-80H232Z"></path></svg> GitHub Repository</div>
+                                    <div class="ov-val" style="font-size:0.9rem;">dazep01/raajs</div>
+                                    <p class="text-sm text-muted mt-2" style="margin:4px 0 0;">Kode sumber, issues, dan rilis terbaru.</p>
+                                </div>
+                            </a>
+                            <a href="https://github.com/dazep01/raajs/wiki" target="_blank" rel="noopener" style="text-decoration:none;">
+                                <div class="overview-chip" style="cursor:pointer;">
+                                    <div class="ov-name"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 256 256"><path d="M96,104a8,8,0,0,1,8-8h64a8,8,0,0,1,0,16H104A8,8,0,0,1,96,104Zm8,40h64a8,8,0,0,0,0-16H104a8,8,0,0,0,0,16Zm128,48a32,32,0,0,1-32,32H88a32,32,0,0,1-32-32V64a16,16,0,0,0-32,0c0,5.74,4.83,9.62,4.88,9.66h0A8,8,0,0,1,24,88a7.89,7.89,0,0,1-4.79-1.61h0C18.05,85.54,8,77.61,8,64A32,32,0,0,1,40,32H176a32,32,0,0,1,32,32V168h8a8,8,0,0,1,4.8,1.6C222,170.46,232,178.39,232,192ZM96.26,173.48A8.07,8.07,0,0,1,104,168h88V64a16,16,0,0,0-16-16H67.69A31.71,31.71,0,0,1,72,64V192a16,16,0,0,0,32,0c0-5.74-4.83-9.62-4.88-9.66A7.82,7.82,0,0,1,96.26,173.48ZM216,192a12.58,12.58,0,0,0-3.23-8h-94a26.92,26.92,0,0,1,1.21,8,31.82,31.82,0,0,1-4.29,16H200A16,16,0,0,0,216,192Z"></path></svg> Dokumentasi Lengkap</div>
+                                    <div class="ov-val" style="font-size:0.9rem;">Wiki & Guide</div>
+                                    <p class="text-sm text-muted mt-2" style="margin:4px 0 0;">Panduan lengkap dari dasar hingga mahir.</p>
+                                </div>
+                            </a>
+                            <a href="https://www.npmjs.com/package/raajs" target="_blank" rel="noopener" style="text-decoration:none;">
+                                <div class="overview-chip" style="cursor:pointer;">
+                                    <div class="ov-name"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 256 256"><path d="M223.68,66.15,135.68,18a15.88,15.88,0,0,0-15.36,0l-88,48.17a16,16,0,0,0-8.32,14v95.64a16,16,0,0,0,8.32,14l88,48.17a15.88,15.88,0,0,0,15.36,0l88-48.17a16,16,0,0,0,8.32-14V80.18A16,16,0,0,0,223.68,66.15ZM128,32l80.34,44-29.77,16.3-80.35-44ZM128,120,47.66,76l33.9-18.56,80.34,44ZM40,90l80,43.78v85.79L40,175.82Zm176,85.78h0l-80,43.79V133.82l32-17.51V152a8,8,0,0,0,16,0V107.55L216,90v85.77Z"></path></svg> NPM Package</div>
+                                    <div class="ov-val" style="font-size:0.9rem;">npm i raajs</div>
+                                    <p class="text-sm text-muted mt-2" style="margin:4px 0 0;">Package manager untuk production setup.</p>
+                                </div>
+                            </a>
+                            <a href="https://discord.gg/raajs" target="_blank" rel="noopener" style="text-decoration:none;">
+                                <div class="overview-chip" style="cursor:pointer;">
+                                    <div class="ov-name"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 256 256"><path d="M232.07,186.76a80,80,0,0,0-62.5-114.17A80,80,0,1,0,23.93,138.76l-7.27,24.71a16,16,0,0,0,19.87,19.87l24.71-7.27a80.39,80.39,0,0,0,25.18,7.35,80,80,0,0,0,108.34,40.65l24.71,7.27a16,16,0,0,0,19.87-19.86ZM62,159.5a8.28,8.28,0,0,0-2.26.32L32,168l8.17-27.76a8,8,0,0,0-.63-6,64,64,0,1,1,26.26,26.26A8,8,0,0,0,62,159.5Zm153.79,28.73L224,216l-27.76-8.17a8,8,0,0,0-6,.63,64.05,64.05,0,0,1-85.87-24.88A79.93,79.93,0,0,0,174.7,89.71a64,64,0,0,1,41.75,92.48A8,8,0,0,0,215.82,188.23Z"></path></svg> Komunitas</div>
+                                    <div class="ov-val" style="font-size:0.9rem;">Gabung Server</div>
+                                    <p class="text-sm text-muted mt-2" style="margin:4px 0 0;">Diskusi, bantuan, dan showcase proyek.</p>
+                                </div>
+                            </a>
+                        </div>
+
+                        <div class="divider"></div>
+                        <div class="flex-wrap-gap gap-8">
+                            <button class="btn-primary btn-xs" onclick="window.open('https://github.com/dazep01/raajs/stargazers','_blank')"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 256 256"><path d="M239.18,97.26A16.38,16.38,0,0,0,224.92,86l-59-4.76L143.14,26.15a16.36,16.36,0,0,0-30.27,0L90.11,81.23,31.08,86a16.46,16.46,0,0,0-9.37,28.86l45,38.83L53,211.75a16.38,16.38,0,0,0,24.5,17.82L128,198.49l50.53,31.08A16.4,16.4,0,0,0,203,211.75l-13.76-58.07,45-38.83A16.43,16.43,0,0,0,239.18,97.26Zm-15.34,5.47-48.7,42a8,8,0,0,0-2.56,7.91l14.88,62.8a.37.37,0,0,1-.17.48c-.18.14-.23.11-.38,0l-54.72-33.65a8,8,0,0,0-8.38,0L69.09,215.94c-.15.09-.19.12-.38,0a.37.37,0,0,1-.17-.48l14.88-62.8a8,8,0,0,0-2.56-7.91l-48.7-42c-.12-.1-.23-.19-.13-.5s.18-.27.33-.29l63.92-5.16A8,8,0,0,0,103,91.86l24.62-59.61c.08-.17.11-.25.35-.25s.27.08.35.25L153,91.86a8,8,0,0,0,6.75,4.92l63.92,5.16c.15,0,.24,0,.33.29S224,102.63,223.84,102.73Z"></path></svg> Star di GitHub</button>
+                            <button class="btn-secondary btn-xs" onclick="window.open('https://github.com/dazep01/raajs/issues/new','_blank')"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 256 256"><path d="M144,92a12,12,0,1,1,12,12A12,12,0,0,1,144,92ZM100,80a12,12,0,1,0,12,12A12,12,0,0,0,100,80Zm116,64A87.76,87.76,0,0,1,213,167l22.24,9.72A8,8,0,0,1,232,192a7.89,7.89,0,0,1-3.2-.67L207.38,182a88,88,0,0,1-158.76,0L27.2,191.33A7.89,7.89,0,0,1,24,192a8,8,0,0,1-3.2-15.33L43,167A87.76,87.76,0,0,1,40,144v-8H16a8,8,0,0,1,0-16H40v-8a87.76,87.76,0,0,1,3-23L20.8,79.33a8,8,0,1,1,6.4-14.66L48.62,74a88,88,0,0,1,158.76,0l21.42-9.36a8,8,0,0,1,6.4,14.66L213,89.05a87.76,87.76,0,0,1,3,23v8h24a8,8,0,0,1,0,16H216ZM56,120H200v-8a72,72,0,0,0-144,0Zm64,95.54V136H56v8A72.08,72.08,0,0,0,120,215.54ZM200,144v-8H136v79.54A72.08,72.08,0,0,0,200,144Z"></path></svg> Laporkan Bug</button>
+                            <button class="btn-ghost btn-xs" onclick="window.open('https://github.com/dazep01/raajs/blob/main/CHANGELOG.md','_blank')"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 256 256"><path d="M96,104a8,8,0,0,1,8-8h64a8,8,0,0,1,0,16H104A8,8,0,0,1,96,104Zm8,40h64a8,8,0,0,0,0-16H104a8,8,0,0,0,0,16Zm128,48a32,32,0,0,1-32,32H88a32,32,0,0,1-32-32V64a16,16,0,0,0-32,0c0,5.74,4.83,9.62,4.88,9.66h0A8,8,0,0,1,24,88a7.89,7.89,0,0,1-4.79-1.61h0C18.05,85.54,8,77.61,8,64A32,32,0,0,1,40,32H176a32,32,0,0,1,32,32V168h8a8,8,0,0,1,4.8,1.6C222,170.46,232,178.39,232,192ZM96.26,173.48A8.07,8.07,0,0,1,104,168h88V64a16,16,0,0,0-16-16H67.69A31.71,31.71,0,0,1,72,64V192a16,16,0,0,0,32,0c0-5.74-4.83-9.62-4.88-9.66A7.82,7.82,0,0,1,96.26,173.48ZM216,192a12.58,12.58,0,0,0-3.23-8h-94a26.92,26.92,0,0,1,1.21,8,31.82,31.82,0,0,1-4.29,16H200A16,16,0,0,0,216,192Z"></path></svg> Changelog</button>
+                            <button class="btn-ghost btn-xs" onclick="window.open('https://ko-fi.com/raajs','_blank')"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 256 256"><path d="M80,56V24a8,8,0,0,1,16,0V56a8,8,0,0,1-16,0Zm40,8a8,8,0,0,0,8-8V24a8,8,0,0,0-16,0V56A8,8,0,0,0,120,64Zm32,0a8,8,0,0,0,8-8V24a8,8,0,0,0-16,0V56A8,8,0,0,0,152,64Zm96,56v8a40,40,0,0,1-37.51,39.91,96.59,96.59,0,0,1-27,40.09H208a8,8,0,0,1,0,16H32a8,8,0,0,1,0-16H56.54A96.3,96.3,0,0,1,24,136V88a8,8,0,0,1,8-8H208A40,40,0,0,1,248,120ZM200,96H40v40a80.27,80.27,0,0,0,45.12,72h69.76A80.27,80.27,0,0,0,200,136Zm32,24a24,24,0,0,0-16-22.62V136a95.78,95.78,0,0,1-1.2,15A24,24,0,0,0,232,128Z"></path></svg> Dukung Kami</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ═══════════ 7. FOOTER ═══════════ -->
+            <section class="footer-strip">
+                <div class="badge-row">
+                    <span class="pill-accent">✅ Reactive Proxy</span>
+                    <span class="pill-accent">🌀 No Virtual DOM</span>
+                    <span class="pill-accent">🔒 CSP-aware</span>
+                    <span class="pill-accent">📦 No-build</span>
+                    <span class="pill-accent">🧩 Standalone</span>
+                </div>
+                <p class="footer-text">
+                    RaaJS — HTML-first, directive-driven, dan cukup dekat untuk dipakai langsung tanpa ritual build yang melelahkan.
+                </p>
+                <p class="footer-note">
+                    Demo ini disusun agar mudah dipelajari pemula, namun tetap cukup elegan untuk dipresentasikan sebagai identitas brand.
+                </p>
+            </section>
+        </main>
+    </div>
+
+<script>
+    RaaJS.define('showcaseApp', () => ({
+        state: {
+            status: 'Operational',
+            counter: 0,
+            dark: true,
+            visible: true,
+            loading: false,
+            todoInput: '',
+            projectName: 'RaaJS Showcase',
+            projectNote: 'Demonstrasi grammar RaaJS murni: method-driven mutation.',
+            selected: 'RaaJS',
+            htmlSource: '<strong>HTML aman</strong> · <em>disanitasi</em> · <span style="color:#c8a87c">langsung render</span>',
+            contactName: '',
+            contactMessage: '',
+            contactSubmitted: false,
+            docTab: null,
+            stats: [
+                { value: '1.8 KB', label: 'Gzipped Core' },
+                { value: '0 vDOM', label: 'Direct Real DOM' },
+                { value: '100%', label: 'CSP Aware' },
+                { value: 'No-build', label: 'Standalone' }
+            ],
+            metrics: [
+                { label: 'Scheduler', value: 'Microtask' },
+                { label: 'Footprint', value: 'Minimal' }
+            ],
+            todos: [
+                { id: 1, text: 'Membangun Core RaaJS v2', done: true },
+                { id: 2, text: 'Optimasi Parser Ekspresi Aman', done: false },
+                { id: 3, text: 'Rancang Demo Pameran Interaktif', done: false }
+            ],
+            nested: {
+                score: 42,
+                title: 'Graf Object Terintegrasi',
+                owner: 'Raa Architect',
+                tags: ['Reactive', 'No-Build', 'CSP-Aware']
+            },
+            brand: {
+                name: 'RaaJS',
+                author: 'Raa Core Research',
+                slogan: 'HTML-first · Directive-driven · CSP-aware · No-build'
+            }
+        },
+
+        methods: {
+            themeClass() { return { 'light-theme': !this.dark }; },
+            todoClass(done) { return done ? { 'done': true } : {}; },
+            
+            incCounter() { this.counter += 1; this.status = 'Counter +1'; },
+            decCounter() { this.counter -= 1; this.status = 'Counter -1'; },
+            resetCounter() { this.counter = 0; this.status = 'Counter reset'; },
+            
+            toggleDark() { 
+                this.dark = !this.dark; 
+                this.status = this.dark ? 'Dark mode aktif' : 'Light mode aktif';
+            },
+            toggleVisible() { this.visible = !this.visible; this.status = this.visible ? 'Block visible' : 'Block hidden'; },
+            toggleLoading() { this.loading = !this.loading; this.status = this.loading ? 'Loading on' : 'Loading off'; },
+            
+            simulateSave() {
+                this.loading = true;
+                this.status = 'Saving...';
+                setTimeout(() => { this.loading = false; this.status = 'Saved successfully'; }, 900);
+            },
+            
+            addTodo() { 
+                const text = (this.todoInput || '').trim(); 
+                if (!text) return; 
+                this.todos.push({ id: Date.now(), text, done: false }); 
+                this.todoInput = ''; 
+                this.status = 'Todo added'; 
+            },
+            removeTodo(id) { 
+                const idx = this.todos.findIndex(t => t.id === id); 
+                if (idx !== -1) this.todos.splice(idx, 1); 
+                this.status = 'Todo removed'; 
+            },
+            toggleTodo(id) { 
+                const todo = this.todos.find(t => t.id === id); 
+                if (todo) { 
+                    todo.done = !todo.done; 
+                    this.status = todo.done ? 'Todo completed' : 'Todo reopened'; 
+                } 
+            },
+            sortTodos() { 
+                this.todos.sort((a, b) => Number(a.done) - Number(b.done) || a.text.localeCompare(b.text)); 
+                this.status = 'Todos sorted'; 
+            },
+            clearCompleted() { 
+                for (let i = this.todos.length - 1; i >= 0; i--) { 
+                    if (this.todos[i].done) this.todos.splice(i, 1); 
+                } 
+                this.status = 'Completed todos cleared'; 
+            },
+            
+            moveUp(id) { 
+                const idx = this.todos.findIndex(t => t.id === id); 
+                if (idx > 0) { 
+                    const item = this.todos[idx]; 
+                    this.todos.splice(idx, 1); 
+                    this.todos.splice(idx - 1, 0, item); 
+                    this.status = 'Todo moved up'; 
+                } 
+            },
+            moveDown(id) { 
+                const idx = this.todos.findIndex(t => t.id === id); 
+                if (idx !== -1 && idx < this.todos.length - 1) { 
+                    const item = this.todos[idx]; 
+                    this.todos.splice(idx, 1); 
+                    this.todos.splice(idx + 1, 0, item); 
+                    this.status = 'Todo moved down'; 
+                } 
+            },
+            
+            bumpScore() { this.nested.score += 1; this.status = 'Score naik'; },
+            renameOwner() { this.nested.owner = this.nested.owner === 'Raa Architect' ? 'Chief Raa' : 'Raa Architect'; this.status = 'Owner updated'; },
+            appendTag() { this.nested.tags.push('tag-' + (this.nested.tags.length + 1)); this.status = 'Tag ditambahkan'; },
+            
+            submitContact() {
+                if (!this.contactName.trim() || !this.contactMessage.trim()) {
+                    this.status = 'Nama dan pesan harus diisi';
+                    return;
+                }
+                this.contactSubmitted = true;
+                this.status = 'Pesan terkirim';
+            },
+            resetContact() {
+                this.contactSubmitted = false;
+                this.contactName = '';
+                this.contactMessage = '';
+                this.status = 'Form dikosongkan';
+            },
+            
+            setDocTab(tab) {
+                this.docTab = (this.docTab === tab) ? null : tab;
+                this.status = this.docTab ? 'Tab: ' + this.docTab : 'Semua panel tertutup';
+            },
+
+            copyToClipboard(snippetId) {
+                const el = document.getElementById('snippet-' + snippetId);
+                if (!el) return;
+                const text = el.textContent || el.innerText;
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(text).then(() => {
+                        this.status = '✅ Script disalin ke clipboard!';
+                    }).catch(() => {
+                        this.status = '❌ Gagal menyalin script.';
+                    });
+                } else {
+                    const ta = document.createElement('textarea');
+                    ta.value = text;
+                    ta.style.position = 'fixed';
+                    ta.style.opacity = '0';
+                    document.body.appendChild(ta);
+                    ta.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(ta);
+                    this.status = '✅ Script disalin ke clipboard!';
+                }
+            }
+        },
+
+        init() {
+            console.log("RaaJS App Initialized!");
+        }
+    }));
+</script>
+</body>
+</html>
