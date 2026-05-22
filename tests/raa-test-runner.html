@@ -818,7 +818,7 @@
         
         TestRunner.describe('sanitizeHTML', () => {
           TestRunner.test('should remove script tags', () => {
-            const input = '<script>alert("xss")</script><p>Safe</p>';
+            const input = '<script>alert("xss")<\/script><p>Safe</p>';
             const result = raa.sanitizeHTML(input);
             
             expect(result).notToContain('<script>');
