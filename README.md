@@ -88,6 +88,7 @@ RaaJS v2.2 supports modern browsers with ES6+ compatibility:
 - ✅ Android WebView & Chrome for Android
 - ✅ iOS Safari 10+
 
+> **Internet Explorer — NOT SUPPORTED.** *IE doesn't have proxy support. RaaJS opted out of heavy polyfills to keep the "carbon bike" lightweight and high-performance. Time to move on.*
 ---
 
 ## 🛠️ Syntax Guide v2.2 (New Standard)
