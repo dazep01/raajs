@@ -9,7 +9,7 @@ Mari kita telusuri perjalanan lengkap sebuah aplikasi RaaJS, dari detik pertama 
 
 ---
 
-## 🎯 Mengapa Siklus Hidup Itu Penting? (Dan Kenapa Kamu Harus Peduli)
+## Mengapa Siklus Hidup Itu Penting? (Dan Kenapa Kamu Harus Peduli)
 
 Bayangkan kamu sedang membangun rumah. Kamu tidak akan memasang genteng sebelum pondasinya selesai, bukan? Begitu pula dengan aplikasi web. Setiap aplikasi memiliki "fase kehidupan" yang harus dihormati agar semuanya berjalan harmonis.
 
@@ -26,18 +26,18 @@ Dengan memahami siklus hidup, kamu bukan lagi "menebak-nebak", tapi **mengendali
 
 ---
 
-## 🗺️ Gambaran Besar: Perjalanan Sebuah Aplikasi RaaJS
+## Gambaran Besar: Perjalanan Sebuah Aplikasi RaaJS
 
 Sebelum masuk ke detail, mari kita lihat peta perjalanannya secara naratif:
 
-### 🌱 Fase 0: Kelahiran (Bootstrap)
+### Fase 0: Kelahiran (Bootstrap)
 Saat browser selesai memuat HTML dan memicu `DOMContentLoaded`, RaaJS "bangun dari tidur". Dua hal penting terjadi hampir bersamaan:
 1. **Instance global dibuat**: `window.Raa` lahir sebagai "otak pusat" yang mengatur seluruh reaktivitas di halaman.
 2. **MutationObserver dipasang**: Ini adalah "mata-mata" yang mengawasi perubahan DOM secara real-time, memungkinkan RaaJS merespons elemen dinamis yang ditambahkan setelah halaman pertama kali dimuat.
 
 > 💡 *Fun fact: MutationObserver inilah yang membuat RaaJS bisa bekerja mulus dengan SPA, AJAX content, atau framework lain yang memanipulasi DOM secara dinamis.*
 
-### 🔧 Fase 1: Kompilasi (The Compilation Phase)
+### Fase 1: Kompilasi (The Compilation Phase)
 Begitu RaaJS menemukan elemen dengan atribut `raa-core:app`, proses "kompilasi" dimulai. Ini adalah fase terpanjang dan paling kritis, di mana aplikasi benar-benar "dibangun".
 
 Prosesnya berjalan seperti ini:
@@ -48,7 +48,7 @@ Prosesnya berjalan seperti ini:
 4. **Methods diikat ke state** — Fungsi-fungsi di `methods` sekarang bisa mengakses `this.state` secara reaktif.
 5. **compileSubtree dijalankan** — RaaJS memindai seluruh subtree elemen untuk menemukan direktif seperti `raa-bind:`, `raa-on:`, `raa-flow:`, dll.
 
-#### 🎭 Dua Pass Kompilasi: Kenapa Harus Dua Kali?
+#### Dua Pass Kompilasi: Kenapa Harus Dua Kali?
 
 Kompilasi subtree dilakukan dalam **dua putaran terpisah** dengan alasan yang sangat teknis:
 
@@ -70,10 +70,10 @@ Baru setelah Pass 1 selesai, RaaJS membuat "Effect" untuk setiap binding reaktif
 7. **Hook `afterCompile` dipicu** — Plugin bisa menyuntikkan API tambahan ke state (misal: `$http`, `$bus`, `$t` untuk i18n).
 8. **`init()` dipanggil via `queueMicrotask`** — Fungsi `init` di definisi aplikasi dijalankan *setelah* semua efek terdaftar, memastikan state benar-benar siap.
 
-### 🚀 Fase 2: Aplikasi Berjalan (The Reactive Phase)
+### Fase 2: Aplikasi Berjalan (The Reactive Phase)
 Setelah kompilasi selesai, aplikasi memasuki fase "hidup". Di sinilah keajaiban reaktivitas terjadi secara kontinu.
 
-#### 🔄 Siklus Effect: Bagaimana Reaktivitas Bekerja?
+#### Siklus Effect: Bagaimana Reaktivitas Bekerja?
 
 Setiap kali kamu mengubah state (misal: `this.count++`), berikut yang terjadi di balik layar:
 
@@ -86,7 +86,7 @@ Setiap kali kamu mengubah state (misal: `this.count++`), berikut yang terjadi di
 
 > ⚡ *Ini adalah reason mengapa RaaJS sangat efisien: perubahan state tidak langsung memicu re-render DOM, tapi di-batch dan dioptimalkan via dependency tracking.*
 
-### 💥 Fase 3: Penghancuran (The Cleanup Phase)
+### Fase 3: Penghancuran (The Cleanup Phase)
 Ketika elemen root dihapus dari DOM (atau `destroyRoot()` dipanggil manual), RaaJS tidak sekadar "menghilangkan" elemen tersebut. Ia melakukan **pembersihan menyeluruh** untuk mencegah memory leak — masalah klasik di aplikasi SPA yang sering terlupakan.
 
 Proses penghancuran berjalan seperti ini:
@@ -107,11 +107,11 @@ Proses penghancuran berjalan seperti ini:
 
 ---
 
-## 🎭 Siklus Hidup Khusus: Elemen Kondisional & Loop
+## Siklus Hidup Khusus: Elemen Kondisional & Loop
 
 Tidak semua elemen mengikuti siklus hidup root utama. Elemen yang dikontrol oleh `raa-flow:if` dan `raa-flow:for` memiliki "kehidupan mini" mereka sendiri.
 
-### 🔄 `raa-flow:if`: Lahir, Mati, dan Lahir Lagi
+### `raa-flow:if`: Lahir, Mati, dan Lahir Lagi
 
 Elemen di dalam `raa-flow:if` tidak sekadar "disembunyikan" — mereka **dihancurkan dan diciptakan ulang** setiap kali kondisi berubah.
 
@@ -130,7 +130,7 @@ Kondisi true → false:
 
 > 🎯 *Implikasi penting: Jika kamu punya input dengan `raa-core:ref` di dalam `raa-flow:if`, ref tersebut akan "hilang" saat kondisi false, dan "muncul baru" saat kondisi true. Ini desain yang disengaja agar tidak ada state yang "terjebak" di elemen yang seharusnya tidak aktif.*
 
-### ♻️ `raa-flow:for`: Keyed Diffing yang Cerdas
+### `raa-flow:for`: Keyed Diffing yang Cerdas
 
 Loop di RaaJS tidak sekadar "render ulang semua". Ia menggunakan **keyed diffing algorithm** yang mirip dengan framework modern lainnya:
 
@@ -149,11 +149,11 @@ Array state berubah:
 
 ---
 
-## 🧩 Hook Siklus Hidup untuk Plugin: Titik Ekstensi yang Powerful
+## Hook Siklus Hidup untuk Plugin: Titik Ekstensi yang Powerful
 
 Plugin RaaJS tidak "menempel" sembarangan. Mereka menggunakan **hook lifecycle** yang terdefinisi dengan jelas untuk menyisipkan logika di momen-momen kritis.
 
-### 📅 Timeline Hook dalam Satu Siklus Kompilasi
+### Timeline Hook dalam Satu Siklus Kompilasi
 
 **Sebelum Kompilasi (`beforeCompile`)**  
 - Plugin bisa memodifikasi elemen root sebelum diproses
@@ -183,7 +183,7 @@ Plugin RaaJS tidak "menempel" sembarangan. Mereka menggunakan **hook lifecycle**
 - Cleanup final dan penghapusan dari registry internal
 - Contoh: DevTools menghapus root dari panel monitoring
 
-### 🛠️ Cara Mendaftarkan Hook dari Plugin
+### Cara Mendaftarkan Hook dari Plugin
 
 ```javascript
 const PluginKu = {
@@ -222,13 +222,13 @@ const PluginKu = {
 
 ---
 
-## ⏱️ `nextTick()`: Menunggu DOM Selesai Diperbarui (Tanpa Pusing)
+## `nextTick()`: Menunggu DOM Selesai Diperbarui (Tanpa Pusing)
 
 Ada momen klasik yang sering membuat developer bingung: *"Saya ubah state, tapi DOM belum berubah saat saya coba akses elemen-nya. Kenapa?!"*
 
 Jawabannya: **Perubahan DOM di RaaJS tidak sinkronus**. Ia di-batch via `queueMicrotask` untuk optimasi performa.
 
-### 🎯 Solusi: `window.Raa.nextTick()`
+### Solusi: `window.Raa.nextTick()`
 
 Fungsi ini memungkinkan kamu menjadwalkan kode yang akan dijalankan *setelah* semua effect selesai dan DOM benar-benar diperbarui.
 
@@ -251,7 +251,7 @@ sequenceDiagram
     App->>DOM: this.$refs.modalInput.focus() ✅
 ```
 
-### 📦 Contoh Penggunaan Nyata
+### Contoh Penggunaan Nyata
 
 ```javascript
 methods: {
@@ -302,11 +302,11 @@ methods: {
 
 ---
 
-## 🔬 Siklus Hidup Effect: Di Balik Layar Reaktivitas
+## Siklus Hidup Effect: Di Balik Layar Reaktivitas
 
 Setiap binding reaktif di RaaJS (`raa-bind:`, `raa-flow:`, dll) adalah sebuah **Effect** — fungsi kecil yang "hidup" dan berjalan ulang setiap kali dependensinya berubah.
 
-### 🔄 Journey Sebuah Effect
+### Journey Sebuah Effect
 
 ```
 1. Dibuat → createEffect() dipanggil saat kompilasi
@@ -319,7 +319,7 @@ Setiap binding reaktif di RaaJS (`raa-bind:`, `raa-flow:`, dll) adalah sebuah **
 8. Selesai → Effect tidak akan pernah berjalan lagi, memori dibebaskan
 ```
 
-### 🛠️ Debugging Effect via DevTools
+### Debugging Effect via DevTools
 
 Jika kamu memasang `raa-devtools.js`, kamu bisa memantau siklus effect secara real-time:
 
@@ -334,7 +334,7 @@ Ctrl + Shift + R  →  Buka panel DevTools
 
 ---
 
-## 🧭 Kompilasi Manual: `raa.mount()` untuk Konten Dinamis
+## Kompilasi Manual: `raa.mount()` untuk Konten Dinamis
 
 Terkadang, kamu menambahkan elemen ke DOM setelah halaman pertama kali dimuat — misalnya dari respons AJAX, setelah animasi, atau via integrasi dengan library lain.
 
@@ -363,7 +363,7 @@ window.Raa.mount('#widget-container');
 
 ---
 
-## 🌍 Siklus Hidup Lengkap: Contoh Dunia Nyata (Full Code)
+## Siklus Hidup Lengkap: Contoh Dunia Nyata (Full Code)
 
 Berikut adalah contoh aplikasi yang memanfaatkan setiap momen siklus hidup secara sengaja dan tepat. Kode ini bisa langsung kamu copy-paste dan jalankan:
 
@@ -577,7 +577,7 @@ Berikut adalah contoh aplikasi yang memanfaatkan setiap momen siklus hidup secar
 
 ---
 
-## 📋 Ringkasan: Momen Kritis dan Kapan Menggunakannya
+## Ringkasan: Momen Kritis dan Kapan Menggunakannya
 
 Berikut adalah cheat sheet cepat untuk referensi sehari-hari:
 
@@ -593,7 +593,7 @@ Berikut adalah cheat sheet cepat untuk referensi sehari-hari:
 
 ---
 
-## 🎁 Bonus: Tips Pro untuk Memanfaatkan Siklus Hidup
+## Bonus: Tips Pro untuk Memanfaatkan Siklus Hidup
 
 1. **Jangan overuse `init()`** — Hanya taruh logika yang benar-benar perlu dijalankan sekali saat aplikasi siap. Untuk logika per-elemen, gunakan `raa-core:init`.
 
@@ -607,4 +607,4 @@ Berikut adalah cheat sheet cepat untuk referensi sehari-hari:
 
 ---
 
-> 📚 *Dokumentasi ini adalah bagian dari RaaJS v3.1.0 Official Docs. Kontribusi, koreksi, dan ide perbaikan disambut hangat di repositori resmi. Mari bersama bangun ekosistem yang lebih baik!* 🚀
+> *Dokumentasi ini adalah bagian dari RaaJS v3.1.0 Official Docs. Kontribusi, koreksi, dan ide perbaikan disambut hangat di repositori resmi. Mari bersama bangun ekosistem yang lebih baik!* 🚀
