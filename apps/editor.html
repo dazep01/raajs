@@ -1597,9 +1597,9 @@ Workspace ini menggunakan RaaJS v3.1.0 — framework reaktif zero-dependency.
               this.showToast('Pilih file untuk dihapus', 'warning');
               return;
             }
-            if (!confirm('Hapus ' + sel.length + ' file dari GitHub?
-                File lokal TIDAK terhapus.
-                ')) return;
+            if (!confirm(`Hapus ${sel.length} file dari GitHub?
+            File lokal TIDAK terhapus.
+            `)) return;
                 this.ghUploadLoading = true;
                 var parts = this.ghRepo.split('/');
                 var owner = parts[0], repo = parts[1];
