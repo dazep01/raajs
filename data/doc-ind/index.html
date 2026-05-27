@@ -9,16 +9,38 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.0/engine/raa-min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.0/engine/extensions/raa-http.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.0/engine/extensions/raa-template.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.0/engine/extensions/raa-ui.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.0/engine/extensions/raa-animation.min.js"></script>
-    
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="raa.js"></script>
+    <script src="raa-http.js"></script>
+    <script src="raa-template.js"></script>
+    <script src="raa-ui.js"></script>
+    <script src="raa-animation.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.5/dist/purify.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/tokyonight-dark.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+        window.mermaid = mermaid;
+        mermaid.initialize({
+            startOnLoad: false,
+            theme: 'base',
+            themeVariables: {
+                darkMode: true,
+                primaryColor: '#1e1b2e',
+                primaryTextColor: '#f3f0f7',
+                primaryBorderColor: '#9C64FF',
+                lineColor: '#E55FA5',
+                secondaryColor: '#15121f',
+                tertiaryColor: '#0f0c16',
+                fontFamily: 'Bricolage Grotesque',
+                nodeBorder: '#9C64FF',
+                clusterBkg: '#161320',
+                clusterBorder: '#E55FA5',
+                color: 'white'
+            }
+        });        
+    </script>
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/victor-mono@5.0.8/index.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/victor-mono@5.0.8/400.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/victor-mono@5.0.8/700.css">
@@ -32,46 +54,46 @@
         }
 
         :root {
-            /* Palette Terinspirasi dari Logo Baru */
             --brand-gradient: linear-gradient(135deg, #FF7E62 0%, #E55FA5 50%, #9C64FF 100%);
             --brand-gradient-hover: linear-gradient(135deg, #ff927a 0%, #ed77b3 50%, #ad7cff 100%);
             --brand-coral: #FF7E62;
             --brand-pink: #E55FA5;
             --brand-purple: #9C64FF;
-            
-            /* Latar Belakang & Teks */
+
             --bg-base: #faf9fc;
             --bg-glow: radial-gradient(circle at 10% 20%, rgba(255, 126, 98, 0.05) 0%, rgba(229, 95, 165, 0.05) 50%, rgba(156, 100, 255, 0.05) 100%);
             --bg-card: rgba(255, 255, 255, 0.75);
             --bg-main: #ffffff;
-            
+
             --text-main: #1d1826;
             --text-secondary: #6e657c;
             --text-light: #9f96b0;
             --text-on-dark: #f3f0f7;
-            
+
             --border-color: rgba(156, 100, 255, 0.09);
             --border-color-hover: rgba(156, 100, 255, 0.18);
-            
-            /* Premium Shadow */
+
             --shadow-sm: 0 4px 12px rgba(29, 24, 38, 0.03);
             --shadow-md: 0 12px 32px rgba(156, 100, 255, 0.06);
             --shadow-lg: 0 20px 48px rgba(156, 100, 255, 0.1);
             --shadow-xl: 0 32px 64px rgba(29, 24, 38, 0.15);
-            
+
             --sidebar-width: 280px;
             --header-height: 76px;
             --transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             --transition-fast: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-            
+
             --radius-sm: 10px;
             --radius-md: 16px;
             --radius-lg: 24px;
             --radius-xl: 32px;
+
+            --code-bg: #191829;
+            --code-text: #c0caf5;
+            --code-border: rgba(156, 100, 255, 0.18);
         }
 
-        html,
-        body {
+        html, body {
             height: 100%;
             width: 100%;
         }
@@ -91,7 +113,7 @@
             min-height: 100dvh;
         }
 
-        /* ========== HEADER - Elegant Glassmorphism ========== */
+        /* ========== HEADER ========== */
         header {
             position: fixed;
             top: 0;
@@ -122,7 +144,6 @@
             gap: 12px;
         }
 
-        /* SVG Logo Styling */
         .logo-svg {
             width: 32px;
             height: 32px;
@@ -222,7 +243,6 @@
             min-height: 0;
         }
 
-        /* ========== SIDEBAR OVERLAY ========== */
         .sidebar-overlay {
             display: none;
             position: fixed;
@@ -243,7 +263,7 @@
             pointer-events: auto;
         }
 
-        /* ========== SIDEBAR (Modern Glass UI) ========== */
+        /* ========== SIDEBAR ========== */
         aside {
             width: var(--sidebar-width);
             min-width: var(--sidebar-width);
@@ -330,7 +350,7 @@
             font-size: 11px;
             font-weight: 800;
             letter-spacing: 1.5px;
-            color: var(--text-light);
+            color: var(--b);
             text-transform: uppercase;
             margin: 24px 0 12px 10px;
             user-select: none;
@@ -371,13 +391,13 @@
             box-shadow: 0 8px 20px rgba(229, 95, 165, 0.25);
             transform: translateX(2px);
         }
-        
+
         aside .btn-nav.active:hover {
             background: var(--brand-gradient-hover);
             color: #ffffff;
         }
 
-        /* ========== MAIN CONTENT AREA (Scrollable) ========== */
+        /* ========== MAIN CONTENT ========== */
         main {
             flex: 1;
             overflow-y: auto;
@@ -403,7 +423,7 @@
             margin: 0 auto;
             padding: 40px 36px;
         }
-        
+
         .content {
             background: var(--bg-main);
             border-radius: var(--radius-xl);
@@ -416,7 +436,6 @@
             position: relative;
         }
 
-        /* Menu Toggle Button untuk Mobile */
         .toggle-menu {
             display: none;
             position: fixed;
@@ -443,12 +462,12 @@
             box-shadow: 0 12px 30px rgba(229, 95, 165, 0.5);
         }
 
-        /* ========== FOOTER WRAPPER - Di dalam Main Scroll ========== */
+        /* ========== FOOTER ========== */
         .footer-wrapper {
             width: 100%;
-            margin-top: auto; /* Mendorong footer ke paling bawah jika konten sedikit */
+            margin-top: auto;
             border-top: 1px solid var(--border-color);
-            background: #0f0c16; /* Gelap premium ultra-deep violet */
+            background: #0f0c16;
         }
 
         .footer-main {
@@ -468,7 +487,7 @@
             font-weight: 700;
             letter-spacing: 1.5px;
             text-transform: uppercase;
-            color: #ff927a; /* Aksen coral cerah */
+            color: #ff927a;
             margin-bottom: 20px;
             padding-bottom: 10px;
             position: relative;
@@ -558,9 +577,8 @@
             box-shadow: 0 6px 15px rgba(229, 95, 165, 0.3);
         }
 
-        /* ========== FOOTER BOTTOM ========== */
         .footer-bottom-sticky {
-            background: #09070d; /* Sedikit lebih gelap dari footer-main */
+            background: #09070d;
             border-top: 1px solid rgba(255, 255, 255, 0.04);
             color: #6e697a;
             font-size: 13px;
@@ -592,8 +610,8 @@
         .footer-bottom-links a:hover {
             color: #ffffff;
         }
-        
-        /* ========== MARKDOWN STYLING (Premium) ========== */
+
+        /* ========== MARKDOWN STYLING ========== */
         .markdown-body {
             line-height: 1.85;
             color: var(--text-main);
@@ -631,27 +649,98 @@
             color: var(--brand-pink);
             padding: 3px 8px;
             border-radius: 8px;
-            font-family: 'Victor Mono' !important, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-family: 'Victor Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
             font-size: 0.9em;
             font-weight: 500;
         }
+
+        /* ✅ PRE: wadah luar — background sinkron dengan tokyonight-dark, posisi relatif untuk tombol copy */
         .markdown-body pre {
-            background: #110e16;
-            color: #f3f0f7;
-            padding: 24px;
+            background: var(--code-bg);
+            color: var(--code-text);
+            padding: 0;
             border-radius: 16px;
             overflow-x: auto;
             margin: 24px 0;
-            border: 1px solid rgba(156, 100, 255, 0.15);
+            border: 1px solid var(--code-border);
             box-shadow: var(--shadow-sm);
+            position: relative;
         }
+
+        /* ✅ Tombol copy kecil */
+        .copy-code-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(25, 24, 41, 0.8);
+            border: 1px solid rgba(156, 100, 255, 0.3);
+            backdrop-filter: blur(8px);
+            border-radius: 8px;
+            padding: 6px 10px;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.2s ease, background 0.2s, transform 0.1s;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #c0caf5;
+            font-size: 12px;
+            font-family: 'Bricolage Grotesque', monospace;
+            font-weight: 500;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+
+        .markdown-body pre:hover .copy-code-btn {
+            opacity: 1;
+        }
+
+        .copy-code-btn:hover {
+            background: rgba(156, 100, 255, 0.7);
+            border-color: rgba(255,255,255,0.4);
+            color: white;
+            transform: scale(1.02);
+        }
+
+        .copy-code-btn:active {
+            transform: scale(0.98);
+        }
+
+        .copy-code-btn svg {
+            width: 14px;
+            height: 14px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .copy-code-btn.copied {
+            background: #10b981;
+            border-color: #34d399;
+            color: white;
+        }
+
+        /* ✅ CODE di dalam pre: biarkan highlight.js yang mengatur padding & font */
         .markdown-body pre code {
             background: transparent;
             color: inherit;
             padding: 0;
             border-radius: 0;
             font-size: 14px;
+            display: block;
+            padding: 24px;
+            font-family: 'Victor Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-variant-ligatures: normal;
         }
+
+        /* ✅ Span dalam code: jangan ganggu warna highlight.js */
+        .markdown-body pre code span {
+            color: inherit;
+            background: transparent;
+        }
+
         .markdown-body blockquote {
             border-left: 5px solid var(--brand-pink);
             padding: 16px 24px;
@@ -661,7 +750,109 @@
             font-style: italic;
         }
 
-        /* Loading Skeleton */
+        /* ========== HLJS OVERRIDE ========== */
+        .hljs {
+            display: block;
+            overflow-x: auto;
+            padding: 0;
+            background: transparent;
+            color: var(--code-text);
+            border-radius: 0;
+            line-height: 1.7;
+            font-family: inherit;
+            font-size: inherit;
+        }
+
+        .hljs-keyword,
+        .hljs-selector-tag,
+        .hljs-literal,
+        .hljs-section,
+        .hljs-link {
+            color: #bb9af7 !important;
+            font-weight: 600;
+        }
+
+        .hljs-string,
+        .hljs-title,
+        .hljs-name,
+        .hljs-type,
+        .hljs-attribute,
+        .hljs-symbol,
+        .hljs-bullet,
+        .hljs-addition,
+        .hljs-template-tag,
+        .hljs-template-variable {
+            color: #9ece6a !important;
+        }
+
+        .hljs-comment,
+        .hljs-quote,
+        .hljs-deletion {
+            color: #565f89 !important;
+            font-style: italic;
+        }
+
+        .hljs-number,
+        .hljs-regexp,
+        .hljs-variable,
+        .hljs-tag .hljs-attr {
+            color: #ff9e64 !important;
+        }
+
+        .hljs-function .hljs-title,
+        .hljs-title.function_ {
+            color: #7aa2f7 !important;
+        }
+
+        .hljs-class .hljs-title,
+        .hljs-title.class_ {
+            color: #e0af68 !important;
+        }
+
+        .hljs-operator,
+        .hljs-punctuation {
+            color: #89ddff !important;
+        }
+
+        .hljs-meta {
+            color: #7dcfff !important;
+        }
+
+        /* Scrollbar untuk pre */
+        .markdown-body pre::-webkit-scrollbar {
+            height: 8px;
+        }
+        .markdown-body pre::-webkit-scrollbar-thumb {
+            background: #414868;
+            border-radius: 10px;
+        }
+        .markdown-body pre::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        /* ========== MERMAID ========== */
+        .mermaid-wrapper {
+            margin: 28px 0;
+            padding: 24px;
+            overflow-x: auto;
+            border-radius: 22px;
+            background: linear-gradient(180deg, #120f1b, #191426);
+            border: 1px solid rgba(156, 100, 255, 0.14);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, .16), inset 0 1px 0 rgba(255, 255, 255, .03);
+        }
+
+        .mermaid {
+            display: flex;
+            justify-content: center;
+            min-width: fit-content;
+        }
+
+        .mermaid svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        /* ========== LOADING SKELETON ========== */
         .loading-skeleton {
             display: flex;
             flex-direction: column;
@@ -693,8 +884,12 @@
             animation-delay: 0.2s;
         }
         @keyframes loadingGlow {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
+            0% {
+                background-position: 200% 0;
+            }
+            100% {
+                background-position: -200% 0;
+            }
         }
 
         @keyframes fadeInUp {
@@ -796,36 +991,6 @@
                 display: none !important;
             }
         }
-        
-.markdown-body pre code span {
-    color: inherit; /* Biarkan highlight.js yang menentukan warna */
-    background: transparent;
-}
-
-.hljs { display: block; overflow-x: auto; padding: 1.2em; background: #1a1b26; color: #c0caf5; border-radius: 14px; line-height: 1.7; font-family: "Victor Mono" !important, monospace; font-size: 14px, font-ligatures: true; }
-
- .hljs-keyword, .hljs-selector-tag, .hljs-literal, .hljs-section, .hljs-link { color: #bb9af7 !important; font-weight: 600 }
-
- .hljs-string, .hljs-title, .hljs-name, .hljs-type, .hljs-attribute, .hljs-symbol, .hljs-bullet, .hljs-addition, .hljs-template-tag, .hljs-template-variable { color: #9ece6a !important }
-
- .hljs-comment, .hljs-quote, .hljs-deletion { color: #565f89 !important; font-style: italic }
-
- .hljs-number, .hljs-regexp, .hljs-variable, .hljs-tag .hljs-attr { color: #ff9e64 !important }
-
- .hljs-function .hljs-title, .hljs-title.function_ { color: #7aa2f7 !important }
-
- .hljs-class .hljs-title, .hljs-title.class_ { color: #e0af68 !important }
-
- .hljs-operator, .hljs-punctuation { color: #89ddff !important }
-
- .hljs-meta { color: #7dcfff !important }
-
- .hljs::-webkit-scrollbar { height: 8px }
-
- .hljs::-webkit-scrollbar-thumb { background: #414868; border-radius: 10px }
-
- .hljs::-webkit-scrollbar-track { background: transparent }
-
     </style>
 </head>
 
@@ -855,80 +1020,78 @@
                 <button raa-on:click="toggleSidebar()" class="navbar-toggler">✕</button>
             </div>
             <nav>
-<h3 raa-bind:text="menu1"></h3>
-<div class="sub-menu">
-    <template raa-flow:for="item in itemsMenu1" raa-key="item.file">
-        <button raa-on:click="setActivePath(item.file)" raa-bind:class="{ 'active': activePath === item.file }" class="btn-nav">
-            <span raa-bind:text="item.submenu"></span>
-        </button>
-    </template>
-</div>
+                <h3 raa-bind:text="menu1"></h3>
+                <div class="sub-menu">
+                    <template raa-flow:for="item in itemsMenu1" raa-key="item.file">
+                        <button raa-on:click="setActivePath(item.file)" raa-bind:class="{ 'active': activePath === item.file }" class="btn-nav">
+                            <span raa-bind:text="item.submenu"></span>
+                        </button>
+                    </template>
+                </div>
 
-<h3 raa-bind:text="menu2" style="margin-top: 24px;"></h3>
-<div class="sub-menu">
-    <template raa-flow:for="item in itemsMenu2" raa-key="item.file">
-        <button raa-on:click="setActivePath(item.file)" raa-bind:class="{ 'active': activePath === item.file }" class="btn-nav">
-            <span raa-bind:text="item.submenu"></span>
-        </button>
-    </template>
-</div>
+                <h3 raa-bind:text="menu2" style="margin-top: 24px;"></h3>
+                <div class="sub-menu">
+                    <template raa-flow:for="item in itemsMenu2" raa-key="item.file">
+                        <button raa-on:click="setActivePath(item.file)" raa-bind:class="{ 'active': activePath === item.file }" class="btn-nav">
+                            <span raa-bind:text="item.submenu"></span>
+                        </button>
+                    </template>
+                </div>
 
-<h3 raa-bind:text="menu3" style="margin-top: 24px;"></h3>
-<div class="sub-menu">
-    <template raa-flow:for="item in itemsMenu3" raa-key="item.file">
-        <button raa-on:click="setActivePath(item.file)" raa-bind:class="{ 'active': activePath === item.file }" class="btn-nav">
-            <span raa-bind:text="item.submenu"></span>
-        </button>
-    </template>
-</div>
+                <h3 raa-bind:text="menu3" style="margin-top: 24px;"></h3>
+                <div class="sub-menu">
+                    <template raa-flow:for="item in itemsMenu3" raa-key="item.file">
+                        <button raa-on:click="setActivePath(item.file)" raa-bind:class="{ 'active': activePath === item.file }" class="btn-nav">
+                            <span raa-bind:text="item.submenu"></span>
+                        </button>
+                    </template>
+                </div>
 
-<h3 raa-bind:text="menu4" style="margin-top: 24px;"></h3>
-<div class="sub-menu">
-    <template raa-flow:for="item in itemsMenu4" raa-key="item.file">
-        <button raa-on:click="setActivePath(item.file)" raa-bind:class="{ 'active': activePath === item.file }" class="btn-nav">
-            <span raa-bind:text="item.submenu"></span>
-        </button>
-    </template>
-</div>
+                <h3 raa-bind:text="menu4" style="margin-top: 24px;"></h3>
+                <div class="sub-menu">
+                    <template raa-flow:for="item in itemsMenu4" raa-key="item.file">
+                        <button raa-on:click="setActivePath(item.file)" raa-bind:class="{ 'active': activePath === item.file }" class="btn-nav">
+                            <span raa-bind:text="item.submenu"></span>
+                        </button>
+                    </template>
+                </div>
 
-<h3 raa-bind:text="menu5" style="margin-top: 24px;"></h3>
-<div class="sub-menu">
-    <template raa-flow:for="item in itemsMenu5" raa-key="item.file">
-        <button raa-on:click="setActivePath(item.file)" raa-bind:class="{ 'active': activePath === item.file }" class="btn-nav">
-            <span raa-bind:text="item.submenu"></span>
-        </button>
-    </template>
-</div>
+                <h3 raa-bind:text="menu5" style="margin-top: 24px;"></h3>
+                <div class="sub-menu">
+                    <template raa-flow:for="item in itemsMenu5" raa-key="item.file">
+                        <button raa-on:click="setActivePath(item.file)" raa-bind:class="{ 'active': activePath === item.file }" class="btn-nav">
+                            <span raa-bind:text="item.submenu"></span>
+                        </button>
+                    </template>
+                </div>
 
-<h3 raa-bind:text="menu6" style="margin-top: 24px;"></h3>
-<div class="sub-menu">
-    <template raa-flow:for="item in itemsMenu6" raa-key="item.file">
-        <button raa-on:click="setActivePath(item.file)" raa-bind:class="{ 'active': activePath === item.file }" class="btn-nav">
-            <span raa-bind:text="item.submenu"></span>
-        </button>
-    </template>
-</div>
+                <h3 raa-bind:text="menu6" style="margin-top: 24px;"></h3>
+                <div class="sub-menu">
+                    <template raa-flow:for="item in itemsMenu6" raa-key="item.file">
+                        <button raa-on:click="setActivePath(item.file)" raa-bind:class="{ 'active': activePath === item.file }" class="btn-nav">
+                            <span raa-bind:text="item.submenu"></span>
+                        </button>
+                    </template>
+                </div>
 
-<h3 raa-bind:text="menu7" style="margin-top: 24px;"></h3>
-<div class="sub-menu">
-    <template raa-flow:for="item in itemsMenu7" raa-key="item.file">
-        <button raa-on:click="setActivePath(item.file)" raa-bind:class="{ 'active': activePath === item.file }" class="btn-nav">
-            <span raa-bind:text="item.submenu"></span>
-        </button>
-    </template>
-</div>
-
+                <h3 raa-bind:text="menu7" style="margin-top: 24px;"></h3>
+                <div class="sub-menu">
+                    <template raa-flow:for="item in itemsMenu7" raa-key="item.file">
+                        <button raa-on:click="setActivePath(item.file)" raa-bind:class="{ 'active': activePath === item.file }" class="btn-nav">
+                            <span raa-bind:text="item.submenu"></span>
+                        </button>
+                    </template>
+                </div>
             </nav>
         </aside>
 
-        <!-- Main Area dengan Scroll Container Khusus agar Footer mengalir sempurna -->
         <main>
             <div class="main-scroll-container">
                 <div class="main-content-area">
                     <button raa-flow:show="!isSidebarOpen" raa-on:click="toggleSidebar()" class="toggle-menu">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" viewBox="0 0 256 256"><path d="M224,128a8,8,0,0,1-8,8H112a8,8,0,0,1,0-16H216A8,8,0,0,1,224,128ZM112,72H216a8,8,0,0,0,0-16H112a8,8,0,0,0,0,16ZM216,184H40a8,8,0,0,0,0,16H216a8,8,0,0,0,0-16ZM34.34,141.66a8,8,0,0,0,11.32,0l40-40a8,8,0,0,0,0-11.32l-40-40A8,8,0,0,0,34.34,61.66L68.69,96,34.34,130.34A8,8,0,0,0,34.34,141.66Z"></path></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" viewBox="0 0 256 256"><path d="M224,128a8,8,0,0,1-8,8H112a8,8,0,0,1,0-16H216A8,8,0,0,1,224,128ZM112,72H216a8,8,0,0,0,0-16H112a8,8,0,0,0,0,16ZM216,184H40a8,8,0,0,0,0,16H216a8,8,0,0,0,0-16ZM34.34,141.66a8,8,0,0,0,11.32,0l40-40a8,8,0,0,0,0-11.32l-40-40A8,8,0,0,0,34.34,61.66L68.69,96,34.34,130.34A8,8,0,0,0,34.34,141.66Z"></path></svg>
                     </button>
-                    
+
                     <article class="content">
                         <template raa-flow:if="isLoading">
                             <div class="loading-skeleton">
@@ -950,16 +1113,14 @@
                         </template>
                     </article>
                 </div>
-                
-                <!-- Footer Wrapper: Mengalir secara natural di bawah konten -->
+
                 <div class="footer-wrapper">
-                    <!-- Footer Main -->
                     <div class="footer-main">
                         <div class="footer-col">
-                          <div style="display: flex; flex-direction: column;">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1465 1465" width="50" height="50" style="margin-bottom: 0; padding: 0;"><defs><linearGradient id="gradientIkon" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#f78166;stop-opacity:1" /><stop offset="100%" style="stop-color:#d2a8ff;stop-opacity:1" /></linearGradient></defs><path fill-rule="evenodd" fill="url(#gradientIkon)" stroke-linecap="round" stroke-linejoin="round" stroke-width="13.7" d="M267 1150c74 4 248 19 258-178m-260-26-2 204m262-178-89-143q6 219-91 222-1-414 2-406c2-86 49-173 154-225 183-64 342 45 344 176 8 102-31 194-219 205q60 171 239 169 203-25 185-253-9-111 83-157c4 118 2 130 1 220q-32 252-263 271-141 0-221-117C521 773 499 685 506 659q17-94 111-108 117-4 118 146c65-101 48-187-71-227q-194-24-241 176c-1 72 36 156 98 237q152 227 272 248 148 30 268-53 130-113 156-265 4-320 2-337-151-13-242 146c1 4-20 62-8 162q-7 92-93 108-67 11-104-32 147-68 156-186 16-206-135-303c-137-96-366-46-432 34-205 127-71 683-94 745m947-836q12 92-104 97-81 6-151 101-22-63-45-82c84-82 182-126 300-116"/></svg>
-                            <span class="footer-brand">RaaJS</span>
-                           </div>
+                            <div style="display: flex; flex-direction: column;">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1465 1465" width="50" height="50" style="margin-bottom: 0; padding: 0;"><defs><linearGradient id="gradientIkon2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#f78166;stop-opacity:1" /><stop offset="100%" style="stop-color:#d2a8ff;stop-opacity:1" /></linearGradient></defs><path fill-rule="evenodd" fill="url(#gradientIkon2)" stroke-linecap="round" stroke-linejoin="round" stroke-width="13.7" d="M267 1150c74 4 248 19 258-178m-260-26-2 204m262-178-89-143q6 219-91 222-1-414 2-406c2-86 49-173 154-225 183-64 342 45 344 176 8 102-31 194-219 205q60 171 239 169 203-25 185-253-9-111 83-157c4 118 2 130 1 220q-32 252-263 271-141 0-221-117C521 773 499 685 506 659q17-94 111-108 117-4 118 146c65-101 48-187-71-227q-194-24-241 176c-1 72 36 156 98 237q152 227 272 248 148 30 268-53 130-113 156-265 4-320 2-337-151-13-242 146c1 4-20 62-8 162q-7 92-93 108-67 11-104-32 147-68 156-186 16-206-135-303c-137-96-366-46-432 34-205 127-71 683-94 745m947-836q12 92-104 97-81 6-151 101-22-63-45-82c84-82 182-126 300-116"/></svg>
+                                <span class="footer-brand">RaaJS</span>
+                            </div>
                             <p class="footer-tagline">"Less magic, more method."</p>
                             <p>Framework JavaScript ultra-minimalis yang dirancang khusus untuk mengutamakan kesederhanaan, performa instan, dan kontrol penuh.</p>
                             <div class="social-links">
@@ -995,7 +1156,6 @@
                         </div>
                     </div>
 
-                    <!-- Footer Bottom -->
                     <div class="footer-bottom-sticky">
                         <span>&copy; 2026 RaaJS. All rights reserved. Crafted for extreme performance.</span>
                         <ul class="footer-bottom-links">
@@ -1005,71 +1165,120 @@
                         </ul>
                     </div>
                 </div>
-
             </div>
         </main>
-          
     </div>
 
     <script>
+        // Fungsi global untuk copy kode
+        function attachCopyButtonsToCodeBlocks() {
+            // Cari semua elemen pre yang memiliki elemen code di dalamnya
+            const pres = document.querySelectorAll('.markdown-body pre');
+            pres.forEach(pre => {
+                // Cek apakah tombol copy sudah ada di pre ini
+                if (pre.querySelector('.copy-code-btn')) return;
+
+                const codeBlock = pre.querySelector('code');
+                if (!codeBlock) return;
+
+                // Buat tombol copy
+                const copyBtn = document.createElement('button');
+                copyBtn.className = 'copy-code-btn';
+                copyBtn.innerHTML = `
+                    <svg viewBox="0 0 24 24" width="14" height="14">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2" stroke="currentColor" fill="none" stroke-width="2"></rect>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" fill="none" stroke-width="2"></path>
+                    </svg>
+                    <span>Copy</span>
+                `;
+
+                // Event copy
+                copyBtn.addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    // Ambil teks asli dari code block (jika ada highlight.js, tetap ambil textContent)
+                    const codeText = codeBlock.textContent || '';
+                    try {
+                        await navigator.clipboard.writeText(codeText);
+                        // Feedback visual
+                        const originalHTML = copyBtn.innerHTML;
+                        copyBtn.innerHTML = `
+                            <svg viewBox="0 0 24 24" width="14" height="14">
+                                <polyline points="20 6 9 17 4 12" stroke="currentColor" fill="none" stroke-width="2"></polyline>
+                            </svg>
+                            <span>Copied!</span>
+                        `;
+                        copyBtn.classList.add('copied');
+                        setTimeout(() => {
+                            copyBtn.innerHTML = originalHTML;
+                            copyBtn.classList.remove('copied');
+                        }, 1500);
+                    } catch (err) {
+                        console.warn('Gagal copy: ', err);
+                        copyBtn.innerHTML = `<span>Error!</span>`;
+                        setTimeout(() => {
+                            copyBtn.innerHTML = originalHTML;
+                        }, 1000);
+                    }
+                });
+
+                pre.style.position = 'relative';
+                pre.appendChild(copyBtn);
+            });
+        }
+
         RaaJS.define('mainLayout', () => ({
             state: {
                 isSidebarOpen: true,
-    menu1: 'Pengenalan & Dasar (Getting Started)',
-    itemsMenu1: [
-        { submenu: 'Apa itu RaaJS?', file: 'submenu-1-1.md' },
-        { submenu: 'Instalasi Cepat', file: 'submenu-1-2.md' },
-        { submenu: 'Konsep Hello World', file: 'submenu-1-3.md' }
-    ],
-
-    menu2: 'Panduan Inti (Core Concepts)',
-    itemsMenu2: [
-        { submenu: 'Model Reaktivitas', file: 'submenu-2-1.md' },
-        { submenu: 'State Management', file: 'submenu-2-2.md' },
-        { submenu: 'Siklus Hidup Aplikasi', file: 'submenu-2-3.md' }
-    ],
-
-    menu3: 'Direktif & Template (API Reference)',
-    itemsMenu3: [
-        { submenu: 'Direktif Root & Setup', file: 'submenu-3-1.md' },
-        { submenu: 'Data Binding', file: 'submenu-3-2.md' },
-        { submenu: 'Kontrol Alur', file: 'submenu-3-3.md' },
-        { submenu: 'Event Handling', file: 'submenu-3-4.md' }
-    ],
-
-    menu4: 'Bahasa Ekspresi & Keamanan',
-    itemsMenu4: [
-        { submenu: 'Sintaks Ekspresi', file: 'submenu-4-1.md' },
-        { submenu: 'Scope Evaluator', file: 'submenu-4-2.md' },
-        { submenu: 'Sanitasi Keamanan', file: 'submenu-4-3.md' }
-    ],
-
-    menu5: 'Ekosistem & Plugin (Extended Features)',
-    itemsMenu5: [
-        { submenu: 'Computed & Watchers', file: 'submenu-5-1.md' },
-        { submenu: 'Komunikasi Komponen', file: 'submenu-5-2.md' },
-        { submenu: 'HTTP & Data Fetching', file: 'submenu-5-3.md' },
-        { submenu: 'Validasi & UI', file: 'submenu-5-4.md' },
-        { submenu: 'Internasionalisasi (i18n) & Animasi', file: 'submenu-5-5.md' }
-    ],
-
-    menu6: 'Arsitektur Plugin Kustom (Advanced)',
-    itemsMenu6: [
-        { submenu: 'Membuat Plugin', file: 'submenu-6-1.md' },
-        { submenu: 'Hook Siklus Hidup', file: 'submenu-6-2.md' },
-        { submenu: 'Direktif & Efek Kustom', file: 'submenu-6-3.md' }
-    ],
-
-    menu7: 'Troubleshooting & Migrasi',
-    itemsMenu7: [
-        { submenu: 'FAQ & Pitfalls', file: 'submenu-7-1.md' },
-        { submenu: 'Panduan Migrasi v3.0 → v3.1', file: 'submenu-7-2.md' },
-        { submenu: 'Optimasi Performa', file: 'submenu-7-3.md' }
-    ],
+                menu1: 'Pengenalan & Dasar (Getting Started)',
+                itemsMenu1: [
+                    { submenu: 'Apa itu RaaJS?', file: 'submenu-1-1.md' },
+                    { submenu: 'Instalasi Cepat', file: 'submenu-1-2.md' },
+                    { submenu: 'Konsep Hello World', file: 'submenu-1-3.md' }
+                ],
+                menu2: 'Panduan Inti (Core Concepts)',
+                itemsMenu2: [
+                    { submenu: 'Model Reaktivitas', file: 'submenu-2-1.md' },
+                    { submenu: 'State Management', file: 'submenu-2-2.md' },
+                    { submenu: 'Siklus Hidup Aplikasi', file: 'submenu-2-3.md' }
+                ],
+                menu3: 'Direktif & Template (API Reference)',
+                itemsMenu3: [
+                    { submenu: 'Direktif Root & Setup', file: 'submenu-3-1.md' },
+                    { submenu: 'Data Binding', file: 'submenu-3-2.md' },
+                    { submenu: 'Kontrol Alur', file: 'submenu-3-3.md' },
+                    { submenu: 'Event Handling', file: 'submenu-3-4.md' }
+                ],
+                menu4: 'Bahasa Ekspresi & Keamanan',
+                itemsMenu4: [
+                    { submenu: 'Sintaks Ekspresi', file: 'submenu-4-1.md' },
+                    { submenu: 'Scope Evaluator', file: 'submenu-4-2.md' },
+                    { submenu: 'Sanitasi Keamanan', file: 'submenu-4-3.md' }
+                ],
+                menu5: 'Ekosistem & Plugin (Extended Features)',
+                itemsMenu5: [
+                    { submenu: 'Computed & Watchers', file: 'submenu-5-1.md' },
+                    { submenu: 'Komunikasi Komponen', file: 'submenu-5-2.md' },
+                    { submenu: 'HTTP & Data Fetching', file: 'submenu-5-3.md' },
+                    { submenu: 'Validasi & UI', file: 'submenu-5-4.md' },
+                    { submenu: 'Internasionalisasi (i18n) & Animasi', file: 'submenu-5-5.md' }
+                ],
+                menu6: 'Arsitektur Plugin Kustom (Advanced)',
+                itemsMenu6: [
+                    { submenu: 'Membuat Plugin', file: 'submenu-6-1.md' },
+                    { submenu: 'Hook Siklus Hidup', file: 'submenu-6-2.md' },
+                    { submenu: 'Direktif & Efek Kustom', file: 'submenu-6-3.md' }
+                ],
+                menu7: 'Troubleshooting & Migrasi',
+                itemsMenu7: [
+                    { submenu: 'FAQ & Pitfalls', file: 'submenu-7-1.md' },
+                    { submenu: 'Panduan Migrasi v3.0 → v3.1', file: 'submenu-7-2.md' },
+                    { submenu: 'Optimasi Performa', file: 'submenu-7-3.md' }
+                ],
                 activePath: '',
                 fileContent: '',
                 isLoading: false
             },
+
             methods: {
                 toggleSidebar() {
                     if (window.innerWidth <= 768) this.isSidebarOpen = !this.isSidebarOpen;
@@ -1079,41 +1288,110 @@
                     this.loadContent(filePath);
                     if (window.innerWidth <= 768) this.isSidebarOpen = false;
                 },
-async loadContent(filePath) {
-    if (!filePath) return;
-    this.isLoading = true;
-    this.fileContent = '';
-    
-    try {
-        const res = await fetch(filePath);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const rawMd = await res.text();
-        
-        // Tetap gunakan DOMPurify yang aman, tapi izinkan span
-        const parsedHtml = marked.parse(rawMd);
-        this.fileContent = DOMPurify.sanitize(parsedHtml, {
-            ALLOWED_TAGS: ['h1','h2','h3','h4','p','ul','ol','li','code','pre','strong','em','a','img','br','hr','blockquote','table','thead','tbody','tr','th','td','span'],
-            ALLOWED_ATTR: ['href','src','alt','title','class','id']
-        });
+                async loadContent(filePath) {
+                    if (!filePath) return;
+                    this.isLoading = true;
+                    this.fileContent = '';
 
-        // 🚀 KUNCI KESUKSESAN: Gunakan requestAnimationFrame
-        requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-                const codeBlocks = document.querySelectorAll('.markdown-body pre code');
-                codeBlocks.forEach((el) => {
-                    hljs.highlightElement(el);
-                    // Force styling
-                    el.style.display = 'block'; 
-                });
-            });
-        });
+                    try {
+                        const res = await fetch(filePath);
+                        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                        const rawMd = await res.text();
 
-    } catch (err) {
-        this.fileContent = `<div style="color:red">Error: ${err.message}</div>`;
-    } finally {
-        this.isLoading = false;
-    }
-}
+                        function escapeHtml(str) {
+                            if (typeof str !== 'string') return String(str);
+                            return str
+                                .replace(/&/g, '&amp;')
+                                .replace(/</g, '&lt;')
+                                .replace(/>/g, '&gt;')
+                                .replace(/"/g, '&quot;')
+                                .replace(/'/g, '&#039;');
+                        }
+
+                        const renderer = new marked.Renderer();
+
+                        renderer.code = function(code, infostring, escaped) {
+                            if (typeof code === 'object' && code !== null) {
+                                escaped = code.escaped;
+                                infostring = code.lang;
+                                code = code.text;
+                            }
+                            const codeContent = typeof code === 'string'
+                                ? code
+                                : (code?.text || code?.code || String(code));
+                            const lang = (infostring || '')
+                                .trim()
+                                .split(/\s+/)[0]
+                                .replace(/^language-/, '') || 'plaintext';
+
+                            if (lang === 'mermaid') {
+                                return `<div class="mermaid-wrapper"><div class="mermaid">${codeContent}</div></div>`;
+                            }
+
+                            const escapedCode = escapeHtml(codeContent);
+                            return `<pre><code class="language-${lang}">${escapedCode}</code></pre>`;
+                        };
+
+                        const parsedHtml = marked.parse(rawMd, { renderer });
+
+                        this.fileContent = DOMPurify.sanitize(parsedHtml, {
+                            ALLOWED_TAGS: [
+                                'h1', 'h2', 'h3', 'h4', 'p', 'ul', 'ol', 'li', 'code', 'pre',
+                                'strong', 'em', 'a', 'img', 'br', 'hr', 'blockquote',
+                                'table', 'thead', 'tbody', 'tr', 'th', 'td', 'span',
+                                'svg', 'path', 'rect', 'circle', 'g', 'text', 'line',
+                                'polygon', 'polyline', 'ellipse', 'defs', 'linearGradient',
+                                'stop', 'marker', 'use', 'foreignObject', 'div', 'button'
+                            ],
+                            ALLOWED_ATTR: [
+                                'href', 'src', 'alt', 'title', 'class', 'id',
+                                'viewBox', 'd', 'fill', 'stroke', 'stroke-width',
+                                'transform', 'points', 'cx', 'cy', 'r', 'rx', 'ry',
+                                'x', 'y', 'x1', 'y1', 'x2', 'y2',
+                                'width', 'height', 'style',
+                                'marker-end', 'marker-start', 'marker-mid',
+                                'stroke-linecap', 'stroke-linejoin', 'stroke-dasharray',
+                                'font-family', 'font-size', 'font-weight', 'text-anchor',
+                                'dominant-baseline', 'opacity', 'fill-opacity',
+                                'xmlns', 'offset', 'stop-color', 'stop-opacity',
+                                'clip-path', 'mask'
+                            ]
+                        });
+
+                        setTimeout(() => {
+                            if (typeof hljs !== 'undefined') {
+                                document.querySelectorAll('.markdown-body pre code').forEach((el) => {
+                                    el.removeAttribute('data-highlighted');
+                                    el.classList.remove('hljs');
+                                    hljs.highlightElement(el);
+                                });
+                            }
+                            if (typeof window.mermaid !== 'undefined') {
+                                const mermaidBlocks = document.querySelectorAll('.mermaid');
+                                if (mermaidBlocks.length > 0) {
+                                    mermaidBlocks.forEach(el => {
+                                        const raw = el.getAttribute('data-mermaid-raw');
+                                        if (raw) el.textContent = raw;
+                                    });
+                                    window.mermaid.run({ nodes: mermaidBlocks })
+                                        .catch(err => console.error('🎨 Mermaid error:', err));
+                                }
+                            }
+                            document.querySelectorAll('.mermaid').forEach(el => {
+                                if (!el.getAttribute('data-mermaid-raw')) {
+                                    el.setAttribute('data-mermaid-raw', el.textContent || '');
+                                }
+                            });
+
+                            // 🔥 Pasang tombol copy setelah konten dirender
+                            attachCopyButtonsToCodeBlocks();
+                        }, 100);
+                    } catch (err) {
+                        this.fileContent = `<div style="color:red">⚠️ Error: ${err.message}</div>`;
+                    } finally {
+                        this.isLoading = false;
+                    }
+                }
             }
         }));
     </script>
