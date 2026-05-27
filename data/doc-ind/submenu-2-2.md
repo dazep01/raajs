@@ -11,7 +11,7 @@ State adalah **jantung** dari setiap aplikasi RaaJS. Ia menentukan apa yang dili
 
 **State** adalah kumpulan semua data yang dimiliki aplikasimu pada satu momen tertentu. Ia adalah "foto instan" dari kondisi aplikasi: apa yang sedang ditampilkan, apa yang sedang diproses, dan apa yang sudah diketahui aplikasi tentang penggunanya.
 
-### 🍽️ Analogi: Papan Status di Dapur Restoran
+### Analogi: Papan Status di Dapur Restoran
 
 Bayangkan state seperti **papan status digital** di dapur restoran modern:
 
