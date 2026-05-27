@@ -3,626 +3,467 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RaaJS Creative Workspace v3.1.0 — GitHub Connector (Refactored)</title>
-    <script src="https://cdn.jsdelivr.net/npm/@octokit/rest@20.0.2/dist-bundle/index.min.js"></script>
+    <title>RaaJS Studio — Creative Workspace v3.1.0</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="icon" type="image/svg+xml" href="../assets/logo-color.svg">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@octokit/rest@20.0.2/dist-bundle/index.min.js"></script>
     <script src="../engine/raa.js"></script>
-    
+    <script src="../engine/raa-computed-watch.js"></script>
+    <script src="../engine/raa-http.js"></script>
+    <script src="../engine/raa-ux.js"></script>
+    <script src="../engine/raa-validate.js"></script>
     <style>
-        /* ═══════════════════════════════════════════════════════
-           RAAJS STUDIO — Orange→Purple Soft Pastel Theme
-           Island-Architectured Preview (State-Leak Proof)
-           ═══════════════════════════════════════════════════════ */
-        :root {
-            --gradient-brand: linear-gradient(135deg, #F4845F 0%, #E87DA0 45%, #B06DD4 100%);
-            --gradient-brand-soft: linear-gradient(135deg, rgba(244,132,95,0.12) 0%, rgba(184,109,212,0.12) 100%);
-            --gradient-brand-hover: linear-gradient(135deg, #E07350 0%, #D66D90 45%, #9E5DC2 100%);
+:root { --bg-base: #0F0E13; --bg-surface: #16151D; --bg-elevated: #1C1B24; --bg-hover: #242330; --bg-active: #2A2938; --bg-code: #13121A; --border-subtle: rgba(255,255,255,0.06); --border-light: rgba(255,255,255,0.10); --border-medium: rgba(255,255,255,0.14); --text-primary: #F0F0F5; --text-secondary: #A0A0B0; --text-muted: #6E6E80; --text-inverse: #0F0E13; --accent-orange: #FF8C5F; --accent-rose: #E87DA8; --accent-purple: #B06DD4; --accent-sky: #7EB8D9; --accent-mint: #6DC9A0; --accent-amber: #F0C06E; --gradient-brand: linear-gradient(135deg, #FF8C5F 0%, #E87DA8 50%, #B06DD4 100%); --gradient-brand-soft: linear-gradient(135deg, rgba(255,140,95,0.15) 0%, rgba(176,109,212,0.15) 100%); --shadow-xs: 0 1px 2px rgba(0,0,0,0.3); --shadow-soft: 0 4px 12px rgba(0,0,0,0.4); --shadow-md: 0 8px 24px rgba(0,0,0,0.5); --shadow-lg: 0 16px 48px rgba(0,0,0,0.6); --shadow-glow-orange: 0 0 20px rgba(255,140,95,0.25); --shadow-glow-purple: 0 0 20px rgba(176,109,212,0.25); --radius-xs: 4px; --radius-sm: 8px; --radius-md: 12px; --radius-lg: 16px; --radius-xl: 20px; --radius-full: 9999px; --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1); --transition-smooth: 0.25s cubic-bezier(0.4, 0, 0.2, 1); --transition-bounce: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) }
 
-            --bg-base: #FAF7F5;
-            --bg-surface: #FFFFFF;
-            --bg-elevated: #F6F2EF;
-            --bg-hover: #F0EBE6;
-            --bg-code: #FDFCFA;
+ *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0 }
 
-            --border-light: #E8E0D8;
-            --border-medium: #D9CFC5;
-            --border-focus: #D4A89A;
+ body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: var(--bg-base); color: var(--text-primary); height: 100dvh; overflow: hidden; display: flex; flex-direction: column; line-height: 1.5; -webkit-font-smoothing: antialiased }
 
-            --text-primary: #2C2520;
-            --text-secondary: #6B5D52;
-            --text-muted: #A69888;
-            --text-inverse: #FFFFFF;
+ ::-webkit-scrollbar { width: 6px; height: 6px }
 
-            --accent-orange: #F4845F;
-            --accent-orange-soft: rgba(244,132,95,0.10);
-            --accent-rose: #E87DA0;
-            --accent-rose-soft: rgba(232,125,160,0.10);
-            --accent-purple: #B06DD4;
-            --accent-purple-soft: rgba(176,109,212,0.10);
-            --accent-sky: #7EB8D9;
-            --accent-sky-soft: rgba(126,184,217,0.10);
-            --accent-mint: #6DC9A0;
-            --accent-mint-soft: rgba(109,201,160,0.10);
-            --accent-amber: #F0C06E;
-            --accent-amber-soft: rgba(240,192,110,0.10);
+ ::-webkit-scrollbar-track { background: transparent }
 
-            --fill-orange: #FDEBD3;
-            --fill-rose: #FBD9E3;
-            --fill-purple: #EAD8F5;
-            --fill-mint: #D1F2E6;
-            --fill-amber: #FEF3D5;
+ ::-webkit-scrollbar-thumb { background: var(--border-medium); border-radius: var(--radius-full) }
 
-            --status-synced: var(--accent-mint);
-            --status-pending: var(--accent-amber);
-            --status-error: var(--accent-rose);
+ ::-webkit-scrollbar-thumb:hover { background: var(--accent-orange) }
 
-            --shadow-xs: 0 1px 2px rgba(44,37,32,0.04);
-            --shadow-soft: 0 2px 8px rgba(44,37,32,0.06);
-            --shadow-md: 0 4px 16px rgba(44,37,32,0.08);
-            --shadow-lg: 0 8px 32px rgba(44,37,32,0.12);
-            --shadow-glow-orange: 0 4px 20px rgba(244,132,95,0.20);
-            --shadow-glow-purple: 0 4px 20px rgba(176,109,212,0.20);
+ header { height: 56px; background: rgba(22,21,29,0.85); backdrop-filter: blur(20px) saturate(180%); border-bottom: 1px solid var(--border-subtle); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; flex-shrink: 0; z-index: 50; position: relative }
 
-            --radius-xs: 4px;
-            --radius-sm: 8px;
-            --radius-md: 12px;
-            --radius-lg: 16px;
-            --radius-xl: 20px;
-            --radius-full: 9999px;
+ header::after { content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 1px; background: var(--gradient-brand); opacity: 0.6 }
 
-            --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-            --transition-smooth: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            --transition-bounce: 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
+ .header-brand { display: flex; align-items: center; gap: 12px }
 
-        *, *::before, *::after { box-sizing: border-box; }
-        body {
-            font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-            background: var(--bg-base);
-            color: var(--text-primary);
-            margin: 0; padding: 0;
-            height: 100dvh;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            line-height: 1.6;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            width: 100vw;
-            background-image:
-                radial-gradient(ellipse 800px 600px at 5% 15%, rgba(244,132,95,0.05) 0%, transparent 70%),
-                radial-gradient(ellipse 600px 500px at 95% 85%, rgba(176,109,212,0.05) 0%, transparent 70%),
-                radial-gradient(ellipse 500px 400px at 50% 50%, rgba(232,125,160,0.03) 0%, transparent 60%);
-            background-attachment: fixed;
-        }
+ .header-brand-icon { width: 32px; height: 32px; background: var(--gradient-brand); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.9rem; color: white; box-shadow: var(--shadow-glow-orange) }
 
-        /* ═════════════ HEADER ═════════════ */
-        header {
-            background: rgba(255,255,255,0.85);
-            backdrop-filter: blur(16px) saturate(180%);
-            -webkit-backdrop-filter: blur(16px) saturate(180%);
-            border-bottom: 1px solid var(--border-light);
-            padding: 0 24px;
-            height: 56px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 10;
-            position: relative;
-            flex-shrink: 0;
-        }
-        header::after {
-            content: '';
-            position: absolute;
-            bottom: -1px;
-            left: 0; right: 0;
-            height: 2px;
-            background: var(--gradient-brand);
-            opacity: 0.7;
-        }
-        .header-logo { display: flex; align-items: center; gap: 12px; }
-        .header-logo img { height: 32px; width: auto; border-radius: 6px; }
-        .header-logo-text h1 {
-            margin: 0; font-size: 1.15rem; font-weight: 700;
-            letter-spacing: -0.3px; color: var(--text-primary); line-height: 1.2;
-        }
-        .header-logo-text h1 .brand-gradient {
-            background: var(--gradient-brand);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        .header-logo-text p {
-            margin: 0; font-size: 0.65rem; color: var(--text-muted);
-            font-family: 'JetBrains Mono', monospace; font-weight: 500; letter-spacing: 0.5px;
-        }
-        .header-actions { display: flex; gap: 8px; align-items: center; }
+ .header-brand-text h1 { font-size: 1.05rem; font-weight: 700; letter-spacing: -0.3px; line-height: 1.2; color: var(--text-primary) }
 
-        /* ═════════════ BADGE ═════════════ */
-        .badge {
-            display: inline-flex; align-items: center; gap: 7px;
-            font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 500;
-            padding: 5px 12px; border-radius: var(--radius-full);
-            background: var(--bg-elevated); border: 1px solid var(--border-light);
-            color: var(--text-secondary); cursor: pointer; transition: all var(--transition-fast);
-        }
-        .badge:hover { border-color: var(--border-focus); background: var(--bg-hover); }
-        .badge-dot {
-            width: 7px; height: 7px; border-radius: 50%;
-            background: var(--text-muted); transition: background var(--transition-smooth);
-        }
-        .badge-dot.active {
-            background: var(--status-synced);
-            box-shadow: 0 0 6px rgba(109,201,160,0.5);
-            animation: pulse-dot 2s ease-in-out infinite;
-        }
-        .badge-dot.pending {
-            background: var(--status-pending);
-            box-shadow: 0 0 6px rgba(240,192,110,0.5);
-            animation: pulse-dot 1.5s ease-in-out infinite;
-        }
-        .badge-dot.error {
-            background: var(--status-error);
-            box-shadow: 0 0 6px rgba(232,125,160,0.5);
-        }
-        @keyframes pulse-dot {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.6; transform: scale(1.3); }
-        }
+ .header-brand-text h1 span { background: var(--gradient-brand); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text }
 
-        /* ═════════════ BUTTONS ═════════════ */
-        .btn {
-            background: var(--bg-surface); border: 1px solid var(--border-light);
-            color: var(--text-primary); padding: 7px 14px; border-radius: var(--radius-sm);
-            font-size: 0.82rem; font-weight: 500; font-family: 'Plus Jakarta Sans', sans-serif;
-            cursor: pointer; transition: all var(--transition-fast);
-            display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
-        }
-        .btn:hover {
-            background: var(--bg-hover); border-color: var(--border-medium);
-            transform: translateY(-1px); box-shadow: var(--shadow-xs);
-        }
-        .btn:active { transform: translateY(0); }
-        .btn-primary {
-            background: var(--gradient-brand); border: none;
-            color: var(--text-inverse); font-weight: 600;
-            box-shadow: var(--shadow-glow-orange);
-        }
-        .btn-primary:hover {
-            background: var(--gradient-brand-hover);
-            box-shadow: var(--shadow-glow-purple); transform: translateY(-1px);
-        }
-        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
-        .btn-ghost { background: transparent; border-color: transparent; }
-        .btn-ghost:hover { background: var(--bg-hover); }
-        .btn-icon {
-            padding: 7px; border-radius: var(--radius-sm);
-            background: var(--bg-surface); border: 1px solid var(--border-light);
-            color: var(--text-secondary); cursor: pointer; transition: all var(--transition-fast);
-            display: inline-flex; align-items: center; justify-content: center;
-        }
-        .btn-icon:hover {
-            background: var(--bg-hover); color: var(--accent-orange);
-            border-color: var(--border-focus); transform: translateY(-1px); box-shadow: var(--shadow-xs);
-        }
-        .btn-sm { padding: 4px 10px; font-size: 0.75rem; }
+ .header-brand-text p { font-size: 0.6rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; letter-spacing: 0.5px }
 
-        /* ═════════════ MAIN LAYOUT ═════════════ */
-        main { flex: 1; display: flex; overflow: hidden; position: relative; }
-        .panel {
-            display: flex; flex-direction: column; background: var(--bg-surface);
-            border-right: 1px solid var(--border-light);
-            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            min-height: 100dvh;
-        }
-        .panel-tree { width: 264px; min-width: 200px; max-width: 320px; }
-        .panel-editor { flex: 1; background: var(--bg-code); position: relative; border-right: none; }
+ .header-actions { display: flex; align-items: center; gap: 8px }
 
-        /*
-         * ═══════════════════════════════════════════════════
-         *  PREVIEW PANEL — ISOLATED ISLAND
-         *  raa-eco:island menciptakan boundary kompilasi
-         *  terisolasi dengan state scope sendiri:
-         *  - Subtree di dalam island punya state scope sendiri
-         *  - TIDAK mewarisi state parent workspace
-         *  - State workspace TIDAK bocor ke dalam island
-         *  - Atribut raa-* TETAP diproses, tapi dalam konteks
-         *    state island sendiri, bukan state parent
-         *
-         *  Ini mencegah:
-         *  - State leak dari workspace ke preview
-         *  - Recursive RaaJS init jika preview memuat raa.js
-         *  - Performance drain dari observer yang tidak perlu
-         * ═══════════════════════════════════════════════════
-         */
-        .panel-preview {
-            width: 400px; min-width: 300px;
-            border-left: 1px solid var(--border-light); border-right: none;
-            display: flex; flex-direction: column;
-        }
-        .panel-header {
-            padding: 10px 16px; border-bottom: 1px solid var(--border-light);
-            display: flex; justify-content: space-between; align-items: center;
-            font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
-            letter-spacing: 0.8px; color: var(--text-muted);
-            background: rgba(246,242,239,0.6); flex-shrink: 0;
-        }
+ .btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: var(--radius-sm); font-size: 0.8rem; font-weight: 500; font-family: 'Inter', sans-serif; background: var(--bg-elevated); border: 1px solid var(--border-light); color: var(--text-secondary); cursor: pointer; transition: all var(--transition-fast); white-space: nowrap }
 
-        /* ═════════════ FILE TREE ═════════════ */
-        .tree-list { padding: 6px 8px; overflow-y: auto; flex: 1; }
-        .tree-item {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 7px 10px; margin: 1px 0; border-radius: var(--radius-sm);
-            cursor: pointer; font-size: 0.82rem; font-weight: 500;
-            transition: all var(--transition-fast); border-left: 3px solid transparent;
-        }
-        .tree-item:hover { background: var(--bg-hover); }
-        .tree-item.active { background: var(--accent-orange-soft); border-left-color: var(--accent-orange); color: var(--accent-orange); }
-        .tree-item.synced { border-left-color: var(--status-synced); }
-        .tree-item.pending { border-left-color: var(--status-pending); }
-        .tree-item-info {
-            display: flex; align-items: center; gap: 8px;
-            overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1;
-        }
-        .tree-item-status {
-            width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
-            transition: all var(--transition-smooth);
-        }
-        .tree-item-status.synced { background: var(--status-synced); box-shadow: 0 0 4px rgba(109,201,160,0.4); }
-        .tree-item-status.pending { background: var(--status-pending); box-shadow: 0 0 4px rgba(240,192,110,0.4); animation: pulse-dot 2s ease-in-out infinite; }
-        .tree-item-status.error { background: var(--status-error); box-shadow: 0 0 4px rgba(232,125,160,0.4); }
-        .btn-delete {
-            background: none; border: none; color: var(--text-muted);
-            cursor: pointer; padding: 4px; border-radius: var(--radius-xs);
-            opacity: 0; transition: all var(--transition-fast);
-        }
-        .tree-item:hover .btn-delete { opacity: 1; }
-        .btn-delete:hover { color: var(--status-error); background: var(--accent-rose-soft); }
+ .btn:hover { background: var(--bg-hover); color: var(--text-primary); border-color: var(--border-medium); transform: translateY(-1px); box-shadow: var(--shadow-xs) }
 
-        /* ═════════════ EDITOR ═════════════ */
-        .tabs-bar {
-            padding: 8px 16px; background: rgba(246,242,239,0.5);
-            border-bottom: 1px solid var(--border-light);
-            display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-shrink: 0;
-        }
-        .active-tab {
-            font-size: 0.72rem; font-family: 'JetBrains Mono', monospace; font-weight: 500;
-            padding: 4px 12px; background: var(--gradient-brand-soft);
-            border: 1px solid rgba(244,132,95,0.25); border-radius: var(--radius-full);
-            color: var(--accent-orange);
-        }
-        .editor-container { flex: 1; display: flex; flex-direction: column; position: relative; }
-        textarea {
-            flex: 1; width: 100%; height: 100%; background: var(--bg-code);
-            color: var(--text-primary); font-family: 'JetBrains Mono', 'Fira Code', monospace;
-            font-size: 0.88rem; padding: 16px 20px; border: none; resize: none;
-            outline: none; line-height: 1.7; tab-size: 2;
-            transition: background var(--transition-smooth);
-        }
-        textarea::placeholder { color: var(--text-muted); font-style: italic; }
-        textarea:focus { background: #FEFEFE; }
-        .aux-bar {
-            display: flex; gap: 4px; padding: 6px 12px; background: rgba(246,242,239,0.5);
-            border-top: 1px solid var(--border-light); overflow-x: auto; white-space: nowrap; flex-shrink: 0;
-        }
-        .aux-btn {
-            background: var(--bg-surface); border: 1px solid var(--border-light);
-            color: var(--text-secondary); font-family: 'JetBrains Mono', monospace;
-            padding: 3px 9px; font-size: 0.72rem; border-radius: var(--radius-xs);
-            cursor: pointer; transition: all var(--transition-fast);
-        }
-        .aux-btn:hover { background: var(--bg-hover); color: var(--accent-orange); border-color: var(--border-focus); }
-        .aux-btn-brand { border-color: rgba(176,109,212,0.3); color: var(--accent-purple); }
-        .aux-btn-brand:hover { background: var(--accent-purple-soft); border-color: var(--accent-purple); }
+ .btn:active { transform: translateY(0) }
 
-        /* ═════════════ PREVIEW IFRAME ═════════════ */
-        .preview-island-container { flex: 1; background-color: white; position: relative; overflow: hidden; }
-        .preview-island-container iframe { width: 100%; height: 100%; border: none; background: white; display: block; }
-        .island-boundary {
-            position: absolute; top: 0; left: 0; right: 0; height: 3px;
-            background: var(--gradient-brand); opacity: 0.4; z-index: 1;
-            pointer-events: none;
-        }
+ .btn-primary { background: var(--gradient-brand); border: none; color: white; font-weight: 600; box-shadow: 0 4px 12px rgba(255,140,95,0.3) }
 
-        /* ═════════════ CHAT PANEL ═════════════ */
-        .panel-chat {
-            position: absolute; right: 0; top: 0; bottom: 0; width: 350px;
-            background: var(--bg-surface); border-left: 1px solid var(--border-light);
-            z-index: 40; display: flex; flex-direction: column;
-            box-shadow: -4px 0 24px rgba(44,37,32,0.08);
-            animation: slideChatIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-        @keyframes slideChatIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-        .chat-history { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
-        .chat-message {
-            padding: 12px 15px; border-radius: var(--radius-md); font-size: 0.84rem;
-            max-width: 90%; line-height: 1.55; animation: msgFade 0.25s ease;
-        }
-        @keyframes msgFade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-        .chat-message.user {
-            background: var(--gradient-brand); color: var(--text-inverse);
-            align-self: flex-end; border-bottom-right-radius: var(--radius-xs);
-            box-shadow: 0 2px 8px rgba(244,132,95,0.2);
-        }
-        .chat-message.user .chat-meta { color: rgba(255,255,255,0.7); }
-        .chat-message.model {
-            background: var(--bg-elevated); border: 1px solid var(--border-light);
-            align-self: flex-start; border-bottom-left-radius: var(--radius-xs);
-        }
-        .chat-meta { font-size: 0.65rem; font-weight: 700; margin-bottom: 4px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
-        .chat-input-area { padding: 12px 16px; border-top: 1px solid var(--border-light); background: var(--bg-elevated); }
-        .chat-input-wrapper { display: flex; gap: 8px; align-items: flex-end; }
-        .chat-textarea {
-            flex: 1; min-height: 44px; max-height: 120px;
-            background: var(--bg-surface); border: 1.5px solid var(--border-light);
-            border-radius: var(--radius-md); color: var(--text-primary);
-            padding: 10px 14px; font-size: 0.84rem; font-family: 'Plus Jakarta Sans', sans-serif;
-            resize: vertical; outline: none; transition: all var(--transition-fast);
-        }
-        .chat-textarea:focus { border-color: var(--accent-orange); box-shadow: 0 0 0 3px var(--accent-orange-soft); }
-        .chat-textarea::placeholder { color: var(--text-muted); font-style: italic; }
+ .btn-primary:hover { box-shadow: var(--shadow-glow-purple), 0 4px 16px rgba(255,140,95,0.4); transform: translateY(-1px) }
 
-        /* ═════════════ MODAL ═════════════ */
-        .modal-overlay {
-            position: fixed; inset: 0; background: rgba(44,37,32,0.35);
-            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-            z-index: 100; display: flex; align-items: center; justify-content: center;
-            padding: 20px; animation: overlayIn 0.2s ease;
-        }
-        @keyframes overlayIn { from { opacity: 0; } to { opacity: 1; } }
-        .modal-card {
-            background: rgba(255,255,255,0.92);
-            backdrop-filter: blur(24px) saturate(180%);
-            -webkit-backdrop-filter: blur(24px) saturate(180%);
-            border: 1px solid rgba(255,255,255,0.6); border-radius: var(--radius-xl);
-            padding: 24px; width: 100%; max-width: 540px; max-height: 88vh; overflow-y: auto;
-            box-shadow: var(--shadow-lg), 0 0 0 1px rgba(232,224,216,0.3);
-            animation: modalSlideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-        @keyframes modalSlideIn { from { transform: translateY(20px) scale(0.97); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
-        .modal-header {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 20px; padding-bottom: 14px; border-bottom: 1px solid var(--border-light);
-        }
-        .modal-title { font-size: 1.1rem; font-weight: 700; margin: 0; color: var(--text-primary); display: flex; align-items: center; gap: 10px; letter-spacing: -0.3px; }
-        .modal-title svg { color: var(--text-muted); }
-        .tabs-nav {
-            display: flex; gap: 4px; background: var(--bg-elevated); padding: 4px;
-            border-radius: var(--radius-sm); margin-bottom: 20px; border: 1px solid var(--border-light);
-        }
-        .tab-btn {
-            flex: 1; padding: 8px 12px; border: none; background: transparent;
-            color: var(--text-muted); font-size: 0.78rem; font-weight: 600;
-            font-family: 'Plus Jakarta Sans', sans-serif; border-radius: 6px;
-            cursor: pointer; transition: all var(--transition-fast);
-            display: flex; align-items: center; justify-content: center; gap: 6px;
-        }
-        .tab-btn:hover { color: var(--text-secondary); }
-        .tab-btn.active { background: var(--bg-surface); color: var(--accent-orange); box-shadow: var(--shadow-soft); }
-        .tab-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
-        .tab-dot.sync { background: var(--accent-mint); }
-        .tab-dot.manage { background: var(--accent-sky); }
-        .tab-dot.config { background: var(--accent-purple); }
+ .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none }
 
-        /* ═════════════ FORM ═════════════ */
-        .form-group { margin-bottom: 18px; }
-        .form-group label { display: block; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-secondary); margin-bottom: 7px; }
-        .form-control {
-            width: 100%; padding: 10px 14px; background: var(--bg-code);
-            border: 1.5px solid var(--border-light); border-radius: var(--radius-sm);
-            color: var(--text-primary); font-size: 0.88rem; font-family: 'Plus Jakarta Sans', sans-serif;
-            transition: all var(--transition-fast);
-        }
-        .form-control:focus { outline: none; border-color: var(--accent-orange); box-shadow: 0 0 0 3px var(--accent-orange-soft); background: var(--bg-surface); }
-        .form-control::placeholder { color: var(--text-muted); }
-        .form-hint { font-size: 0.73rem; color: var(--text-muted); margin-top: 5px; line-height: 1.4; }
-        .form-hint a { color: var(--accent-purple); text-decoration: none; font-weight: 500; }
-        .form-hint a:hover { text-decoration: underline; }
-        .form-hint code { background: var(--accent-purple-soft); color: var(--accent-purple); padding: 1px 5px; border-radius: var(--radius-xs); font-size: 0.7rem; font-family: 'JetBrains Mono', monospace; }
-        .checkbox-list { max-height: 260px; overflow-y: auto; border: 1px solid var(--border-light); border-radius: var(--radius-sm); background: var(--bg-surface); }
-        .checkbox-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 1px solid rgba(232,224,216,0.5); font-size: 0.84rem; cursor: pointer; transition: background var(--transition-fast); }
-        .checkbox-item:last-child { border-bottom: none; }
-        .checkbox-item:hover { background: var(--bg-hover); }
-        .checkbox-item input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--accent-orange); cursor: pointer; border-radius: var(--radius-xs); }
-        .checkbox-item .file-path { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-primary); font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; }
-        .checkbox-item .file-status { font-size: 0.68rem; font-weight: 600; padding: 2px 9px; border-radius: var(--radius-full); white-space: nowrap; }
-        .checkbox-item .file-status.pending { background: var(--fill-amber); color: #9A7A3D; }
-        .checkbox-item .file-status.synced { background: var(--fill-mint); color: #4A7A5D; }
-        .progress-container { margin: 14px 0; }
-        .progress-bar { height: 6px; background: var(--bg-elevated); border-radius: var(--radius-full); overflow: hidden; margin-bottom: 6px; border: 1px solid var(--border-light); }
-        .progress-fill { height: 100%; background: var(--gradient-brand); border-radius: var(--radius-full); transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); width: 0%; position: relative; }
-        .progress-fill::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent); animation: shimmer 1.5s infinite; }
-        @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
-        .progress-text { font-size: 0.72rem; color: var(--text-muted); text-align: center; font-weight: 500; }
+ .btn-icon { width: 34px; height: 34px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: var(--radius-sm); background: var(--bg-elevated); border: 1px solid var(--border-light); color: var(--text-secondary); cursor: pointer; transition: all var(--transition-fast) }
 
-        /* ═════════════ TOAST ═════════════ */
-        .toast {
-            position: fixed; bottom: 24px; right: 24px; padding: 12px 20px;
-            background: rgba(255,255,255,0.95); backdrop-filter: blur(12px);
-            border: 1px solid var(--border-light); border-radius: var(--radius-md);
-            box-shadow: var(--shadow-lg); font-size: 0.84rem; font-weight: 500;
-            z-index: 200; display: flex; align-items: center; gap: 10px;
-            animation: toastIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); max-width: 400px;
-        }
-        .toast.success { border-left: 4px solid var(--status-synced); background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(209,242,230,0.4)); }
-        .toast.error { border-left: 4px solid var(--status-error); background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(251,217,227,0.4)); }
-        .toast.warning { border-left: 4px solid var(--status-pending); background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(254,243,213,0.4)); }
-        @keyframes toastIn { from { transform: translateX(120%) scale(0.9); opacity: 0; } to { transform: translateX(0) scale(1); opacity: 1; } }
+ .btn-icon:hover { background: var(--bg-hover); color: var(--accent-orange); border-color: rgba(255,140,95,0.3); transform: translateY(-1px) }
 
-        /* ═════════════ UTILITY ═════════════ */
-        .d-none { display: none !important; }
-        .flex { display: flex; }
-        .flex-col { display: flex; flex-direction: column; }
-        .items-center { align-items: center; }
-        .justify-between { justify-content: space-between; }
-        .gap-2 { gap: 8px; }
-        .gap-3 { gap: 12px; }
-        .w-full { width: 100%; }
-        .text-center { text-align: center; }
-        .text-muted { color: var(--text-muted); }
-        .p-4 { padding: 16px; }
-        .mt-2 { margin-top: 8px; }
-        .mt-4 { margin-top: 16px; }
-        .conn-status { margin-top: 16px; padding: 12px 14px; border-radius: var(--radius-sm); font-size: 0.84rem; line-height: 1.4; border: 1px solid; }
-        .conn-status.ok { background: var(--fill-mint); border-color: var(--accent-mint); color: #3D6B4E; }
-        .conn-status.fail { background: var(--fill-rose); border-color: var(--accent-rose); color: #8B3A4E; }
-        .warn-box { font-size: 0.75rem; color: #8B3A4E; background: var(--fill-rose); padding: 8px 12px; border-radius: var(--radius-sm); margin-bottom: 8px; border: 1px solid rgba(232,125,160,0.25); font-weight: 500; }
-        select { background: none; border: none; color: var(--accent-purple); font-size: 0.65rem; font-family: 'JetBrains Mono', monospace; cursor: pointer; outline: none; }
-        select option { background-color: var(--bg-surface); }
-        hr { border: none; border-top: 1px solid var(--border-light); margin: 16px 0; }
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: var(--border-medium); border-radius: var(--radius-full); transition: background var(--transition-fast); }
-        ::-webkit-scrollbar-thumb:hover { background: var(--accent-orange); }
+ .btn-sm { padding: 5px 10px; font-size: 0.75rem }
 
-        @media (max-width: 1024px) { .panel-tree { width: 220px; } .panel-preview { width: 320px; } .panel-chat { width: 300px; } }
-        @media (max-width: 768px) { .panel-chat { width: 100%; max-width: 400px; } header { padding: 0 14px; } .header-logo-text p { display: none; } }
-        @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
-        }
-        @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-        .panel-tree { animation: fadeUp 0.4s ease 0.05s both; }
-        .panel-editor { animation: fadeUp 0.4s ease 0.1s both; }
-        .panel-preview { animation: fadeUp 0.4s ease 0.15s both; }
+ .btn-ghost { background: transparent; border-color: transparent }
+
+ .btn-ghost:hover { background: var(--bg-hover) }
+
+ .btn-danger { border-color: rgba(232,125,168,0.4); color: var(--accent-rose) }
+
+ .btn-danger:hover { background: rgba(232,125,168,0.1) }
+
+ .badge { display: inline-flex; align-items: center; gap: 8px; padding: 5px 12px; border-radius: var(--radius-full); background: var(--bg-elevated); border: 1px solid var(--border-light); font-size: 0.72rem; font-weight: 500; color: var(--text-secondary); font-family: 'JetBrains Mono', monospace; cursor: pointer; transition: all var(--transition-fast) }
+
+ .badge:hover { border-color: var(--border-medium); background: var(--bg-hover) }
+
+ .badge-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text-muted); transition: all var(--transition-smooth) }
+
+ .badge-dot.synced { background: var(--accent-mint); box-shadow: 0 0 8px rgba(109,201,160,0.5); animation: pulse-dot 2.5s ease-in-out infinite }
+
+ .badge-dot.pending { background: var(--accent-amber); box-shadow: 0 0 8px rgba(240,192,110,0.5); animation: pulse-dot 1.5s ease-in-out infinite }
+
+ .badge-dot.error { background: var(--accent-rose); box-shadow: 0 0 8px rgba(232,125,168,0.5) }
+
+ @keyframes pulse-dot { 0%, 100% { opacity: 1; transform: scale(1) } 50% { opacity: 0.5; transform: scale(1.4) } }
+
+ .workspace { flex: 1; display: flex; overflow: hidden; position: relative }
+
+ .panel { display: flex; flex-direction: column; background: var(--bg-surface); border-right: 1px solid var(--border-subtle); transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1) }
+
+ .panel-tree { width: 260px; min-width: 200px; max-width: 360px }
+
+ .panel-editor { flex: 1; background: var(--bg-code); position: relative }
+
+ .panel-preview { width: 420px; min-width: 320px; max-width: 600px; border-left: 1px solid var(--border-subtle); border-right: none }
+
+ .panel-header { height: 40px; padding: 0 14px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-subtle); background: rgba(22,21,29,0.5); font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); flex-shrink: 0 }
+
+ .resize-handle { width: 4px; cursor: col-resize; background: transparent; transition: background var(--transition-fast); position: relative; z-index: 10 }
+
+ .resize-handle:hover, .resize-handle.dragging { background: var(--accent-orange) }
+
+ .tree-scroll { flex: 1; overflow-y: auto; padding: 8px }
+
+ .tree-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; margin: 2px 0; border-radius: var(--radius-sm); cursor: pointer; font-size: 0.82rem; font-weight: 500; border-left: 2px solid transparent; transition: all var(--transition-fast); color: var(--text-secondary) }
+
+ .tree-item:hover { background: var(--bg-hover); color: var(--text-primary) }
+
+ .tree-item.active { background: rgba(255,140,95,0.08); border-left-color: var(--accent-orange); color: var(--accent-orange) }
+
+ .tree-item.synced { border-left-color: var(--accent-mint) }
+
+ .tree-item.pending { border-left-color: var(--accent-amber) }
+
+ .tree-item-left { display: flex; align-items: center; gap: 8px; overflow: hidden }
+
+ .tree-item-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+
+ .tree-item-status { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0 }
+
+ .tree-item-status.synced { background: var(--accent-mint); box-shadow: 0 0 4px rgba(109,201,160,0.4) }
+
+ .tree-item-status.pending { background: var(--accent-amber); box-shadow: 0 0 4px rgba(240,192,110,0.4); animation: pulse-dot 2s infinite }
+
+ .tree-item-status.error { background: var(--accent-rose); box-shadow: 0 0 4px rgba(232,125,168,0.4) }
+
+ .tree-delete { opacity: 0; background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 4px; border-radius: var(--radius-xs); transition: all var(--transition-fast); display: flex }
+
+ .tree-item:hover .tree-delete { opacity: 1 }
+
+ .tree-delete:hover { color: var(--accent-rose); background: rgba(232,125,168,0.1) }
+
+ .tree-empty { padding: 40px 16px; text-align: center; color: var(--text-muted); font-size: 0.8rem }
+
+ .tree-loading { padding: 40px 16px; text-align: center; color: var(--text-muted); font-size: 0.8rem }
+
+ .editor-tabs { height: 40px; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; background: rgba(19,18,26,0.8); border-bottom: 1px solid var(--border-subtle); flex-shrink: 0; gap: 12px }
+
+ .editor-tab-active { display: flex; align-items: center; gap: 8px; padding: 4px 12px; background: var(--gradient-brand-soft); border: 1px solid rgba(255,140,95,0.2); border-radius: var(--radius-full); font-size: 0.72rem; font-family: 'JetBrains Mono', monospace; color: var(--accent-orange); font-weight: 500 }
+
+ .editor-tab-status { font-size: 0.65rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace }
+
+ .editor-tab-status.unsaved { color: var(--accent-amber) }
+
+ .editor-body { flex: 1; display: flex; flex-direction: column; position: relative; overflow: hidden }
+
+ .editor-textarea { flex: 1; width: 100%; height: 100%; background: var(--bg-code); color: var(--text-primary); font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 0.88rem; line-height: 1.7; tab-size: 2; padding: 16px 20px; border: none; resize: none; outline: none }
+
+ .editor-textarea::placeholder { color: var(--text-muted); font-style: italic }
+
+ .editor-textarea:focus { background: #14131C }
+
+ .editor-toolbar { display: flex; gap: 4px; padding: 6px 12px; background: rgba(19,18,26,0.8); border-top: 1px solid var(--border-subtle); flex-shrink: 0; overflow-x: auto }
+
+ .toolbar-btn { padding: 4px 10px; border-radius: var(--radius-xs); background: var(--bg-elevated); border: 1px solid var(--border-subtle); color: var(--text-muted); font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; cursor: pointer; transition: all var(--transition-fast); white-space: nowrap }
+
+ .toolbar-btn:hover { background: var(--bg-hover); color: var(--accent-orange); border-color: rgba(255,140,95,0.3) }
+
+ .toolbar-btn.brand { border-color: rgba(176,109,212,0.3); color: var(--accent-purple) }
+
+ .toolbar-btn.brand:hover { background: rgba(176,109,212,0.1); border-color: var(--accent-purple) }
+
+ .editor-statusbar { height: 26px; padding: 0 16px; display: flex; align-items: center; justify-content: space-between; background: var(--bg-base); border-top: 1px solid var(--border-subtle); font-size: 0.68rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; flex-shrink: 0 }
+
+ .preview-frame-wrap { flex: 1; position: relative; overflow: hidden; background: white }
+
+ .preview-frame-wrap iframe { width: 100%; height: 100%; border: none; background: white; display: block }
+
+ .preview-boundary { position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--gradient-brand); opacity: 0.5; pointer-events: none }
+
+ .preview-placeholder { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #FAF7F5; color: #6B5D52; gap: 12px }
+
+ .preview-placeholder h3 { margin: 0; font-size: 1.1rem; font-weight: 600 }
+
+ .preview-placeholder p { margin: 0; font-size: 0.85rem; opacity: 0.7 }
+
+ .panel-chat { position: absolute; right: 0; top: 0; bottom: 0; width: 360px; background: var(--bg-surface); border-left: 1px solid var(--border-subtle); z-index: 40; display: flex; flex-direction: column; box-shadow: -8px 0 32px rgba(0,0,0,0.4); animation: slideChatIn 0.35s var(--transition-bounce) }
+
+ @keyframes slideChatIn { from { transform: translateX(100%); opacity: 0 } to { transform: translateX(0); opacity: 1 } }
+
+ .chat-history { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px }
+
+ .chat-msg { padding: 12px 14px; border-radius: var(--radius-md); font-size: 0.84rem; line-height: 1.55; max-width: 92%; animation: msgFade 0.25s ease }
+
+ @keyframes msgFade { from { opacity: 0; transform: translateY(8px) } to { opacity: 1; transform: translateY(0) } }
+
+ .chat-msg.user { align-self: flex-end; background: var(--gradient-brand); color: white; border-bottom-right-radius: var(--radius-xs); box-shadow: 0 4px 12px rgba(255,140,95,0.25) }
+
+ .chat-msg.model { align-self: flex-start; background: var(--bg-elevated); border: 1px solid var(--border-light); color: var(--text-primary); border-bottom-left-radius: var(--radius-xs) }
+
+ .chat-msg-meta { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; opacity: 0.7 }
+
+ .chat-msg-text { white-space: pre-wrap; word-break: break-word }
+
+ .chat-input-area { padding: 12px 16px; border-top: 1px solid var(--border-subtle); background: var(--bg-base) }
+
+ .chat-input-wrap { display: flex; gap: 8px; align-items: flex-end }
+
+ .chat-textarea { flex: 1; min-height: 44px; max-height: 120px; background: var(--bg-elevated); border: 1.5px solid var(--border-light); border-radius: var(--radius-md); color: var(--text-primary); padding: 10px 14px; font-size: 0.84rem; font-family: 'Inter', sans-serif; resize: vertical; outline: none; transition: all var(--transition-fast) }
+
+ .chat-textarea:focus { border-color: var(--accent-orange); box-shadow: 0 0 0 3px rgba(255,140,95,0.1) }
+
+ .chat-textarea::placeholder { color: var(--text-muted); font-style: italic }
+
+ .chat-empty { padding: 40px 20px; text-align: center; color: var(--text-muted); font-size: 0.8rem }
+
+ .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(12px); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 20px; animation: overlayIn 0.2s ease }
+
+ @keyframes overlayIn { from { opacity: 0 } to { opacity: 1 } }
+
+ .modal-card { background: var(--bg-surface); border: 1px solid var(--border-light); border-radius: var(--radius-xl); padding: 24px; width: 100%; max-width: 520px; max-height: 88vh; overflow-y: auto; box-shadow: var(--shadow-lg); animation: modalSlideIn 0.3s var(--transition-bounce) }
+
+ @keyframes modalSlideIn { from { transform: translateY(20px) scale(0.96); opacity: 0 } to { transform: translateY(0) scale(1); opacity: 1 } }
+
+ .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 14px; border-bottom: 1px solid var(--border-subtle) }
+
+ .modal-title { font-size: 1.1rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 10px }
+
+ .modal-tabs { display: flex; gap: 4px; background: var(--bg-base); padding: 4px; border-radius: var(--radius-sm); margin-bottom: 20px; border: 1px solid var(--border-subtle) }
+
+ .modal-tab { flex: 1; padding: 8px 12px; border: none; background: transparent; color: var(--text-muted); font-size: 0.78rem; font-weight: 600; font-family: 'Inter', sans-serif; border-radius: 6px; cursor: pointer; transition: all var(--transition-fast); display: flex; align-items: center; justify-content: center; gap: 6px }
+
+ .modal-tab:hover { color: var(--text-secondary) }
+
+ .modal-tab.active { background: var(--bg-elevated); color: var(--accent-orange); box-shadow: var(--shadow-xs) }
+
+ .tab-dot { width: 6px; height: 6px; border-radius: 50% }
+
+ .tab-dot.sync { background: var(--accent-mint) }
+
+ .tab-dot.manage { background: var(--accent-sky) }
+
+ .tab-dot.config { background: var(--accent-purple) }
+
+ .form-group { margin-bottom: 18px }
+
+ .form-group label { display: block; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-secondary); margin-bottom: 8px }
+
+ .form-control { width: 100%; padding: 10px 14px; background: var(--bg-code); border: 1.5px solid var(--border-light); border-radius: var(--radius-sm); color: var(--text-primary); font-size: 0.88rem; font-family: 'Inter', sans-serif; transition: all var(--transition-fast); outline: none }
+
+ .form-control:focus { border-color: var(--accent-orange); box-shadow: 0 0 0 3px rgba(255,140,95,0.1); background: var(--bg-elevated) }
+
+ .form-control::placeholder { color: var(--text-muted) }
+
+ .form-hint { font-size: 0.73rem; color: var(--text-muted); margin-top: 6px; line-height: 1.4 }
+
+ .form-hint a { color: var(--accent-purple); text-decoration: none; font-weight: 500 }
+
+ .form-hint a:hover { text-decoration: underline }
+
+ .form-hint code { background: rgba(176,109,212,0.15); color: var(--accent-purple); padding: 2px 6px; border-radius: var(--radius-xs); font-size: 0.7rem; font-family: 'JetBrains Mono', monospace }
+
+ .checkbox-list { max-height: 240px; overflow-y: auto; border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); background: var(--bg-base) }
+
+ .checkbox-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 1px solid var(--border-subtle); font-size: 0.84rem; cursor: pointer; transition: background var(--transition-fast) }
+
+ .checkbox-item:last-child { border-bottom: none }
+
+ .checkbox-item:hover { background: var(--bg-hover) }
+
+ .checkbox-item input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--accent-orange); cursor: pointer }
+
+ .checkbox-item .file-path { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--text-primary) }
+
+ .file-badge { font-size: 0.65rem; font-weight: 600; padding: 2px 8px; border-radius: var(--radius-full); white-space: nowrap }
+
+ .file-badge.pending { background: rgba(240,192,110,0.15); color: var(--accent-amber) }
+
+ .file-badge.synced { background: rgba(109,201,160,0.15); color: var(--accent-mint) }
+
+ .file-badge.local { background: rgba(126,184,217,0.15); color: var(--accent-sky) }
+
+ .progress-box { margin: 14px 0 }
+
+ .progress-track { height: 5px; background: var(--bg-hover); border-radius: var(--radius-full); overflow: hidden; border: 1px solid var(--border-subtle) }
+
+ .progress-fill { height: 100%; background: var(--gradient-brand); border-radius: var(--radius-full); transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); width: 0%; position: relative; overflow: hidden }
+
+ .progress-fill::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent); animation: shimmer 1.5s infinite }
+
+ @keyframes shimmer { 0% { transform: translateX(-100%) } 100% { transform: translateX(100%) } }
+
+ .progress-text { font-size: 0.72rem; color: var(--text-muted); text-align: center; margin-top: 6px; font-weight: 500 }
+
+ .toast { position: fixed; bottom: 24px; right: 24px; padding: 12px 20px; background: var(--bg-surface); border: 1px solid var(--border-light); border-radius: var(--radius-md); box-shadow: var(--shadow-lg); font-size: 0.84rem; font-weight: 500; z-index: 200; display: flex; align-items: center; gap: 10px; max-width: 420px; animation: toastIn 0.35s var(--transition-bounce) }
+
+ .toast.success { border-left: 3px solid var(--accent-mint) }
+
+ .toast.error { border-left: 3px solid var(--accent-rose) }
+
+ .toast.warning { border-left: 3px solid var(--accent-amber) }
+
+ @keyframes toastIn { from { transform: translateX(120%) scale(0.9); opacity: 0 } to { transform: translateX(0) scale(1); opacity: 1 } }
+
+ .d-none { display: none !important }
+
+ .flex { display: flex }
+
+ .flex-col { display: flex; flex-direction: column }
+
+ .items-center { align-items: center }
+
+ .justify-between { justify-content: space-between }
+
+ .gap-2 { gap: 8px }
+
+ .gap-3 { gap: 12px }
+
+ .w-full { width: 100% }
+
+ .text-center { text-align: center }
+
+ .text-muted { color: var(--text-muted) }
+
+ .mt-2 { margin-top: 8px }
+
+ .mt-3 { margin-top: 12px }
+
+ .mt-4 { margin-top: 16px }
+
+ .conn-status { margin-top: 14px; padding: 12px 14px; border-radius: var(--radius-sm); font-size: 0.84rem; line-height: 1.4; border: 1px solid }
+
+ .conn-status.ok { background: rgba(109,201,160,0.08); border-color: rgba(109,201,160,0.3); color: var(--accent-mint) }
+
+ .conn-status.fail { background: rgba(232,125,168,0.08); border-color: rgba(232,125,168,0.3); color: var(--accent-rose) }
+
+ .warn-box { font-size: 0.75rem; color: var(--accent-rose); background: rgba(232,125,168,0.08); padding: 10px 12px; border-radius: var(--radius-sm); margin-bottom: 10px; border: 1px solid rgba(232,125,168,0.2); font-weight: 500 }
+
+ select.form-control { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236E6E80' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px }
+
+ hr { border: none; border-top: 1px solid var(--border-subtle); margin: 16px 0 }
+
+ @media (max-width: 1024px) { .panel-tree { width: 220px } .panel-preview { width: 340px } .panel-chat { width: 320px } }
+
+ @media (max-width: 768px) { .panel-chat { width: 100%; max-width: 400px } header { padding: 0 14px } }
+
+ @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important } }
     </style>
+<base target="_blank">
 </head>
 <body>
-    <!-- [FIX #3] raa-eco:persist di-root app dihapus karena overhead JSON.stringify
-         setiap flush. Data file via IndexedDB. UI state disimpan selektif di init(). -->
-    <div raa-core:app="creativeWorkspace" class="flex-col w-full h-full">
+    <div raa-core:app="studio" class="flex-col w-full h-full">
 
-        <!-- HEADER -->
+        <!-- ═════════ HEADER ═════════ -->
         <header>
-            <div class="header-logo">
-                <img src="https://i.ibb.co.com/1Gc22xJd/logo-color-raajs.png" alt="RaaJS Logo">
-                <div class="header-logo-text">
-                    <h1>Raa<span class="brand-gradient">JS</span> STUDIO</h1>
+            <div class="header-brand">
+                <div class="header-brand-icon">R</div>
+                <div class="header-brand-text">
+                    <h1>Raa<span>JS</span> STUDIO</h1>
                     <p>v3.1.0 "Data Liberation"</p>
                 </div>
             </div>
             <div class="header-actions">
-                <div class="badge" raa-on:click="openGitHubModal()" style="cursor: pointer;" title="Kelola GitHub">
-                    <span class="badge-dot" raa-bind:class="{ 
-                        'active': github_connected && github_sync_status === 'synced',
-                        'pending': github_sync_status === 'pending',
-                        'error': github_sync_status === 'error' || !github_connected
-                    }"></span>
-                    <!-- [FIX #4] Nested ternary dipindah ke method githubStatusLabel() -->
-                    <span raa-bind:text="githubStatusLabel()"></span>
-                </div>
+                <button class="badge" raa-on:click="openGitHubModal()" title="Kelola GitHub">
+                    <span class="badge-dot" raa-bind:class="githubDotClass"></span>
+                    <span raa-bind:text="githubStatusLabel"></span>
+                </button>
                 <button raa-on:click="toggleSettings()" class="btn-icon" title="Pengaturan">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 256 256"><path d="M128,80a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,80a32,32,0,1,1,32-32A32,32,0,0,1,128,160Zm88-29.84q.06-2.16,0-4.32l14.92-18.64a8,8,0,0,0,1.48-7.06,107.21,107.21,0,0,0-10.88-26.25,8,8,0,0,0-6-3.93l-23.72-2.64q-1.48-1.56-3-3L186,40.54a8,8,0,0,0-3.94-6,107.71,107.71,0,0,0-26.25-10.87,8,8,0,0,0-7.06,1.49L130.16,40Q128,40,125.84,40L107.2,25.11a8,8,0,0,0-7.06-1.48A107.6,107.6,0,0,0,73.89,34.51a8,8,0,0,0-3.93,6L67.32,64.27q-1.56,1.49-3,3L40.54,70a8,8,0,0,0-6,3.94,107.71,107.71,0,0,0-10.87,26.25,8,8,0,0,0,1.49,7.06L40,125.84Q40,128,40,130.16L25.11,148.8a8,8,0,0,0-1.48,7.06,107.21,107.21,0,0,0,10.88,26.25,8,8,0,0,0,6,3.93l23.72,2.64q1.49,1.56,3,3L70,215.46a8,8,0,0,0,3.94,6,107.71,107.71,0,0,0,26.25,10.87,8,8,0,0,0,7.06-1.49L125.84,216q2.16.06,4.32,0l18.64,14.92a8,8,0,0,0,7.06,1.48,107.21,107.21,0,0,0,26.25-10.88,8,8,0,0,0,3.93-6l2.64-23.72q1.56-1.48,3-3L215.46,186a8,8,0,0,0,6-3.94,107.71,107.71,0,0,0,10.87-26.25,8,8,0,0,0-1.49-7.06Zm-16.1-6.5a73.93,73.93,0,0,1,0,8.68,8,8,0,0,0,1.74,5.48l14.19,17.73a91.57,91.57,0,0,1-6.23,15L187,173.11a8,8,0,0,0-5.1,2.64,74.11,74.11,0,0,1-6.14,6.14,8,8,0,0,0-2.64,5.1l-2.51,22.58a91.32,91.32,0,0,1-15,6.23l-17.74-14.19a8,8,0,0,0-5-1.75h-.48a73.93,73.93,0,0,1-8.68,0,8,8,0,0,0-5.48,1.74L100.45,215.8a91.57,91.57,0,0,1-15-6.23L82.89,187a8,8,0,0,0-2.64-5.1,74.11,74.11,0,0,1-6.14-6.14,8,8,0,0,0-5.1-2.64L46.43,170.6a91.32,91.32,0,0,1-6.23-15l14.19-17.74a8,8,0,0,0,1.74-5.48,73.93,73.93,0,0,1,0-8.68,8,8,0,0,0-1.74-5.48L40.2,100.45a91.57,91.57,0,0,1,6.23-15L69,82.89a8,8,0,0,0,5.1-2.64,74.11,74.11,0,0,1,6.14-6.14A8,8,0,0,0,82.89,69L85.4,46.43a91.32,91.32,0,0,1,15-6.23l17.74,14.19a8,8,0,0,0,5.48,1.74,73.93,73.93,0,0,1,8.68,0,8,8,0,0,0,5.48-1.74L155.55,40.2a91.57,91.57,0,0,1,15,6.23L173.11,69a8,8,0,0,0,2.64,5.1,74.11,74.11,0,0,1,6.14,6.14,8,8,0,0,0,5.1,2.64l22.58,2.51a91.32,91.32,0,0,1,6.23,15l-14.19,17.74A8,8,0,0,0,199.87,123.66Z"></path></svg>
+                    <svg width="18" height="18" fill="currentColor" viewBox="0 0 256 256"><path d="M128,80a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,80a32,32,0,1,1,32-32A32,32,0,0,1,128,160Zm88-29.84q.06-2.16,0-4.32l14.92-18.64a8,8,0,0,0,1.48-7.06,107.21,107.21,0,0,0-10.88-26.25,8,8,0,0,0-6-3.93l-23.72-2.64q-1.48-1.56-3-3L186,40.54a8,8,0,0,0-3.94-6,107.71,107.71,0,0,0-26.25-10.87,8,8,0,0,0-7.06,1.49L130.16,40Q128,40,125.84,40L107.2,25.11a8,8,0,0,0-7.06-1.48A107.6,107.6,0,0,0,73.89,34.51a8,8,0,0,0-3.93,6L67.32,64.27q-1.56,1.49-3,3L40.54,70a8,8,0,0,0-6,3.94,107.71,107.71,0,0,0-10.87,26.25,8,8,0,0,0,1.49,7.06L40,125.84Q40,128,40,130.16L25.11,148.8a8,8,0,0,0-1.48,7.06,107.21,107.21,0,0,0,10.88,26.25,8,8,0,0,0,6,3.93l23.72,2.64q1.49,1.56,3,3L70,215.46a8,8,0,0,0,3.94,6,107.71,107.71,0,0,0,26.25,10.87,8,8,0,0,0,7.06-1.49L125.84,216q2.16.06,4.32,0l18.64,14.92a8,8,0,0,0,7.06,1.48,107.21,107.21,0,0,0,26.25-10.88,8,8,0,0,0,3.93-6l2.64-23.72q1.56-1.48,3-3L215.46,186a8,8,0,0,0,6-3.94,107.71,107.71,0,0,0,10.87-26.25,8,8,0,0,0-1.49-7.06Zm-16.1-6.5a73.93,73.93,0,0,1,0,8.68,8,8,0,0,0,1.74,5.48l14.19,17.73a91.57,91.57,0,0,1-6.23,15L187,173.11a8,8,0,0,0-5.1,2.64,74.11,74.11,0,0,1-6.14,6.14,8,8,0,0,0-2.64,5.1l-2.51,22.58a91.32,91.32,0,0,1-15,6.23l-17.74-14.19a8,8,0,0,0-5-1.75h-.48a73.93,73.93,0,0,1-8.68,0,8,8,0,0,0-5.48,1.74L100.45,215.8a91.57,91.57,0,0,1-15-6.23L82.89,187a8,8,0,0,0-2.64-5.1,74.11,74.11,0,0,1-6.14-6.14,8,8,0,0,0-5.1-2.64L46.43,170.6a91.32,91.32,0,0,1-6.23-15l14.19-17.74a8,8,0,0,0,1.74-5.48,73.93,73.93,0,0,1,0-8.68,8,8,0,0,0-1.74-5.48L40.2,100.45a91.57,91.57,0,0,1,6.23-15L69,82.89a8,8,0,0,0,5.1-2.64,74.11,74.11,0,0,1,6.14-6.14A8,8,0,0,0,82.89,69L85.4,46.43a91.32,91.32,0,0,1,15-6.23l17.74,14.19a8,8,0,0,0,5.48,1.74,73.93,73.93,0,0,1,8.68,0,8,8,0,0,0,5.48-1.74L155.55,40.2a91.57,91.57,0,0,1,15,6.23L173.11,69a8,8,0,0,0,2.64,5.1,74.11,74.11,0,0,1,6.14,6.14,8,8,0,0,0,5.1,2.64l22.58,2.51a91.32,91.32,0,0,1,6.23,15l-14.19,17.74A8,8,0,0,0,199.87,123.66Z"/></svg>
                 </button>
                 <button raa-on:click="toggleChat()" class="btn-icon" title="Tanya AI">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 256 256"><path d="M132,24A100.11,100.11,0,0,0,32,124v84a16,16,0,0,0,16,16h84a100,100,0,0,0,0-200Zm0,184H48V124a84,84,0,1,1,84,84Zm12-80a12,12,0,1,1-12-12A12,12,0,0,1,144,128Zm-44,0a12,12,0,1,1-12-12A12,12,0,0,1,100,128Zm88,0a12,12,0,1,1-12-12A12,12,0,0,1,188,128Z"></path></svg>
+                    <svg width="18" height="18" fill="currentColor" viewBox="0 0 256 256"><path d="M132,24A100.11,100.11,0,0,0,32,124v84a16,16,0,0,0,16,16h84a100,100,0,0,0,0-200Zm0,184H48V124a84,84,0,1,1,84,84Zm12-80a12,12,0,1,1-12-12A12,12,0,0,1,144,128Zm-44,0a12,12,0,1,1-12-12A12,12,0,0,1,100,128Zm88,0a12,12,0,1,1-12-12A12,12,0,0,1,188,128Z"/></svg>
                 </button>
-                <button raa-on:click="openGitHubModal()" class="btn btn-primary" title="GitHub Connector">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 256 256"><path d="M128,24A104,104,0,0,0,95.2,202.13c5.2.93,7.11-2.27,7.11-5,0-2.47-.09-9-.13-17.65-28.94,6.29-35-13.93-35-13.93-4.73-12-11.58-15.22-11.58-15.22-9.47-6.48.72-6.35.72-6.35,10.49.74,16,10.77,16,10.77,9.32,15.94,24.45,11.33,30.38,8.66a21.14,21.14,0,0,1,6.29-13.28c-22.94-2.61-47.06-11.47-47.06-51a39.89,39.89,0,0,1,10.64-27.6c-1.07-2.61-4.62-13.14,1-27.4,0,0,8.7-2.79,28.48,10.6a98.33,98.33,0,0,1,51.84,0c19.76-13.4,28.45-10.6,28.45-10.6,5.63,14.26,2.09,24.79,1,27.4A39.84,39.84,0,0,1,193.6,120c0,39.63-24.17,48.37-47.17,50.93a24.68,24.68,0,0,1,7,19.14c0,13.82-.13,24.94-.13,28.33,0,2.75,1.86,5.94,7.14,4.94A104,104,0,0,0,128,24Z"></path></svg>
+                <button raa-on:click="openGitHubModal()" class="btn btn-primary btn-sm" title="GitHub Connector">
+                    <svg width="15" height="15" fill="currentColor" viewBox="0 0 256 256"><path d="M128,24A104,104,0,0,0,95.2,202.13c5.2.93,7.11-2.27,7.11-5,0-2.47-.09-9-.13-17.65-28.94,6.29-35-13.93-35-13.93-4.73-12-11.58-15.22-11.58-15.22-9.47-6.48.72-6.35.72-6.35,10.49.74,16,10.77,16,10.77,9.32,15.94,24.45,11.33,30.38,8.66a21.14,21.14,0,0,1,6.29-13.28c-22.94-2.61-47.06-11.47-47.06-51a39.89,39.89,0,0,1,10.64-27.6c-1.07-2.61-4.62-13.14,1-27.4,0,0,8.7-2.79,28.48,10.6a98.33,98.33,0,0,1,51.84,0c19.76-13.4,28.45-10.6,28.45-10.6,5.63,14.26,2.09,24.79,1,27.4A39.84,39.84,0,0,1,193.6,120c0,39.63-24.17,48.37-47.17,50.93a24.68,24.68,0,0,1,7,19.14c0,13.82-.13,24.94-.13,28.33,0,2.75,1.86,5.94,7.14,4.94A104,104,0,0,0,128,24Z"/></svg>
                     GitHub
                 </button>
             </div>
         </header>
 
-        <!-- MAIN CONTENT -->
-        <main>
-            <!-- FILE TREE PANEL -->
-            <section class="panel panel-tree" raa-flow:show="show_tree">
+        <!-- ═════════ WORKSPACE ═════════ -->
+        <div class="workspace">
+            <!-- TREE PANEL -->
+            <section class="panel panel-tree" raa-flow:show="showTree">
                 <div class="panel-header">
                     <span>Struktur Proyek</span>
-                    <button raa-on:click="promptNewItem()" class="btn btn-sm">+ Berkas</button>
+                    <button raa-on:click="openNewFileModal()" class="btn btn-sm">+ Berkas</button>
                 </div>
-                <div class="tree-list">
-                    <div raa-flow:show="loading_files" class="text-center p-4 text-muted">Memuat data proyek...</div>
-                    <div raa-flow:show="!loading_files && files.length === 0" class="text-center p-4 text-muted">Proyek kosong.</div>
-                    <div raa-flow:show="!loading_files" class="flex-col">
+                <div class="tree-scroll">
+                    <div raa-flow:show="loadingFiles" class="tree-loading">Memuat data proyek...</div>
+                    <div raa-flow:show="!loadingFiles && treeEmpty" class="tree-empty">Proyek kosong. Buat berkas pertama.</div>
+                    <div raa-flow:show="!loadingFiles && !treeEmpty" class="flex-col">
                         <template raa-flow:for="item in files" raa-key="item.path">
-                            <div class="tree-item" raa-bind:class="{ 'active': active_file_path === item.path, 'pending': github_file_status[item.path] === 'pending', 'synced': github_file_status[item.path] === 'synced' }" raa-on:click="selectFile(item.path)">
-                                <div class="tree-item-info">
-                                    <span class="tree-item-status" raa-bind:class="{ 'synced': github_file_status[item.path] === 'synced', 'pending': github_file_status[item.path] === 'pending', 'error': github_file_status[item.path] === 'error' }" raa-flow:show="github_connected"></span>
-                                    <span raa-bind:text="item.name"></span>
+                            <div class="tree-item" raa-bind:class="{ 'active': activeFilePath === item.path, 'pending': ghFileStatus[item.path] === 'pending', 'synced': ghFileStatus[item.path] === 'synced' }" raa-on:click="selectFile(item.path)">
+                                <div class="tree-item-left">
+                                    <span class="tree-item-status" raa-bind:class="ghFileStatus[item.path] || 'none'" raa-flow:show="ghConnected"></span>
+                                    <span class="tree-item-name" raa-bind:text="item.name"></span>
                                 </div>
-                                <button raa-on:click.stop="deleteFile(item.path)" class="btn-delete">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 256 256"><path d="M216,40H68.53a16.08,16.08,0,0,0-13.72,7.77L9.14,123.88a8,8,0,0,0,0,8.24l45.67,76.11A16.08,16.08,0,0,0,68.53,216H216a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40ZM61.67,204.12,68.53,200h0ZM216,200H68.53l-43.2-72,43.2-72H216ZM106.34,146.34,124.69,128l-18.35-18.34a8,8,0,0,1,11.32-11.32L136,116.69l18.34-18.35a8,8,0,0,1,11.32,11.32L147.31,128l18.35,18.34a8,8,0,0,1-11.32,11.32L136,139.31l-18.34,18.35a8,8,0,0,1-11.32-11.32Z"></path></svg>
+                                <button raa-on:click.stop="deleteFile(item.path)" class="tree-delete" title="Hapus">
+                                    <svg width="14" height="14" fill="currentColor" viewBox="0 0 256 256"><path d="M216,40H68.53a16.08,16.08,0,0,0-13.72,7.77L9.14,123.88a8,8,0,0,0,0,8.24l45.67,76.11A16.08,16.08,0,0,0,68.53,216H216a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40ZM61.67,204.12,68.53,200h0ZM216,200H68.53l-43.2-72,43.2-72H216ZM106.34,146.34,124.69,128l-18.35-18.34a8,8,0,0,1,11.32-11.32L136,116.69l18.34-18.35a8,8,0,0,1,11.32,11.32L147.31,128l18.35,18.34a8,8,0,0,1-11.32,11.32L136,139.31l-18.34,18.35a8,8,0,0,1-11.32-11.32Z"/></svg>
                                 </button>
                             </div>
                         </template>
                     </div>
                 </div>
             </section>
+            <div class="resize-handle" raa-core:ref="resizeTree" raa-on:mousedown="startResizeTree($event)"></div>
 
             <!-- EDITOR PANEL -->
             <section class="panel panel-editor">
-                <div class="tabs-bar">
-                    <div class="active-tab"><span>Aktif: </span><span raa-bind:text="active_file_path || 'Pilih Berkas'"></span></div>
-                    <div style="display: flex; gap: 4px;">
+                <div class="editor-tabs">
+                    <div class="editor-tab-active">
+                        <svg width="12" height="12" fill="var(--accent-orange)" viewBox="0 0 256 256"><path d="M213.66,82.34l-56-56A8,8,0,0,0,152,24H56A16,16,0,0,0,40,40V216a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V88A8,8,0,0,0,213.66,82.34ZM160,51.31,188.69,80H160ZM200,216H56V40H88V88a8,8,0,0,0,8,8h48a8,8,0,0,0,0-16H104V40h56V88a8,8,0,0,0,8,8h40V216Z"/></svg>
+                        <span raa-bind:text="activeFileName"></span>
+                    </div>
+                    <div class="editor-tab-status" raa-bind:class="{ 'unsaved': unsavedChanges }" raa-bind:text="unsavedChanges ? '● Modified' : (lastSaved ? 'Saved ' + lastSaved : 'Ready')">
+                    </div>
+                    <div style="display: flex; gap: 4px; margin-left: auto;">
                         <button raa-on:click="toggleTree()" class="btn-icon" title="Toggle Tree">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="var(--accent-purple)" viewBox="0 0 256 256"><path d="M160,112h48a16,16,0,0,0,16-16V48a16,16,0,0,0-16-16H160a16,16,0,0,0-16,16V64H128a24,24,0,0,0-24,24v32H72v-8A16,16,0,0,0,56,96H24A16,16,0,0,0,8,112v32a16,16,0,0,0,16,16H56a16,16,0,0,0,16-16v-8h32v32a24,24,0,0,0,24,24h16v16a16,16,0,0,0,16,16h48a16,16,0,0,0,16-16V160a16,16,0,0,0-16-16H160a16,16,0,0,0-16,16v16H128a8,8,0,0,1-8-8V88a8,8,0,0,1,8-8h16V96A16,16,0,0,0,160,112ZM56,144H24V112H56v32Zm104,16h48v48H160Zm0-112h48V96H160Z"></path></svg>
+                            <svg width="16" height="16" fill="var(--accent-purple)" viewBox="0 0 256 256"><path d="M160,112h48a16,16,0,0,0,16-16V48a16,16,0,0,0-16-16H160a16,16,0,0,0-16,16V64H128a24,24,0,0,0-24,24v32H72v-8A16,16,0,0,0,56,96H24A16,16,0,0,0,8,112v32a16,16,0,0,0,16,16H56a16,16,0,0,0,16-16v-8h32v32a24,24,0,0,0,24,24h16v16a16,16,0,0,0,16,16h48a16,16,0,0,0,16-16V160a16,16,0,0,0-16-16H160a16,16,0,0,0-16,16v16H128a8,8,0,0,1-8-8V88a8,8,0,0,1,8-8h16V96A16,16,0,0,0,160,112ZM56,144H24V112H56v32Zm104,16h48v48H160Zm0-112h48V96H160Z"/></svg>
                         </button>
                         <button raa-on:click="togglePreview()" class="btn-icon" title="Toggle Preview">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="var(--accent-mint)" viewBox="0 0 256 256"><path d="M208,40H48A24,24,0,0,0,24,64V176a24,24,0,0,0,24,24H208a24,24,0,0,0,24-24V64A24,24,0,0,0,208,40Zm8,136a8,8,0,0,1-8,8H48a8,8,0,0,1-8-8V64a8,8,0,0,1,8-8H208a8,8,0,0,1,8,8Zm-48,48a8,8,0,0,1-8,8H96a8,8,0,0,1,0-16h64A8,8,0,0,1,168,224Zm-3.56-110.66-48-32A8,8,0,0,0,104,88v64a8,8,0,0,0,12.44,6.66l48-32a8,8,0,0,0,0-13.32ZM120,137.05V103l25.58,17Z"></path></svg>
+                            <svg width="16" height="16" fill="var(--accent-mint)" viewBox="0 0 256 256"><path d="M208,40H48A24,24,0,0,0,24,64V176a24,24,0,0,0,24,24H208a24,24,0,0,0,24-24V64A24,24,0,0,0,208,40Zm8,136a8,8,0,0,1-8,8H48a8,8,0,0,1-8-8V64a8,8,0,0,1,8-8H208a8,8,0,0,1,8,8Zm-48,48a8,8,0,0,1-8,8H96a8,8,0,0,1,0-16h64A8,8,0,0,1,168,224Zm-3.56-110.66-48-32A8,8,0,0,0,104,88v64a8,8,0,0,0,12.44,6.66l48-32a8,8,0,0,0,0-13.32ZM120,137.05V103l25.58,17Z"/></svg>
                         </button>
                     </div>
                 </div>
-                <div class="editor-container">
-                    <textarea raa-core:ref="editorTextarea" raa-bind:model="active_file_content" raa-on:input="onEditorChangeDebounced()" placeholder="/* Pilih berkas atau tulis kode Anda */"></textarea>
-                    <div class="aux-bar">
-                        <button raa-on:click="insertText('\t')" class="aux-btn">Tab</button>
-                        <button raa-on:click="insertText('{')" class="aux-btn">{</button>
-                        <button raa-on:click="insertText('}')" class="aux-btn">}</button>
-                        <button raa-on:click="insertText('[')" class="aux-btn">[</button>
-                        <button raa-on:click="insertText(']')" class="aux-btn">]</button>
-                        <button raa-on:click="insertText(';')" class="aux-btn">;</button>
-                        <button raa-on:click="insertText('raa-bind:')" class="aux-btn aux-btn-brand">raa-bind:</button>
-                        <button raa-on:click="insertText('raa-flow:')" class="aux-btn aux-btn-brand">raa-flow:</button>
-                        <button raa-on:click="openGitHubModal()" class="aux-btn" style="margin-left: auto; border-color: rgba(244,132,95,0.3); color: var(--accent-orange);">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 256 256" style="vertical-align: middle; margin-right: 3px;"><path d="M128,24A104,104,0,0,0,95.2,202.13c5.2.93,7.11-2.27,7.11-5,0-2.47-.09-9-.13-17.65-28.94,6.29-35-13.93-35-13.93-4.73-12-11.58-15.22-11.58-15.22-9.47-6.48.72-6.35.72-6.35,10.49.74,16,10.77,16,10.77,9.32,15.94,24.45,11.33,30.38,8.66a21.14,21.14,0,0,1,6.29-13.28c-22.94-2.61-47.06-11.47-47.06-51a39.89,39.89,0,0,1,10.64-27.6c-1.07-2.61-4.62-13.14,1-27.4,0,0,8.7-2.79,28.48,10.6a98.33,98.33,0,0,1,51.84,0c19.76-13.4,28.45-10.6,28.45-10.6,5.63,14.26,2.09,24.79,1,27.4A39.84,39.84,0,0,1,193.6,120c0,39.63-24.17,48.37-47.17,50.93a24.68,24.68,0,0,1,7,19.14c0,13.82-.13,24.94-.13,28.33,0,2.75,1.86,5.94,7.14,4.94A104,104,0,0,0,128,24Z"></path></svg>
-                            Sync
+                <div class="editor-body">
+                    <textarea raa-core:ref="editorTextarea" raa-bind:model="activeFileContent" raa-on:input="handleEditorInput()" placeholder="/* Pilih berkas atau mulai menulis kode RaaJS Anda */" class="editor-textarea" raa-on:keydown="handleEditorKeydown($event)"></textarea>
+                    <div class="editor-toolbar">
+                        <button raa-on:click="insertText('	')" class="toolbar-btn">Tab</button>
+                        <button raa-on:click="insertText('{')" class="toolbar-btn">{ }</button>
+                        <button raa-on:click="insertText('[')" class="toolbar-btn">[ ]</button>
+                        <button raa-on:click="insertText('()')" class="toolbar-btn">( )</button>
+                        <button raa-on:click="insertText(';')" class="toolbar-btn">;</button>
+                        <button raa-on:click="insertText('raa-bind:')" class="toolbar-btn brand">raa-bind:</button>
+                        <button raa-on:click="insertText('raa-flow:')" class="toolbar-btn brand">raa-flow:</button>
+                        <button raa-on:click="insertText('raa-on:')" class="toolbar-btn brand">raa-on:</button>
+                        <button raa-on:click="saveActiveFile()" class="toolbar-btn" style="margin-left: auto; border-color: rgba(255,140,95,0.3); color: var(--accent-orange);">
+                            <svg width="12" height="12" fill="currentColor" viewBox="0 0 256 256" style="vertical-align: middle; margin-right: 4px;"><path d="M216,40H68.53a16.08,16.08,0,0,0-13.72,7.77L9.14,123.88a8,8,0,0,0,0,8.24l45.67,76.11A16.08,16.08,0,0,0,68.53,216H216a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40ZM61.67,204.12,68.53,200h0ZM216,200H68.53l-43.2-72,43.2-72H216Z"/></svg>
+                            Save
                         </button>
                     </div>
+                </div>
+                <div class="editor-statusbar">
+                    <div raa-bind:text="files.length + ' files' + (ghConnected ? ' | GitHub: ' + ghRepo : '')"></div>
+                    <div raa-bind:text="activeFileContent.length + ' chars | RaaJS v3.1.0'"></div>
                 </div>
             </section>
+            <div class="resize-handle" raa-core:ref="resizePreview" raa-on:mousedown="startResizePreview($event)"></div>
 
-            <!--
-                 PREVIEW PANEL — ISOLATED ISLAND
-                 raa-eco:island menciptakan boundary kompilasi terisolasi
-                 dengan state scope sendiri. Atribut raa-* TETAP diproses
-                 dalam konteks state island -- bukan state parent.
-            -->
-            <section class="panel panel-preview" raa-flow:show="show_preview">
+            <!-- PREVIEW PANEL -->
+            <section class="panel panel-preview" raa-flow:show="showPreview">
                 <div class="panel-header">
-                    <span>Live Preview <span style="font-size:0.6rem;opacity:0.6;font-weight:400;letter-spacing:0;text-transform:none">[island]</span></span>
-                    <button raa-on:click="runPreview()" class="btn btn-sm">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="var(--accent-mint)" viewBox="0 0 256 256"><path d="M236.6,144.5l-96-64a8,8,0,0,0-12.4,6.6v42.4L44.6,80.5a8,8,0,0,0-12.4,6.6v82.8a8,8,0,0,0,12.4,6.6l83.6-48.6V192a8,8,0,0,0,12.4,6.6l96-64a8,8,0,0,0,0-13.2ZM40,156.4V99.6L104,128Zm112,35.6V64l72,48Z"></path></svg>
+                    <span>Live Preview</span>
+                    <button raa-on:click="runPreview()" class="btn btn-sm btn-primary" raa-ux:loading="previewLoading">
+                        <svg width="12" height="12" fill="currentColor" viewBox="0 0 256 256"><path d="M236.6,144.5l-96-64a8,8,0,0,0-12.4,6.6v42.4L44.6,80.5a8,8,0,0,0-12.4,6.6v82.8a8,8,0,0,0,12.4,6.6l83.6-48.6V192a8,8,0,0,0,12.4,6.6l96-64a8,8,0,0,0,0-13.2ZM40,156.4V99.6L104,128Zm112,35.6V64l72,48Z"/></svg>
                         Run
                     </button>
                 </div>
-
-                <!--
-                  [FIX #2] Gunakan raa-core:ref pada ELEMEN LUAR island
-                  bukan document.getElementById(). Ref didaftarkan di
-                  scope parent workspace, bukan di scope island.
-                -->
-                <div raa-core:ref="previewContainer" class="preview-island-container" raa-eco:island>
-                    <div class="island-boundary"></div>
-                    <iframe id="preview-frame-island"></iframe>
+                <div class="preview-frame-wrap" raa-core:ref="previewWrap">
+                    <div class="preview-boundary"></div>
+                    <iframe raa-core:ref="previewFrame" title="Preview"></iframe>
+                    <div class="preview-placeholder" raa-flow:show="!isPreviewable">
+                        <svg width="48" height="48" fill="var(--accent-orange)" viewBox="0 0 256 256" opacity="0.3"><path d="M208,40H48A24,24,0,0,0,24,64V176a24,24,0,0,0,24,24H208a24,24,0,0,0,24-24V64A24,24,0,0,0,208,40Zm8,136a8,8,0,0,1-8,8H48a8,8,0,0,1-8-8V64a8,8,0,0,1,8-8H208a8,8,0,0,1,8,8Zm-48,48a8,8,0,0,1-8,8H96a8,8,0,0,1,0-16h64A8,8,0,0,1,168,224Zm-3.56-110.66-48-32A8,8,0,0,0,104,88v64a8,8,0,0,0,12.44,6.66l48-32a8,8,0,0,0,0-13.32ZM120,137.05V103l25.58,17Z"/></svg>
+                        <h3>index.html tidak ditemukan</h3>
+                        <p>Buat file index.html untuk melihat preview.</p>
+                    </div>
                 </div>
             </section>
 
-            <!-- AI CHAT PANEL -->
-            <aside class="panel panel-chat" raa-flow:show="show_chat">
+            <!-- CHAT PANEL -->
+            <aside class="panel-chat" raa-flow:show="showChat">
                 <div class="panel-header">
-                    <div class="flex-col">
+                    <div class="flex-col" style="gap: 2px;">
                         <span>RaaJS AI Asisten</span>
-                        <!--
-                          [FIX #8] Model dropdown hanya berisi model publik resmi.
-                          Opsi disabled yang tidak berguna dihapus.
-                        -->
-                        <select raa-bind:model="ai_model">
+                        <select raa-bind:model="aiModel" class="form-control" style="padding: 2px 8px; font-size: 0.65rem; height: 22px; min-height: 22px; width: 160px;">
                             <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
                             <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
                             <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
@@ -630,840 +471,1327 @@
                         </select>
                     </div>
                     <button raa-on:click="toggleChat()" class="btn-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 256 256"><path d="M165.66,101.66,139.31,128l26.35,26.34a8,8,0,0,1-11.32,11.32L128,139.31l-26.34,26.35a8,8,0,0,1-11.32-11.32L116.69,128,90.34,101.66a8,8,0,0,1,11.32-11.32L128,116.69l26.34-26.35a8,8,0,0,1,11.32,11.32ZM232,128A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128Z"></path></svg>
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 256 256"><path d="M165.66,101.66,139.31,128l26.35,26.34a8,8,0,0,1-11.32,11.32L128,139.31l-26.34,26.35a8,8,0,0,1-11.32-11.32L116.69,128,90.34,101.66a8,8,0,0,1,11.32-11.32L128,116.69l26.34-26.35a8,8,0,0,1,11.32,11.32ZM232,128A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128Z"/></svg>
                     </button>
                 </div>
-                <div class="chat-history" raa-core:ref="chatHistoryContainer">
-                    <div raa-flow:show="chat_messages.length === 0" class="text-center p-4 text-muted">Belum ada percakapan. Atur API Key di pengaturan.</div>
-                    <div raa-flow:show="chat_messages.length > 0" class="flex-col" style="gap: 12px;">
-                        <template raa-flow:for="msg in chat_messages" raa-key="msg.time">
-                            <div class="chat-message" raa-bind:class="{ 'user': msg.sender === 'user', 'model': msg.sender === 'model' }">
-                                <div class="chat-meta" raa-bind:text="msg.sender === 'user' ? 'Anda' : 'Asisten AI'"></div>
-                                <div raa-bind:text="msg.text" style="white-space: pre-wrap;"></div>
+                <div class="chat-history" raa-core:ref="chatHistory">
+                    <div raa-flow:show="chatEmpty" class="chat-empty">
+                        <svg width="40" height="40" fill="var(--text-muted)" viewBox="0 0 256 256" style="margin-bottom: 12px; opacity: 0.5;"><path d="M132,24A100.11,100.11,0,0,0,32,124v84a16,16,0,0,0,16,16h84a100,100,0,0,0,0-200Zm0,184H48V124a84,84,0,1,1,84,84Zm12-80a12,12,0,1,1-12-12A12,12,0,0,1,144,128Zm-44,0a12,12,0,1,1-12-12A12,12,0,0,1,100,128Zm88,0a12,12,0,1,1-12-12A12,12,0,0,1,188,128Z"/></svg>
+                        <div>Belum ada percakapan.</div>
+                        <div style="font-size: 0.75rem; margin-top: 4px;">Atur API Key di pengaturan.</div>
+                    </div>
+                    <div raa-flow:show="!chatEmpty" class="flex-col" style="gap: 12px;">
+                        <template raa-flow:for="msg in aiMessages" raa-key="msg.id">
+                            <div class="chat-msg" raa-bind:class="{ 'user': msg.sender === 'user', 'model': msg.sender === 'model' }">
+                                <div class="chat-msg-meta" raa-bind:text="msg.sender === 'user' ? 'Anda' : 'Asisten AI'"></div>
+                                <div class="chat-msg-text" raa-bind:text="msg.text"></div>
                             </div>
                         </template>
                     </div>
                 </div>
-                <div class="chat-input-area">
-                    <div raa-flow:show="!has_api_key" class="warn-box">Harap masukkan API Key di menu Pengaturan.</div>
-                    <div class="chat-input-wrapper">
-                        <textarea raa-bind:model="chat_input" raa-bind:disabled="chat_loading" placeholder="Tanya RaaJS..." class="chat-textarea" raa-on:keydown="handleChatKeydown($event)"></textarea>
-                        <button raa-on:click="sendMessage()" raa-bind:disabled="chat_loading || !chat_input" class="btn-icon" style="padding: 0 12px; height: 44px; border-radius: var(--radius-md);">
-                            <span raa-flow:show="!chat_loading">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 256 256"><path d="M227.32,28.68a16,16,0,0,0-15.66-4.08l-.15,0L19.57,82.84a16,16,0,0,0-2.49,29.8L102,154l41.3,84.87A15.86,15.86,0,0,0,157.74,248q.69,0,1.38-.06a15.88,15.88,0,0,0,14-11.51l58.2-191.94c0-.05,0-.1,0-.15A16,16,0,0,0,227.32,28.68ZM157.83,231.85l-.05.14,0-.07-40.06-82.3,48-48a8,8,0,0,0-11.31-11.31l-48,48L24.08,98.25l-.07,0,.14,0L216,40Z"></path></svg>
-                            </span>
-                            <span raa-flow:show="chat_loading">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="var(--accent-rose)" viewBox="0 0 256 256"><path d="M232,136.66A104.12,104.12,0,1,1,119.34,24,8,8,0,0,1,120.66,40,88.12,88.12,0,1,0,216,135.34,8,8,0,0,1,232,136.66ZM120,72v56a8,8,0,0,0,8,8h56a8,8,0,0,0,0-16H136V72a8,8,0,0,0-16,0Zm40-24a12,12,0,1,0-12-12A12,12,0,0,0,160,48Zm36,24a12,12,0,1,0-12-12A12,12,0,0,0,196,72Zm24,36a12,12,0,1,0-12-12A12,12,0,0,0,220,108Z"></path></svg>
-                            </span>
-                        </button>
-                    </div>
-                </div>
-            </aside>
-        </main>
 
-        <!-- GITHUB CONNECTOR MODAL -->
-        <div class="modal-overlay" raa-flow:show="show_github_modal">
-            <div class="modal-card">
+<div class="chat-input-area">
+  <button class="btn btn-sm" raa-on:click="showAiContextPicker = !showAiContextPicker" style="margin-bottom:8px;">
+    Pilih File Context ({{ aiContextFiles.length }})
+  </button>
+
+  <div raa-flow:show="showAiContextPicker" style="max-height:150px; overflow:auto; background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 8px; margin-bottom: 8px;">
+    <template raa-flow:for="file in files" raa-key="file.path">
+      <label style="display:flex; align-items:center; gap:6px; font-size:0.85rem; margin-bottom:4px; color: var(--text-primary); cursor:pointer;">
+        <input type="checkbox" raa-bind:model="aiContextFiles" raa-bind:value="file.path" />
+        <span>{{ file.name }}</span>
+      </label>
+    </template>
+    <button class="btn btn-sm btn-primary" raa-on:click="showAiContextPicker = false" style="width:100%;">Tutup</button>
+  </div>
+
+  <textarea raa-bind:model="chatInput" raa-ux:disable="aiLoading" placeholder="Tanya tentang RaaJS..." class="chat-textarea" raa-on:keydown="handleChatKeydown($event)"></textarea>
+  <button raa-on:click="sendMessage()" raa-ux:disable="aiLoading || !chatInput" class="btn-icon" style="height: 44px; width: 44px; border-radius: var(--radius-md); flex-shrink: 0;">
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="#000000" viewBox="0 0 256 256"><path d="M227.32,28.68a16,16,0,0,0-15.66-4.08l-.15,0L19.57,82.84a16,16,0,0,0-2.49,29.8L102,154l41.3,84.87A15.86,15.86,0,0,0,157.74,248q.69,0,1.38-.06a15.88,15.88,0,0,0,14-11.51l58.2-191.94c0-.05,0-.1,0-.15A16,16,0,0,0,227.32,28.68ZM157.83,231.85l-.05.14,0-.07-40.06-82.3,48-48a8,8,0,0,0-11.31-11.31l-48,48L24.08,98.25l-.07,0,.14,0L216,40Z"></path></svg>
+  </button>
+</div>
+
+            </aside>
+        </div>
+
+        <!-- ═════════ NEW FILE MODAL ═════════ -->
+        <div class="modal-overlay" raa-flow:show="showNewFileModal">
+            <div class="modal-card" style="max-width: 400px;">
                 <div class="modal-header">
-                    <h3 class="modal-title"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 256 256"><path d="M128,24A104,104,0,0,0,95.2,202.13c5.2.93,7.11-2.27,7.11-5,0-2.47-.09-9-.13-17.65-28.94,6.29-35-13.93-35-13.93-4.73-12-11.58-15.22-11.58-15.22-9.47-6.48.72-6.35.72-6.35,10.49.74,16,10.77,16,10.77,9.32,15.94,24.45,11.33,30.38,8.66a21.14,21.14,0,0,1,6.29-13.28c-22.94-2.61-47.06-11.47-47.06-51a39.89,39.89,0,0,1,10.64-27.6c-1.07-2.61-4.62-13.14,1-27.4,0,0,8.7-2.79,28.48,10.6a98.33,98.33,0,0,1,51.84,0c19.76-13.4,28.45-10.6,28.45-10.6,5.63,14.26,2.09,24.79,1,27.4A39.84,39.84,0,0,1,193.6,120c0,39.63-24.17,48.37-47.17,50.93a24.68,24.68,0,0,1,7,19.14c0,13.82-.13,24.94-.13,28.33,0,2.75,1.86,5.94,7.14,4.94A104,104,0,0,0,128,24Z"></path></svg> GitHub Connector</h3>
-                    <button raa-on:click="closeGitHubModal()" class="btn-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 256 256"><path d="M165.66,101.66,139.31,128l26.35,26.34a8,8,0,0,1-11.32,11.32L128,139.31l-26.34,26.35a8,8,0,0,1-11.32-11.32L116.69,128,90.34,101.66a8,8,0,0,1,11.32-11.32L128,116.69l26.34-26.35a8,8,0,0,1,11.32,11.32ZM232,128A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128Z"></path></svg>
+                    <h3 class="modal-title">Berkas Baru</h3>
+                    <button raa-on:click="closeNewFileModal()" class="btn-icon">
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 256 256"><path d="M165.66,101.66,139.31,128l26.35,26.34a8,8,0,0,1-11.32,11.32L128,139.31l-26.34,26.35a8,8,0,0,1-11.32-11.32L116.69,128,90.34,101.66a8,8,0,0,1,11.32-11.32L128,116.69l26.34-26.35a8,8,0,0,1,11.32,11.32ZM232,128A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128Z"/></svg>
                     </button>
                 </div>
-                <div class="tabs-nav">
-                    <button class="tab-btn" raa-bind:class="{ 'active': github_tab === 'sync' }" raa-on:click="setGithubTab('sync')"><span class="tab-dot sync"></span> Sync</button>
-                    <button class="tab-btn" raa-bind:class="{ 'active': github_tab === 'manage' }" raa-on:click="setGithubTab('manage')"><span class="tab-dot manage"></span> Manage</button>
-                    <button class="tab-btn" raa-bind:class="{ 'active': github_tab === 'config' }" raa-on:click="setGithubTab('config')"><span class="tab-dot config"></span> Config</button>
+                <div class="form-group">
+                    <label>Nama Berkas</label>
+                    <input type="text" raa-bind:model="newFileName" class="form-control" placeholder="contoh: halaman.html" raa-validate:required raa-on:keydown="handleNewFileKeydown($event)">
+                </div>
+                <div class="flex gap-2 mt-3">
+                    <button raa-on:click="createNewFile()" class="btn btn-primary flex-1" raa-ux:disable="!newFileName">Buat Berkas</button>
+                    <button raa-on:click="closeNewFileModal()" class="btn flex-1">Batal</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═════════ GITHUB MODAL ═════════ -->
+        <div class="modal-overlay" raa-flow:show="showGitHubModal">
+            <div class="modal-card">
+                <div class="modal-header">
+                    <h3 class="modal-title">
+                        <svg width="20" height="20" fill="currentColor" viewBox="0 0 256 256"><path d="M128,24A104,104,0,0,0,95.2,202.13c5.2.93,7.11-2.27,7.11-5,0-2.47-.09-9-.13-17.65-28.94,6.29-35-13.93-35-13.93-4.73-12-11.58-15.22-11.58-15.22-9.47-6.48.72-6.35.72-6.35,10.49.74,16,10.77,16,10.77,9.32,15.94,24.45,11.33,30.38,8.66a21.14,21.14,0,0,1,6.29-13.28c-22.94-2.61-47.06-11.47-47.06-51a39.89,39.89,0,0,1,10.64-27.6c-1.07-2.61-4.62-13.14,1-27.4,0,0,8.7-2.79,28.48,10.6a98.33,98.33,0,0,1,51.84,0c19.76-13.4,28.45-10.6,28.45-10.6,5.63,14.26,2.09,24.79,1,27.4A39.84,39.84,0,0,1,193.6,120c0,39.63-24.17,48.37-47.17,50.93a24.68,24.68,0,0,1,7,19.14c0,13.82-.13,24.94-.13,28.33,0,2.75,1.86,5.94,7.14,4.94A104,104,0,0,0,128,24Z"/></svg>
+                        GitHub Connector
+                    </h3>
+                    <button raa-on:click="closeGitHubModal()" class="btn-icon">
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 256 256"><path d="M165.66,101.66,139.31,128l26.35,26.34a8,8,0,0,1-11.32,11.32L128,139.31l-26.34,26.35a8,8,0,0,1-11.32-11.32L116.69,128,90.34,101.66a8,8,0,0,1,11.32-11.32L128,116.69l26.34-26.35a8,8,0,0,1,11.32,11.32ZM232,128A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128Z"/></svg>
+                    </button>
+                </div>
+                <div class="modal-tabs">
+                    <button class="modal-tab" raa-bind:class="{ 'active': ghTab === 'sync' }" raa-on:click="setGhTab('sync')">
+                        <span class="tab-dot sync"></span> Sync
+                    </button>
+                    <button class="modal-tab" raa-bind:class="{ 'active': ghTab === 'manage' }" raa-on:click="setGhTab('manage')">
+                        <span class="tab-dot manage"></span> Manage
+                    </button>
+                    <button class="modal-tab" raa-bind:class="{ 'active': ghTab === 'config' }" raa-on:click="setGhTab('config')">
+                        <span class="tab-dot config"></span> Config
+                    </button>
                 </div>
 
                 <!-- SYNC TAB -->
-                <div raa-flow:show="github_tab === 'sync'">
+                <div raa-flow:show="ghTab === 'sync'">
                     <div class="form-group">
                         <label>Repository Target</label>
-                        <input type="text" raa-bind:model="github_repo_input" class="form-control" placeholder="username/repository">
+                        <input type="text" raa-bind:model="ghRepoInput" class="form-control" placeholder="username/repository">
                         <div class="form-hint">Contoh: dazep01/gaskuy-adventure</div>
                     </div>
                     <div class="form-group">
                         <label>Branch</label>
-                        <input type="text" raa-bind:model="github_branch" class="form-control" value="main">
+                        <input type="text" raa-bind:model="ghBranch" class="form-control">
                     </div>
                     <div class="form-group">
-                        <label>Root Path di Repository</label>
-                        <input type="text" raa-bind:model="github_root_path" class="form-control" placeholder="kosongkan untuk root, atau isi: src/, docs/, dll">
-                        <div class="form-hint">File akan disimpan di: <code>/{root_path}/{nama_file}</code></div>
+                        <label>Root Path</label>
+                        <input type="text" raa-bind:model="ghRootPath" class="form-control" placeholder="kosongkan untuk root">
+                        <div class="form-hint">File disimpan di: <code>/{root}/{nama_file}</code></div>
                     </div>
-                    <button raa-on:click="checkGitHubSync()" class="btn btn-primary w-full mt-2" raa-bind:disabled="github_sync_loading || !github_repo_input">
-                        <span raa-flow:show="!github_sync_loading">Deteksi Perubahan</span>
-                        <span raa-flow:show="github_sync_loading">Memindai...</span>
+                    <button raa-on:click="checkGitHubSync()" class="btn btn-primary w-full mt-2" raa-ux:disable="ghSyncLoading || !ghRepoInput">
+                        <span raa-flow:show="!ghSyncLoading">Deteksi Perubahan</span>
+                        <span raa-flow:show="ghSyncLoading">Memindai...</span>
                     </button>
-                    <div raa-flow:show="github_sync_results.length > 0" class="mt-4">
+                    <div raa-flow:show="ghSyncResults.length > 0" class="mt-4">
                         <div class="checkbox-list">
-                            <template raa-flow:for="item in github_sync_results" raa-key="item.path">
+                            <template raa-flow:for="item in ghSyncResults" raa-key="item.path">
                                 <label class="checkbox-item">
                                     <input type="checkbox" raa-bind:model="item.selected">
                                     <span class="file-path" raa-bind:text="item.path"></span>
-                                    <span class="file-status" raa-bind:class="{ 'pending': item.status === 'pending', 'synced': item.status === 'synced' }" raa-bind:text="item.status === 'pending' ? 'Perlu Push' : 'Sudah Sync'"></span>
+                                    <span class="file-badge" raa-bind:class="{ 'pending': item.status === 'pending', 'synced': item.status === 'synced' }" raa-bind:text="item.status === 'pending' ? 'Perlu Push' : 'Synced'"></span>
                                 </label>
                             </template>
                         </div>
-                        <div class="progress-container" raa-flow:show="github_upload_progress > 0">
-                            <div class="progress-bar"><div class="progress-fill" raa-bind:style="'width: ' + github_upload_progress + '%'"></div></div>
-                            <div class="progress-text" raa-bind:text="github_upload_progress + '% selesai'"></div>
+                        <div class="progress-box" raa-flow:show="ghUploadProgress > 0">
+                            <div class="progress-track">
+                                <div class="progress-fill" raa-bind:style="{ width: ghUploadProgress + '%' }"></div>
+                            </div>
+                            <div class="progress-text" raa-bind:text="ghUploadProgress + '% selesai'"></div>
                         </div>
-                        <div class="flex gap-2 mt-4">
-                            <button raa-on:click="executeGitHubUpload()" class="btn btn-primary flex-1" raa-bind:disabled="github_upload_loading">
-                                <span raa-flow:show="!github_upload_loading">Upload Terpilih</span>
-                                <span raa-flow:show="github_upload_loading">Mengupload...</span>
+                        <div class="flex gap-2 mt-3">
+                            <button raa-on:click="executeGitHubUpload()" class="btn btn-primary flex-1" raa-ux:disable="ghUploadLoading">
+                                <span raa-flow:show="!ghUploadLoading">Upload Terpilih (<span raa-bind:text="selectedSyncCount"></span>)</span>
+                                <span raa-flow:show="ghUploadLoading">Mengupload...</span>
                             </button>
-                            <button raa-on:click="selectAllForSync(true)" class="btn">Semua</button>
-                            <button raa-on:click="selectAllForSync(false)" class="btn">Batal</button>
+                            <button raa-on:click="selectAllSync(true)" class="btn btn-sm">Semua</button>
+                            <button raa-on:click="selectAllSync(false)" class="btn btn-sm">Batal</button>
                         </div>
                     </div>
-                    <div raa-flow:show="github_sync_results.length === 0 && github_checked" class="text-center p-4 text-muted">Tidak ada file yang perlu disinkronkan. Semua file sudah terbaru!</div>
+                    <div raa-flow:show="ghSyncResults.length === 0 && ghChecked" class="text-center p-4 text-muted">
+                        Semua file sudah tersinkron!
+                    </div>
                 </div>
 
                 <!-- MANAGE TAB -->
-                <div raa-flow:show="github_tab === 'manage'">
-                    <div raa-flow:show="!github_connected" class="text-center p-4 text-muted">Konfigurasikan GitHub Token di tab <strong>Config</strong> terlebih dahulu.</div>
-                    <div raa-flow:show="github_connected">
+                <div raa-flow:show="ghTab === 'manage'">
+                    <div raa-flow:show="!ghConnected" class="text-center p-4 text-muted">
+                        Konfigurasikan GitHub di tab <strong>Config</strong> terlebih dahulu.
+                    </div>
+                    <div raa-flow:show="ghConnected">
                         <div class="form-group">
-                            <label>Pilih Aksi Massal</label>
+                            <label>Pilih File</label>
                             <div class="checkbox-list">
                                 <template raa-flow:for="file in files" raa-key="file.path">
                                     <label class="checkbox-item">
-                                        <input type="checkbox" raa-bind:model="github_manage_selection[file.path]">
+                                        <input type="checkbox" raa-bind:model="ghManageSel[file.path]">
                                         <span class="file-path" raa-bind:text="file.path"></span>
-                                        <span class="file-status synced">Lokal</span>
+                                        <span class="file-badge local">Lokal</span>
                                     </label>
                                 </template>
                             </div>
                         </div>
-                        <div class="flex gap-2 mt-4">
-                            <button raa-on:click="executeGitHubUpload(true)" class="btn btn-primary flex-1" raa-bind:disabled="github_upload_loading">Upload ke GitHub</button>
-                            <button raa-on:click="executeGitHubDelete()" class="btn" style="border-color: var(--accent-rose); color: var(--accent-rose);" raa-bind:disabled="github_upload_loading">Hapus dari GitHub</button>
+                        <div class="flex gap-2 mt-3">
+                            <button raa-on:click="executeGitHubUpload(true)" class="btn btn-primary flex-1" raa-ux:disable="ghUploadLoading">Upload ke GitHub</button>
+                            <button raa-on:click="executeGitHubDelete()" class="btn btn-danger flex-1" raa-ux:disable="ghUploadLoading">Hapus dari GitHub</button>
                         </div>
                     </div>
                 </div>
 
                 <!-- CONFIG TAB -->
-                <div raa-flow:show="github_tab === 'config'">
+                <div raa-flow:show="ghTab === 'config'">
                     <div class="form-group">
                         <label>GitHub Personal Access Token</label>
-                        <input type="password" raa-bind:model="github_token_input" class="form-control" placeholder="ghp_xxxxxxxxxxxx">
-                        <div class="form-hint">Token disimpan lokal di browser Anda. <a href="https://github.com/settings/tokens" target="_blank">Buat token baru</a> dengan scope <code>repo</code>.</div>
+                        <input type="password" raa-bind:model="ghTokenInput" class="form-control" placeholder="ghp_xxxxxxxxxxxx">
+                        <div class="form-hint">Token disimpan lokal. <a href="https://github.com/settings/tokens" target="_blank">Buat token</a> dengan scope <code>repo</code>.</div>
                     </div>
                     <div class="form-group">
                         <label>Default Repository</label>
-                        <input type="text" raa-bind:model="github_repo_input" class="form-control" placeholder="username/repository">
+                        <input type="text" raa-bind:model="ghRepoInput" class="form-control" placeholder="username/repository">
                     </div>
                     <div class="form-group">
-                        <label>Auto-Sync on Save</label>
-                        <label style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; font-weight: normal; text-transform: none; letter-spacing: 0; cursor: pointer;">
-                            <input type="checkbox" raa-bind:model="github_auto_sync" style="width: 16px; height: 16px; accent-color: var(--accent-orange);">
-                            Sinkronkan otomatis saat file disimpan
+                        <label style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; font-weight: 500; text-transform: none; letter-spacing: 0; cursor: pointer;">
+                            <input type="checkbox" raa-bind:model="ghAutoSync" style="width: 16px; height: 16px; accent-color: var(--accent-orange);">
+                            Auto-sync saat file disimpan
                         </label>
                     </div>
-                    <div class="flex gap-2 mt-4">
-                        <button raa-on:click="saveGitHubConfig()" class="btn btn-primary flex-1">Simpan Konfigurasi</button>
-                        <button raa-on:click="testGitHubConnection()" class="btn" raa-bind:disabled="!github_token_input">Uji Koneksi</button>
+                    <div class="flex gap-2 mt-3">
+                        <button raa-on:click="saveGitHubConfig()" class="btn btn-primary flex-1">Simpan</button>
+                        <button raa-on:click="testGitHubConnection()" class="btn flex-1" raa-ux:disable="!ghTokenInput">Uji Koneksi</button>
                     </div>
-                    <div raa-flow:show="github_connection_test_result" class="conn-status" raa-bind:class="github_connection_test_error ? 'fail' : 'ok'">
-                        <strong raa-bind:text="github_connection_test_error ? 'Gagal:' : 'Berhasil:'"></strong>
-                        <span raa-bind:text="github_connection_test_result"></span>
+                    <div raa-flow:show="ghTestResult" class="conn-status" raa-bind:class="{ 'ok': !ghTestError, 'fail': ghTestError }">
+                        <strong raa-bind:text="ghTestError ? 'Gagal:' : 'Berhasil:'"></strong>
+                        <span raa-bind:text="ghTestResult"></span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- SETTINGS MODAL -->
-        <div class="modal-overlay" raa-flow:show="show_settings">
-            <div class="modal-card">
+        <!-- ═════════ SETTINGS MODAL ═════════ -->
+        <div class="modal-overlay" raa-flow:show="showSettings">
+            <div class="modal-card" style="max-width: 460px;">
                 <div class="modal-header">
                     <h3 class="modal-title">Pengaturan</h3>
                     <button raa-on:click="toggleSettings()" class="btn-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 256 256"><path d="M165.66,101.66,139.31,128l26.35,26.34a8,8,0,0,1-11.32,11.32L128,139.31l-26.34,26.35a8,8,0,0,1-11.32-11.32L116.69,128,90.34,101.66a8,8,0,0,1,11.32-11.32L128,116.69l26.34-26.35a8,8,0,0,1,11.32,11.32ZM232,128A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128Z"></path></svg>
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 256 256"><path d="M165.66,101.66,139.31,128l26.35,26.34a8,8,0,0,1-11.32,11.32L128,139.31l-26.34,26.35a8,8,0,0,1-11.32-11.32L116.69,128,90.34,101.66a8,8,0,0,1,11.32-11.32L128,116.69l26.34-26.35a8,8,0,0,1,11.32,11.32ZM232,128A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128Z"/></svg>
                     </button>
                 </div>
                 <div class="form-group">
                     <label>Gemini API Key</label>
-                    <input type="password" raa-bind:model="api_key_input" class="form-control" placeholder="AI Key...">
+                    <input type="password" raa-bind:model="aiKeyInput" class="form-control" placeholder="AIzaSy...">
                     <div style="display: flex; gap: 6px; margin-top: 8px;">
                         <button raa-on:click="saveApiKey()" class="btn btn-primary">Simpan Key</button>
-                        <button raa-on:click="resetApiKey()" class="btn" style="border-color: var(--accent-rose); color: var(--accent-rose);">Hapus Key</button>
+                        <button raa-on:click="resetApiKey()" class="btn btn-danger">Hapus Key</button>
                     </div>
                 </div>
                 <hr>
                 <div class="form-group">
                     <label>Aksi Pembersihan</label>
                     <div style="display: flex; gap: 8px;">
-                        <button raa-on:click="resetProject()" class="btn flex-1" style="border-color: var(--accent-rose); color: var(--accent-rose);">Reset Proyek</button>
+                        <button raa-on:click="resetProject()" class="btn btn-danger flex-1">Reset Proyek</button>
                         <button raa-on:click="factoryReset()" class="btn flex-1" style="background: var(--accent-rose); border: none; color: white;">Factory Reset</button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- TOAST -->
-        <div class="toast" raa-flow:show="toast.visible" raa-bind:class="toast.type">
-            <span raa-bind:text="toast.message"></span>
+        <!-- ═════════ TOAST ═════════ -->
+        <div class="toast" raa-flow:show="toastVisible" raa-bind:class="{ 'success': toastType === 'success', 'error': toastType === 'error', 'warning': toastType === 'warning' }">
+            <span raa-bind:text="toastMessage"></span>
         </div>
 
     </div>
 
     <script>
-        // ═══════════════════════════════════════════════════════
-        //  RaaJS Application: Creative Workspace v3.1.0
-        //  REFACTORED — All issues resolved:
-        //  [FIX #1] btoa(unescape()) → TextEncoder (UTF-8 safe)
-        //  [FIX #2] document.getElementById → raa-core:ref
-        //  [FIX #3] raa-eco:persist dihapus → selective persist
-        //  [FIX #4] Nested ternary in template → method
-        //  [FIX #5] Dynamic key → Object.assign batch init
-        //  [FIX #7] base64 encoding UTF-8 safe (see FIX #1)
-        //  [FIX #8] Gemini URL dinamis dari state ai_model
-        //  [FIX #9] N+1 HTTP sequential → Promise.all concurrent
-        // ═══════════════════════════════════════════════════════
-        
-        RaaJS.define('creativeWorkspace', () => {
-            const DB_NAME = "RaaJS_Clean_DB";
-            const DB_VERSION = 2;
-            const DEFAULT_FILES = [
-                { path: "index.html", name: "index.html", content: '<!DOCTYPE html>\n<html lang="id">\n<head>\n    <meta charset="UTF-8">\n    <meta name="viewport" content="width=device-width, initial-scale=1.0">\n    <title>Proyek RaaJS</title>\n</head>\n<body>\n    <h1>Selamat Datang di RaaJS!</h1>\n    <p>Mulai kreasimu di sini.</p>\n</body>\n</html>' },
-                { path: "README.md", name: "README.md", content: '# Proyek RaaJS\n\nSemua data disimpan lokal di IndexedDB.\n\n## Fitur\n- Editor kode real-time\n- Live preview (isolated island)\n- AI Assistant\n- GitHub Sync\n\n> Data Liberation: Kendali penuh di tangan Anda.' }
-            ];
+// ═══════════════════════════════════════════════════════════════
+// RaaJS Studio v3.1.0 — Refactored, Best Practice, Premium
+// ═══════════════════════════════════════════════════════════════
 
-            let _db = null;
-            let _debounceTimer = null;
-            let _octokit = null;
+RaaJS.define('studio', () => {
+      const DB_NAME = 'RaaJS_Studio_DB';
+      const DB_VERSION = 1;
+      const DEFAULT_FILES = [{
+          path: 'index.html',
+          name: 'index.html',
+          content: `<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proyek RaaJS</title>
+    <script src="../engine/raa.js"><\/script>
+    <style>
+        body { font-family: system-ui, sans-serif; padding: 40px; background: #f8f9fa; color: #333; }
+        h1 { color: #FF8C5F; }
+    </style>
+</head>
+<body>
+    <h1>Selamat Datang di RaaJS v3.1.0!</h1>
+    <p>Mulai kreasimu di sini. Data 100% lokal.</p>
+    <div raa-core:app="demo">
+        <p raa-bind:text="message"></p>
+        <button raa-on:click="update()">Klik Saya</button>
+    </div>
+    <script>
+        RaaJS.define('demo', () => ({
+            state: { message: 'Halo dari RaaJS!' },
+            methods: {
+                update() { this.message = 'State bereaksi secara otomatis!'; }
+            }
+        }));
+    <\/script>
+</body>
+</html>`
+        },
+        {
+          path: 'README.md',
+          name: 'README.md',
+          content: `# Proyek RaaJS
 
-            return {
-                state: {
-                    show_tree: true,
-                    show_preview: false,
-                    show_chat: false,
-                    show_settings: false,
-                    show_github_modal: false,
-                    
-                    files: [],
-                    loading_files: true,
-                    active_file_path: "",
-                    active_file_content: "",
-                    
-                    has_api_key: false,
-                    api_key: "",
-                    api_key_input: "",
-                    
-                    ai_model: "gemini-2.5-flash",
-                    chat_input: "",
-                    chat_messages: [],
-                    chat_loading: false,
-                    
-                    github_token: "",
-                    github_token_input: "",
-                    github_repo: "",
-                    github_repo_input: "",
-                    github_branch: "main",
-                    github_root_path: "",
-                    github_connected: false,
-                    github_auto_sync: false,
-                    
-                    github_tab: "sync",
-                    github_sync_loading: false,
-                    github_sync_results: [],
-                    github_sync_status: "disconnected",
-                    // [FIX #5] Inisialisasi kosong, diisi batch via Object.assign
-                    github_file_status: {},
-                    github_manage_selection: {},
-                    github_upload_loading: false,
-                    github_upload_progress: 0,
-                    github_checked: false,
-                    github_connection_test_result: "",
-                    github_connection_test_error: false,
-                    
-                    toast: { visible: false, message: "", type: "success" }
+Workspace ini menggunakan RaaJS v3.1.0 — framework reaktif zero-dependency.
+
+## Fitur Utama
+- Editor kode real-time dengan auto-save
+- Live preview via isolated iframe
+- AI Assistant (Gemini API)
+- GitHub Sync (Octokit REST)
+- IndexedDB storage (data lokal)
+
+## Prinsip
+> State adalah sumber kebenaran. Template adalah cermin pasif.
+`
+        }
+      ];
+
+      let _db = null;
+      let _octokit = null;
+      let _saveTimer = null;
+      let _msgId = 0;
+
+      return {
+        state: {
+          // UI
+          showTree: true,
+          showPreview: true,
+          showChat: false,
+          showSettings: false,
+          showGitHubModal: false,
+          showNewFileModal: false,
+
+          // Editor
+          files: [],
+          loadingFiles: true,
+          activeFilePath: '',
+          activeFileContent: '',
+          lastSaved: '',
+          unsavedChanges: false,
+          previewLoading: false,
+
+          // GitHub
+          ghToken: '',
+          ghTokenInput: '',
+          ghRepo: '',
+          ghRepoInput: '',
+          ghBranch: 'main',
+          ghRootPath: '',
+          ghConnected: false,
+          ghAutoSync: false,
+          ghTab: 'sync',
+          ghSyncLoading: false,
+          ghSyncResults: [],
+          ghFileStatus: {},
+          ghManageSel: {},
+          ghUploadProgress: 0,
+          ghUploadLoading: false,
+          ghChecked: false,
+          ghTestResult: '',
+          ghTestError: false,
+
+          // AI
+          aiKey: '',
+          aiKeyInput: '',
+          aiModel: 'gemini-2.5-flash',
+          aiMessages: [],
+          aiContextFiles: [],
+          showAiContextPicker: false,
+          aiLoading: false,
+          aiHasKey: false,
+          chatInput: '',
+
+          // New file
+          newFileName: '',
+
+          // Toast
+          toastVisible: false,
+          toastMessage: '',
+          toastType: 'success'
+        },
+
+        computed: {
+          activeFileName() {
+            return this.activeFilePath || 'Pilih Berkas';
+          },
+          treeEmpty() {
+            return this.files.length === 0;
+          },
+          chatEmpty() {
+            return this.aiMessages.length === 0;
+          },
+          isPreviewable() {
+            return this.files.some(function (f) {
+              return f.path === 'index.html';
+            });
+          },
+          githubStatusLabel() {
+            if (!this.ghConnected) return 'GitHub: Terputus';
+            var vals = Object.values(this.ghFileStatus);
+            var pending = vals.some(function (s) {
+              return s === 'pending';
+            });
+            return pending ? 'GitHub: Pending' : 'GitHub: Synced';
+          },
+          githubDotClass() {
+            if (!this.ghConnected) return 'error';
+            var vals = Object.values(this.ghFileStatus);
+            var pending = vals.some(function (s) {
+              return s === 'pending';
+            });
+            return pending ? 'pending' : 'synced';
+          },
+          pendingSyncCount() {
+            return this.ghSyncResults.filter(function (r) {
+                return r.status === 'pending';
+              })
+              .length;
+          },
+          selectedSyncCount() {
+            return this.ghSyncResults.filter(function (r) {
+                return r.selected;
+              })
+              .length;
+          }
+        },
+
+        init() {
+          this._loadUIPersist();
+          this._checkApiKey();
+          this._loadGitHubConfig();
+          this._initDB()
+            .then(function () {
+              return this._loadFiles();
+            }.bind(this))
+            .then(function () {
+              this.loadingFiles = false;
+              if (!this.treeEmpty) {
+                var idx = this.files.find(function (f) {
+                  return f.path === 'index.html';
+                });
+                if (idx) {
+                  this.activeFilePath = idx.path;
+                  this.activeFileContent = idx.content;
+                } else {
+                  this.activeFilePath = this.files[0].path;
+                  this.activeFileContent = this.files[0].content;
+                }
+              }
+              this._initGhStatus();
+              if (this.ghConnected) this._updateGitHubStatus();
+              if (this.showPreview) this.runPreview();
+            }.bind(this))
+            .catch(function (err) {
+              console.error('DB init failed:', err);
+              this.loadingFiles = false;
+              this.showToast('Gagal memuat database', 'error');
+            }.bind(this));
+        },
+
+        methods: {
+          // ======== UI Toggles ========
+          toggleTree: function () {
+            this.showTree = !this.showTree;
+            this._saveUIPersist();
+          },
+          togglePreview: function () {
+            this.showPreview = !this.showPreview;
+            this._saveUIPersist();
+            if (this.showPreview) {
+              requestAnimationFrame(function () {
+                this.runPreview();
+              }.bind(this));
+            }
+          },
+          toggleChat: function () {
+            this.showChat = !this.showChat;
+            this._saveUIPersist();
+          },
+          toggleSettings: function () {
+            this.showSettings = !this.showSettings;
+          },
+          openGitHubModal: function () {
+            this.showGitHubModal = true;
+            if (this.ghConnected && !this.ghChecked) {
+              setTimeout(function () {
+                this.checkGitHubSync();
+              }.bind(this), 300);
+            }
+          },
+          closeGitHubModal: function () {
+            this.showGitHubModal = false;
+            this.ghUploadProgress = 0;
+          },
+          openNewFileModal: function () {
+            this.showNewFileModal = true;
+          },
+          closeNewFileModal: function () {
+            this.showNewFileModal = false;
+            this.newFileName = '';
+          },
+          setGhTab: function (t) {
+            this.ghTab = t;
+          },
+
+          // ======== File Management ========
+          selectFile: function (path) {
+            var f = this.files.find(function (x) {
+              return x.path === path;
+            });
+            if (f) {
+              this.activeFilePath = f.path;
+              this.activeFileContent = f.content;
+              this.unsavedChanges = false;
+            }
+          },
+
+          handleEditorInput: function () {
+            this.unsavedChanges = true;
+            if (_saveTimer) clearTimeout(_saveTimer);
+            var self = this;
+            _saveTimer = setTimeout(function () {
+              self.saveActiveFile();
+            }, 600);
+          },
+
+          saveActiveFile: function () {
+            var f = this.files.find(function (x) {
+              return x.path === this.activeFilePath;
+            }.bind(this));
+            if (f) {
+              f.content = this.activeFileContent;
+              this._saveFile(f);
+              this.unsavedChanges = false;
+              this.lastSaved = new Date()
+                .toLocaleTimeString('id-ID', {
+                  hour: '2-digit',
+                  minute: '2-digit'
+                });
+              if (this.ghConnected && this.ghAutoSync) {
+                this._markGhPending(this.activeFilePath);
+                setTimeout(function () {
+                  this.checkGitHubSync();
+                }.bind(this), 800);
+              }
+              if (this.activeFilePath === 'index.html' && this.showPreview) {
+                this.runPreview();
+              }
+            }
+          },
+
+          handleEditorKeydown: function (e) {
+            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+              e.preventDefault();
+              this.saveActiveFile();
+              this.showToast('File disimpan', 'success');
+            }
+          },
+
+          insertText: function (ch) {
+            var ta = this.$refs.editorTextarea;
+            if (!ta) return;
+            var s = ta.selectionStart,
+              e = ta.selectionEnd;
+            var before = this.activeFileContent.substring(0, s);
+            var after = this.activeFileContent.substring(e);
+            this.activeFileContent = before + ch + after;
+            this.unsavedChanges = true;
+            setTimeout(function () {
+              ta.focus();
+              var pos = s + ch.length;
+              ta.setSelectionRange(pos, pos);
+            }, 50);
+            this.handleEditorInput();
+          },
+
+          createNewFile: function () {
+            var name = (this.newFileName || '')
+              .trim();
+            if (!name) return;
+            if (this.files.some(function (f) {
+                return f.path === name;
+              })) {
+              this.showToast('Berkas sudah ada!', 'warning');
+              return;
+            }
+            var nf = {
+              path: name,
+              name: name,
+              content: ''
+            };
+            this._saveFile(nf);
+            this.files.push(nf);
+            var batch = {};
+            batch[name] = 'pending';
+            Object.assign(this.ghFileStatus, batch);
+            this.activeFilePath = nf.path;
+            this.activeFileContent = nf.content;
+            this.unsavedChanges = false;
+            this.closeNewFileModal();
+            this.showToast('Berkas "' + name + '" dibuat', 'success');
+          },
+
+          handleNewFileKeydown: function (e) {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              this.createNewFile();
+            }
+          },
+
+          deleteFile: async function (path) {
+            if (!confirm('Hapus "' + path + '"?')) return;
+            await this._deleteFile(path);
+            this.files = this.files.filter(function (f) {
+              return f.path !== path;
+            });
+            if (this.activeFilePath === path) {
+              if (this.files.length > 0) {
+                this.activeFilePath = this.files[0].path;
+                this.activeFileContent = this.files[0].content;
+              } else {
+                this.activeFilePath = '';
+                this.activeFileContent = '';
+              }
+              this.unsavedChanges = false;
+            }
+            if (this.ghFileStatus[path]) {
+              var rem = {};
+              rem[path] = undefined;
+              Object.assign(this.ghFileStatus, rem);
+              delete this.ghFileStatus[path];
+            }
+            this.showToast('Berkas dihapus', 'success');
+          },
+
+          // ======== Preview ========
+          runPreview: function () {
+            var frame = this.$refs.previewFrame;
+            if (!frame) return;
+            this.previewLoading = true;
+            var idx = this.files.find(function (f) {
+              return f.path === 'index.html';
+            });
+            var doc = frame.contentDocument || frame.contentWindow.document;
+            if (!idx) {
+              doc.open();
+              doc.write('');
+              doc.close();
+              this.previewLoading = false;
+              return;
+            }
+            var html = idx.content;
+            var otherFiles = this.files.filter(function (f) {
+              return f.path !== 'index.html';
+            });
+            if (otherFiles.length > 0) {
+              var injected = '<!-- Injected by RaaJS Studio -->\n';
+              otherFiles.forEach(function (f) {
+                if (f.path.endsWith('.css')) {
+                  injected += '<style data-file="' + f.path + '">\n' + f.content + '\n</style>\n';
+                } else if (f.path.endsWith('.js')) {
+                  injected += '<script data-file="' + f.path + '">\n' + f.content + '\n<\/script>\n';
+                }
+              });
+              var insertPos = html.indexOf('</head>');
+              if (insertPos > -1) {
+                html = html.substring(0, insertPos) + injected + html.substring(insertPos);
+              } else {
+                html = injected + html;
+              }
+            }
+            doc.open();
+            doc.write(html);
+            doc.close();
+            setTimeout(function () {
+              this.previewLoading = false;
+            }.bind(this), 300);
+          },
+
+          // ======== Resizable Panels ========
+          startResizeTree: function (e) {
+            this._startResize(e, 'tree', '.panel-tree', 200, 360);
+          },
+          startResizePreview: function (e) {
+            this._startResize(e, 'preview', '.panel-preview', 320, 600);
+          },
+          _startResize: function (e, name, selector, min, max) {
+            e.preventDefault();
+            var panel = document.querySelector(selector);
+            if (!panel) return;
+            var startX = e.clientX;
+            var startW = panel.offsetWidth;
+            var handle = e.target;
+            handle.classList.add('dragging');
+            var self = this;
+
+            function onMove(ev) {
+              var delta = name === 'tree' ? (ev.clientX - startX) : (startX - ev.clientX);
+              var newW = startW + delta;
+              newW = Math.max(min, Math.min(max, newW));
+              panel.style.width = newW + 'px';
+            }
+
+            function onUp() {
+              document.removeEventListener('mousemove', onMove);
+              document.removeEventListener('mouseup', onUp);
+              handle.classList.remove('dragging');
+            }
+            document.addEventListener('mousemove', onMove);
+            document.addEventListener('mouseup', onUp);
+          },
+
+          // ======== API Key ========
+          saveApiKey: function () {
+            var key = (this.aiKeyInput || '')
+              .trim();
+            if (!key) return;
+            var data = {
+              key: key,
+              expiry: Date.now() + 86400000
+            };
+            localStorage.setItem('RaaJS_Gemini_Session', JSON.stringify(data));
+            this.aiKey = key;
+            this.aiHasKey = true;
+            this.showSettings = false;
+            this.showToast('API Key disimpan', 'success');
+          },
+          _checkApiKey: function () {
+            var raw = localStorage.getItem('RaaJS_Gemini_Session');
+            if (raw) {
+              try {
+                var s = JSON.parse(raw);
+                if (Date.now() < s.expiry) {
+                  this.aiKey = s.key;
+                  this.aiKeyInput = s.key;
+                  this.aiHasKey = true;
+                  return;
+                }
+              } catch (e) {}
+              localStorage.removeItem('RaaJS_Gemini_Session');
+            }
+            this.aiHasKey = false;
+          },
+          resetApiKey: function () {
+            localStorage.removeItem('RaaJS_Gemini_Session');
+            this.aiKey = '';
+            this.aiKeyInput = '';
+            this.aiHasKey = false;
+            this.showToast('API Key dihapus', 'warning');
+          },
+
+          // ======== AI Chat ========
+          handleChatKeydown: function (e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault();
+              this.sendMessage();
+            }
+          },
+          sendMessage: async function () {
+            var text = (this.chatInput || '')
+              .trim();
+            if (!text || this.aiLoading) return;
+            if (!this.aiKey) {
+              this.showToast('API Key belum diset!', 'error');
+              return;
+            }
+            _msgId++;
+            this.aiMessages.push({
+              id: 'msg-' + _msgId,
+              sender: 'user',
+              text: text
+            });
+            this.chatInput = '';
+            this._scrollChat();
+            this.aiLoading = true;
+
+            // Ambil isi file yg dipilih untuk context
+            var contextFiles = this.aiContextFiles.length ?
+              this.files.filter(f => this.aiContextFiles.includes(f.path)) : [];
+
+            // Gabungkan text pesan user + file content yg dipakai sebagai context
+            var history = this.aiMessages.map(m => {
+              return {
+                role: m.sender === 'user' ? 'user' : 'model',
+                parts: [{
+                  text: m.text
+                }]
+              };
+            });
+
+            // Tambahkan konten file context sebagai systemInstruction tambahan
+            var contextText = contextFiles.map(f => `File "${f.name}":\n${f.content}`)
+              .join('\n\n');
+            if (contextText) {
+              history.unshift({
+                role: 'system',
+                parts: [{
+                  text: `Context file terkait:\n${contextText}`
+                }]
+              });
+            }
+
+            var url = 'https://generativelanguage.googleapis.com/v1beta/models/' + this.aiModel + ':generateContent?key=' + this.aiKey;
+            var response = '',
+              success = false,
+              backoff = 1000;
+            for (var i = 0; i < 5; i++) {
+              try {
+                var res = await fetch(url, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json'
+                  },
+
+                  body: JSON.stringify({
+                    contents: history,
+                    systemInstruction: {
+                      parts: [{
+                        text: 'Anda adalah asisten ahli RaaJS v3.1.0...'
+                      }]
+                    }
+                  })
+                });
+                if (res.ok) {
+                  var d = await res.json();
+                  response = d.candidates && d.candidates[0] && d.candidates[0].content && d.candidates[0].content.parts && d.candidates[0].content.parts[0] ? d.candidates[0].content.parts[0].text : 'Respon kosong.';
+                  success = true;
+                  break;
+                } else if (res.status === 429) {
+                  response = 'Limit API tercapai. Tunggu sebentar.';
+                  success = true;
+                  break;
+                }
+              } catch (err) {
+                console.warn('Fetch error:', err);
+              }
+              await new Promise(r => setTimeout(r, backoff));
+              backoff *= 2;
+            }
+            if (!success) response = 'Gagal terhubung ke AI setelah 5 percobaan. Periksa API Key atau koneksi.';
+            _msgId++;
+            this.aiMessages.push({
+              id: 'msg-' + _msgId,
+              sender: 'model',
+              text: response
+            });
+            this.aiLoading = false;
+            this._scrollChat();
+          },
+          _scrollChat: function () {
+            setTimeout(function () {
+              var el = this.$refs.chatHistory;
+              if (el) el.scrollTop = el.scrollHeight;
+            }.bind(this), 100);
+          },
+
+          // ======== GitHub ========
+          _loadGitHubConfig: function () {
+            var raw = localStorage.getItem('RaaJS_GitHub_Config');
+            if (raw) {
+              try {
+                var c = JSON.parse(raw);
+                this.ghToken = c.token || '';
+                this.ghRepo = c.repo || '';
+                this.ghBranch = c.branch || 'main';
+                this.ghRootPath = c.rootPath || '';
+                this.ghAutoSync = c.autoSync || false;
+                if (this.ghToken && this.ghRepo) {
+                  this._initOctokit();
+                  this.ghConnected = true;
+                }
+              } catch (e) {}
+            }
+          },
+          saveGitHubConfig: function () {
+            var token = (this.ghTokenInput || '')
+              .trim();
+            var repo = (this.ghRepoInput || '')
+              .trim();
+            if (!token || !repo) {
+              this.showToast('Token dan Repository wajib diisi', 'error');
+              return;
+            }
+            var cfg = {
+              token: token,
+              repo: repo,
+              branch: this.ghBranch,
+              rootPath: this.ghRootPath,
+              autoSync: this.ghAutoSync
+            };
+            localStorage.setItem('RaaJS_GitHub_Config', JSON.stringify(cfg));
+            this.ghToken = token;
+            this.ghRepo = repo;
+            this.ghTokenInput = '';
+            this._initOctokit();
+            this.ghConnected = true;
+            this.showToast('Konfigurasi GitHub disimpan', 'success');
+            setTimeout(function () {
+              this.checkGitHubSync();
+            }.bind(this), 400);
+          },
+          _initOctokit: function () {
+            if (typeof Octokit !== 'undefined' && this.ghToken) {
+              _octokit = new Octokit({
+                auth: this.ghToken
+              });
+            }
+          },
+          testGitHubConnection: async function () {
+            var token = (this.ghTokenInput || '')
+              .trim() || this.ghToken;
+            if (!token) {
+              this.ghTestResult = 'Token diperlukan';
+              this.ghTestError = true;
+              return;
+            }
+            this.ghTestResult = 'Menghubungkan...';
+            this.ghTestError = false;
+            try {
+              var client = new Octokit({
+                auth: token
+              });
+              var r = await client.rest.users.getAuthenticated();
+              this.ghTestResult = 'Terhubung sebagai @' + r.data.login;
+              this.ghTestError = false;
+              this.showToast('Koneksi berhasil!', 'success');
+            } catch (e) {
+              this.ghTestResult = e.message || 'Gagal terhubung';
+              this.ghTestError = true;
+              this.showToast('Gagal: ' + e.message, 'error');
+            }
+          },
+          checkGitHubSync: async function () {
+            if (!this.ghConnected || !_octokit) {
+              this.showToast('Konfigurasi GitHub belum lengkap', 'warning');
+              return;
+            }
+            this.ghSyncLoading = true;
+            this.ghSyncResults = [];
+            this.ghChecked = true;
+            try {
+              var parts = this.ghRepo.split('/');
+              var owner = parts[0],
+                repo = parts[1];
+              if (!owner || !repo) throw new Error('Format: username/repo');
+              var path = this.ghRootPath || '';
+              var ghFiles = [];
+              try {
+                var dir = await _octokit.rest.repos.getContent({
+                  owner: owner,
+                  repo: repo,
+                  path: path,
+                  ref: this.ghBranch
+                });
+                ghFiles = Array.isArray(dir.data) ? dir.data : [dir.data];
+              } catch (e) {
+                if (e.status !== 404) throw e;
+              }
+              var ghMap = {};
+              ghFiles.forEach(function (f) {
+                if (f.type === 'file') {
+                  var rp = f.path.replace(path + (path ? '/' : ''), '');
+                  ghMap[rp] = {
+                    sha: f.sha
+                  };
+                }
+              });
+              var self = this;
+              var results = await Promise.all(this.files.map(async function (lf) {
+                var status = 'pending';
+                if (ghMap[lf.path]) {
+                  try {
+                    var gp = path ? (path + '/' + lf.path) : lf.path;
+                    var resp = await _octokit.rest.repos.getContent({
+                      owner: owner,
+                      repo: repo,
+                      path: gp,
+                      ref: self.ghBranch
+                    });
+                    var remote = self._b64Decode(resp.data.content);
+                    status = (remote === lf.content) ? 'synced' : 'pending';
+                  } catch (e) {
+                    status = 'pending';
+                  }
+                }
+                return {
+                  path: lf.path,
+                  status: status,
+                  selected: status === 'pending'
+                };
+              }));
+              this.ghSyncResults = results;
+              var batch = {};
+              results.forEach(function (r) {
+                batch[r.path] = r.status;
+              });
+              Object.assign(this.ghFileStatus, batch);
+              var pending = results.filter(function (r) {
+                  return r.status === 'pending';
+                })
+                .length;
+              this.showToast(pending === 0 ? 'Semua file tersinkron!' : pending + ' file perlu diupload', pending === 0 ? 'success' : 'warning');
+            } catch (e) {
+              console.error('Sync check failed:', e);
+              this.showToast('Gagal memeriksa sync: ' + e.message, 'error');
+            }
+            this.ghSyncLoading = false;
+          },
+          _initGhStatus: function () {
+            var batch = {};
+            this.files.forEach(function (f) {
+              batch[f.path] = 'pending';
+            });
+            Object.assign(this.ghFileStatus, batch);
+          },
+          _markGhPending: function (p) {
+            var batch = {};
+            batch[p] = 'pending';
+            Object.assign(this.ghFileStatus, batch);
+          },
+          _updateGitHubStatus: function () {},
+          selectAllSync: function (s) {
+            this.ghSyncResults = this.ghSyncResults.map(function (r) {
+              return r.status === 'pending' ? Object.assign({}, r, {
+                selected: s
+              }) : r;
+            });
+          },
+
+          _b64Encode: function (str) {
+            try {
+              const bytes = new TextEncoder()
+                .encode(str);
+              let binary = '';
+              const chunkSize = 0x8000; // 32768
+              for (let i = 0; i < bytes.length; i += chunkSize) {
+                const chunk = bytes.subarray(i, i + chunkSize);
+                binary += String.fromCharCode.apply(null, chunk);
+              }
+              return btoa(binary);
+            } catch (e) {
+              // fallback legacy jika error
+              return btoa(unescape(encodeURIComponent(str)));
+            }
+          },
+
+          _b64Decode: function (str) {
+            try {
+              const binary = atob(str.replace(/\s/g, ''));
+              const bytes = new Uint8Array(binary.length);
+              for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+              return new TextDecoder()
+                .decode(bytes);
+            } catch (e) {
+              return decodeURIComponent(escape(atob(str)));
+            }
+          },
+
+          executeGitHubUpload: async function (fromManage) {
+            fromManage = fromManage || false;
+            if (!this.ghConnected || !_octokit) {
+              this.showToast('GitHub belum terkoneksi', 'error');
+              return;
+            }
+            var files;
+            if (fromManage) {
+              files = this.files.filter(function (f) {
+                return this.ghManageSel[f.path];
+              }.bind(this));
+            } else {
+              files = this.ghSyncResults.filter(function (r) {
+                  return r.selected && r.status === 'pending';
+                })
+                .map(function (r) {
+                  return this.files.find(function (f) {
+                    return f.path === r.path;
+                  });
+                }.bind(this))
+                .filter(Boolean);
+            }
+            if (!files.length) {
+              this.showToast('Pilih file untuk diupload', 'warning');
+              return;
+            }
+            this.ghUploadLoading = true;
+            this.ghUploadProgress = 0;
+            var parts = this.ghRepo.split('/');
+            var owner = parts[0],
+              repo = parts[1];
+            var bp = this.ghRootPath ? this.ghRootPath.replace(/\/$/, '') : '';
+            var done = 0;
+            var self = this;
+            try {
+              await Promise.all(files.map(async function (file) {
+                var gp = bp ? (bp + '/' + file.path) : file.path;
+                try {
+                  var sha = null;
+                  try {
+                    var shaR = await _octokit.rest.repos.getContent({
+                      owner: owner,
+                      repo: repo,
+                      path: gp,
+                      ref: self.ghBranch
+                    });
+                    sha = shaR.data.sha;
+                  } catch (e) {
+                    if (e.status !== 404) throw e;
+                  }
+                  await _octokit.rest.repos.createOrUpdateFileContents({
+                    owner: owner,
+                    repo: repo,
+                    path: gp,
+                    message: 'Update via RaaJS Studio: ' + file.name,
+                    content: self._b64Encode(file.content),
+                    branch: self.ghBranch,
+                    sha: sha || undefined
+                  });
+                  var ok = {};
+                  ok[file.path] = 'synced';
+                  Object.assign(self.ghFileStatus, ok);
+                  var sr = self.ghSyncResults.find(function (x) {
+                    return x.path === file.path;
+                  });
+                  if (sr) sr.status = 'synced';
+                } catch (e) {
+                  console.error('Upload fail', file.path, e);
+                  var er = {};
+                  er[file.path] = 'error';
+                  Object.assign(self.ghFileStatus, er);
+                  self.showToast('Gagal upload ' + file.path, 'error');
+                } finally {
+                  done++;
+                  self.ghUploadProgress = Math.round((done / files.length) * 100);
+                }
+              }));
+              this.showToast(done + ' file berhasil diupload!', 'success');
+            } catch (e) {
+              console.error('Batch upload failed:', e);
+              this.showToast('Error: ' + e.message, 'error');
+            }
+            this.ghUploadLoading = false;
+            setTimeout(function () {
+              self.ghUploadProgress = 0;
+            }, 1200);
+          },
+          executeGitHubDelete: async function () {
+            if (!this.ghConnected || !_octokit) {
+              this.showToast('GitHub belum terkoneksi', 'error');
+              return;
+            }
+            var sel = this.files.filter(function (f) {
+              return this.ghManageSel[f.path];
+            }.bind(this));
+            if (!sel.length) {
+              this.showToast('Pilih file untuk dihapus', 'warning');
+              return;
+            }
+            if (!confirm('Hapus ' + sel.length + ' file dari GitHub?
+                File lokal TIDAK terhapus.
+                ')) return;
+                this.ghUploadLoading = true;
+                var parts = this.ghRepo.split('/');
+                var owner = parts[0], repo = parts[1];
+                var bp = this.ghRootPath ? this.ghRootPath.replace(/\/$/, '') : '';
+                var self = this;
+                try {
+                  await Promise.all(sel.map(async function (file) {
+                    var gp = bp ? (bp + '/' + file.path) : file.path;
+                    try {
+                      var dr = await _octokit.rest.repos.getContent({
+                        owner: owner,
+                        repo: repo,
+                        path: gp,
+                        ref: self.ghBranch
+                      });
+                      await _octokit.rest.repos.deleteFile({
+                        owner: owner,
+                        repo: repo,
+                        path: gp,
+                        message: 'Hapus via RaaJS: ' + file.name,
+                        sha: dr.data.sha,
+                        branch: self.ghBranch
+                      });
+                      var pd = {};
+                      pd[file.path] = 'pending';
+                      Object.assign(self.ghFileStatus, pd);
+                    } catch (e) {
+                      if (e.status === 404) {
+                        var pd2 = {};
+                        pd2[file.path] = 'pending';
+                        Object.assign(self.ghFileStatus, pd2);
+                      } else {
+                        self.showToast('Gagal hapus ' + file.path, 'error');
+                      }
+                    }
+                  }));
+                  this.showToast(sel.length + ' file dihapus dari GitHub', 'success');
+                } catch (e) {
+                  this.showToast('Error: ' + e.message, 'error');
+                }
+                this.ghUploadLoading = false;
+              },
+
+              // ======== Reset ========
+              resetProject: async function () {
+                  if (!confirm('Reset ke file bawaan?')) return;
+                  this.loadingFiles = true;
+                  var tx = _db.transaction('files', 'readwrite');
+                  tx.objectStore('files')
+                    .clear();
+                  await new Promise(function (r) {
+                    tx.oncomplete = r;
+                  });
+                  var defs = DEFAULT_FILES.map(function (f) {
+                    return {
+                      path: f.path,
+                      name: f.name,
+                      content: f.content
+                    };
+                  });
+                  for (var i = 0; i < defs.length; i++) {
+                    await this._saveFile(defs[i]);
+                  }
+                  this.files = defs;
+                  this.activeFilePath = defs[0].path;
+                  this.activeFileContent = defs[0].content;
+                  this.unsavedChanges = false;
+                  this._initGhStatus();
+                  this.loadingFiles = false;
+                  this.showToast('Proyek direset', 'success');
                 },
+                factoryReset: async function () {
+                    if (!confirm('Hapus SEMUA data lokal?')) return;
+                    localStorage.removeItem('RaaJS_Gemini_Session');
+                    localStorage.removeItem('RaaJS_GitHub_Config');
+                    localStorage.removeItem('RaaJS_UI_Persist');
+                    var tx = _db.transaction('files', 'readwrite');
+                    tx.objectStore('files')
+                      .clear();
+                    await new Promise(function (r) {
+                      tx.oncomplete = r;
+                    });
+                    location.reload();
+                  },
 
-                init() {
-                    // [FIX #3] Hanya UI state ringan yang dipulihkan
-                    this._loadUIPersist();
+                  // ======== Toast ========
+                  showToast: function (msg, type) {
+                    type = type || 'success';
+                    this.toastMessage = msg;
+                    this.toastType = type;
+                    this.toastVisible = true;
+                    setTimeout(function () {
+                      this.toastVisible = false;
+                    }.bind(this), 3500);
+                  },
 
-                    this.checkApiKeySession();
-                    this.loadGitHubConfig();
-                    this._initDB()
-                        .then(() => this._loadFiles())
-                        .then(() => {
-                            this.loading_files = false;
-                            // [FIX #5] Batch init github_file_status via Object.assign
-                            const initStatus = {};
-                            this.files.forEach(function(f) { initStatus[f.path] = 'pending'; });
-                            Object.assign(this.github_file_status, initStatus);
+                  // ======== Persist ========
+                  _saveUIPersist: function () {
+                    try {
+                      var data = {
+                        showTree: this.showTree,
+                        showPreview: this.showPreview,
+                        showChat: this.showChat
+                      };
+                      localStorage.setItem('RaaJS_UI_Persist', JSON.stringify(data));
+                    } catch (e) {}
+                  },
+                  _loadUIPersist: function () {
+                    try {
+                      var raw = localStorage.getItem('RaaJS_UI_Persist');
+                      if (raw) {
+                        var s = JSON.parse(raw);
+                        if (typeof s.showTree === 'boolean') this.showTree = s.showTree;
+                        if (typeof s.showPreview === 'boolean') this.showPreview = s.showPreview;
+                        if (typeof s.showChat === 'boolean') this.showChat = s.showChat;
+                      }
+                    } catch (e) {}
+                  },
 
-                            var idx = this.files.find(function(f) { return f.name === 'index.html'; });
-                            if (idx) {
-                                this.active_file_path = idx.path;
-                                this.active_file_content = idx.content;
-                            } else if (this.files.length > 0) {
-                                this.active_file_path = this.files[0].path;
-                                this.active_file_content = this.files[0].content;
-                            }
-                            if (this.github_connected) this._updateGitHubFileStatus();
-                        })
-                        .catch(function(err) {
-                            console.error("DB init failed:", err);
-                            this.loading_files = false;
-                            this.showToast("Gagal memuat database proyek", "error");
-                        });
-                },
-
-                methods: {
-                    // ======== UI Toggles ========
-                    toggleTree: function() {
-                        this.show_tree = !this.show_tree;
-                        this._saveUIPersist();
-                    },
-                    toggleChat: function() {
-                        this.show_chat = !this.show_chat;
-                        this._saveUIPersist();
-                    },
-                    toggleSettings: function() { this.show_settings = !this.show_settings; },
-                    togglePreview: function() {
-                        this.show_preview = !this.show_preview;
-                        this._saveUIPersist();
-                        if (this.show_preview) {
-                            requestAnimationFrame(function() { this.runPreview(); }.bind(this));
-                        }
-                    },
-                    openGitHubModal: function() {
-                        this.show_github_modal = true;
-                        if (this.github_connected && !this.github_checked) this.checkGitHubSync();
-                    },
-                    closeGitHubModal: function() { this.show_github_modal = false; this.github_upload_progress = 0; },
-                    
-                    // ======== File Management ========
-                    selectFile: function(path) {
-                        var t = this.files.find(function(f) { return f.path === path; });
-                        if (t) { this.active_file_path = t.path; this.active_file_content = t.content; }
-                    },
-
-                    onEditorChangeDebounced: function() {
-                        if (_debounceTimer) clearTimeout(_debounceTimer);
-                        var self = this;
-                        _debounceTimer = setTimeout(function() {
-                            var t = self.files.find(function(f) { return f.path === self.active_file_path; });
-                            if (t) {
-                                t.content = self.active_file_content;
-                                self._saveFile(t);
-                                if (self.github_connected && self.github_auto_sync) {
-                                    self._markFilePending(self.active_file_path);
-                                    setTimeout(function() { self.checkGitHubSync(); }, 1000);
-                                }
-                            }
-                            if (self.active_file_path === 'index.html' && self.show_preview) self.runPreview();
-                        }, 400);
-                    },
-
-                    promptNewItem: async function() {
-                        var name = prompt("Masukkan nama berkas baru:", "script.js");
-                        if (!name || !name.trim()) return;
-                        var trimmed = name.trim();
-                        if (this.files.some(function(f) { return f.path === trimmed; })) {
-                            this.showToast("Berkas sudah ada!", "warning"); return;
-                        }
-                        var nf = { path: trimmed, name: trimmed, content: '/* Berkas baru: ' + trimmed + ' */\n' };
-                        await this._saveFile(nf);
-                        this.files.push(nf);
-                        // [FIX #5] Gunakan Object.assign untuk key baru
-                        Object.assign(this.github_file_status, obj(trimmed, 'pending'));
-                        this.active_file_path = nf.path;
-                        this.active_file_content = nf.content;
-                        if (this.show_preview) this.runPreview();
-                        this.showToast('Berkas "' + trimmed + '" dibuat', "success");
-                    },
-
-                    deleteFile: async function(path) {
-                        if (!confirm('Hapus "' + path + '"?')) return;
-                        await this._deleteFile(path);
-                        this.files = this.files.filter(function(f) { return f.path !== path; });
-                        if (this.active_file_path === path) {
-                            if (this.files.length > 0) {
-                                this.active_file_path = this.files[0].path;
-                                this.active_file_content = this.files[0].content;
-                            } else {
-                                this.active_file_path = "";
-                                this.active_file_content = "";
-                            }
-                        }
-                        if (this.show_preview) this.runPreview();
-                        if (this.github_file_status[path]) delete this.github_file_status[path];
-                        this.showToast('Berkas "' + path + '" dihapus', "success");
-                    },
-
-                    // ======== Editor Helpers ========
-                    insertText: function(ch) {
-                        var ta = this.$refs.editorTextarea;
-                        if (!ta) return;
-                        var s = ta.selectionStart, e = ta.selectionEnd;
-                        this.active_file_content = this.active_file_content.substring(0, s) + ch + this.active_file_content.substring(e);
-                        setTimeout(function() {
-                            ta.focus();
-                            var p = s + ch.length;
-                            ta.setSelectionRange(p, p);
-                        }, 50);
-                        this.onEditorChangeDebounced();
-                    },
-
-                    // [FIX #4] Complex nested ternary dipindah ke method bersih
-                    githubStatusLabel: function() {
-                        if (!this.github_connected) return 'GitHub: Terputus';
-                        return this.github_sync_status === 'synced' ? 'GitHub: Synced' : 'GitHub: Pending';
-                    },
-
-                    // [FIX #2] runPreview menggunakan raa-core:ref, bukan document.getElementById()
-                    runPreview: function() {
-                        var container = this.$refs.previewContainer;
-                        if (!container) return;
-                        var iframe = container.querySelector('#preview-frame-island');
-                        if (!iframe) return;
-
-                        var indexFile = this.files.find(function(f) { return f.path === 'index.html'; });
-                        var doc = iframe.contentDocument || iframe.contentWindow.document;
-                        doc.open();
-                        if (!indexFile) {
-                            doc.write('<!DOCTYPE html><html><head><style>'
-                                + 'body{background:#FAF7F5;color:#A69888;font-family:\'Plus Jakarta Sans\',system-ui,sans-serif;'
-                                + 'display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}'
-                                + 'h2{margin:0 0 8px;font-size:1.2rem}p{margin:0;opacity:0.7}'
-                                + '</style></head><body><div style="text-align:center"><h2>index.html tidak ditemukan</h2>'
-                                + '<p>Buat file index.html untuk melihat preview.</p></div></body></html>');
-                        } else {
-                            var coreEl = document.querySelector('script[src="raa.js"]');
-                            var coreCode = coreEl ? coreEl.textContent : '';
-                            var code = indexFile.content.replace('${window.RaaJS_Core_Code}', coreCode);
-                            doc.write(code);
-                        }
-                        doc.close();
-                    },
-
-                    // ======== API Key ========
-                    saveApiKey: function() {
-                        var key = this.api_key_input.trim();
-                        if (!key) return;
-                        localStorage.setItem('RaaJS_Gemini_Session', JSON.stringify({ key: key, expiry: Date.now() + 86400000 }));
-                        this.api_key = key; this.has_api_key = true; this.show_settings = false;
-                        this.showToast("Kunci API Gemini disimpan", "success");
-                    },
-                    checkApiKeySession: function() {
-                        var s = localStorage.getItem('RaaJS_Gemini_Session');
-                        if (s) {
-                            try {
-                                var session = JSON.parse(s);
-                                if (Date.now() < session.expiry) { this.api_key = session.key; this.api_key_input = session.key; this.has_api_key = true; return; }
-                            } catch(e) {}
-                            localStorage.removeItem('RaaJS_Gemini_Session');
-                        }
-                        this.has_api_key = false;
-                    },
-                    resetApiKey: function() {
-                        localStorage.removeItem('RaaJS_Gemini_Session');
-                        this.api_key = ""; this.api_key_input = ""; this.has_api_key = false;
-                        this.showToast("Kunci API dihapus", "warning");
-                    },
-
-                    // ======== AI Chat ========
-                    handleChatKeydown: function(e) {
-                        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); this.sendMessage(); }
-                    },
-                    sendMessage: async function() {
-                        var text = this.chat_input.trim();
-                        if (!text || this.chat_loading) return;
-                        if (!this.api_key) { this.showToast("API Key Gemini belum diset!", "error"); return; }
-                        this.chat_messages.push({ sender: 'user', text: text, time: Date.now() });
-                        this.chat_input = ""; this.scrollChat(); this.chat_loading = true;
-
-                        var history = this.chat_messages.map(function(m) {
-                            return { role: m.sender === 'user' ? 'user' : 'model', parts: [{ text: m.text }] };
-                        });
-                        // [FIX #8] Gunakan this.ai_model dari state secara dinamis
-                        var url = 'https://generativelanguage.googleapis.com/v1beta/models/' + this.ai_model + ':generateContent?key=' + this.api_key;
-
-                        var response = "", success = false, backoff = 1000;
-                        for (var i = 0; i < 5; i++) {
-                            try {
-                                var res = await fetch(url, {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({
-                                        contents: history,
-                                        systemInstruction: { parts: [{ text: "Anda adalah asisten RaaJS yang membantu pengembangan web. Gunakan Bahasa Indonesia yang jelas dan ramah." }] }
-                                    })
-                                });
-                                if (res.ok) {
-                                    var d = await res.json();
-                                    response = d.candidates?.[0]?.content?.parts?.[0]?.text || "Respon kosong.";
-                                    success = true; break;
-                                } else if (res.status === 429) {
-                                    response = "Limit API tercapai. Coba beberapa saat lagi.";
-                                    success = true; break;
-                                }
-                            } catch(e) { console.warn("Fetch error:", e); }
-                            await new Promise(function(r) { setTimeout(r, backoff); });
-                            backoff *= 2;
-                        }
-                        if (!success) response = "Gagal terhubung ke AI setelah 5 percobaan. Periksa koneksi atau API Key.";
-                        this.chat_messages.push({ sender: 'model', text: response, time: Date.now() });
-                        this.chat_loading = false; this.scrollChat();
-                    },
-                    scrollChat: function() {
-                        setTimeout(function() {
-                            var el = this.$refs.chatHistoryContainer;
-                            if (el) el.scrollTop = el.scrollHeight;
-                        }.bind(this), 100);
-                    },
-                    
-                    // ======== GitHub ========
-                    setGithubTab: function(t) { this.github_tab = t; },
-                    loadGitHubConfig: function() {
-                        var c = localStorage.getItem('RaaJS_GitHub_Config');
-                        if (c) {
-                            try {
-                                var p = JSON.parse(c);
-                                this.github_token = p.token || "";
-                                this.github_repo = p.repo || "";
-                                this.github_branch = p.branch || "main";
-                                this.github_root_path = p.rootPath || "";
-                                this.github_auto_sync = p.autoSync || false;
-                                if (this.github_token && this.github_repo) {
-                                    this.initOctokit();
-                                    this.github_connected = true;
-                                    this.github_sync_status = 'synced';
-                                }
-                            } catch(e) {}
-                        }
-                    },
-                    saveGitHubConfig: function() {
-                        var cfg = {
-                            token: this.github_token_input.trim(),
-                            repo: this.github_repo_input.trim(),
-                            branch: this.github_branch,
-                            rootPath: this.github_root_path,
-                            autoSync: this.github_auto_sync
-                        };
-                        if (!cfg.token || !cfg.repo) { this.showToast("Token dan Repository wajib diisi", "error"); return; }
-                        localStorage.setItem('RaaJS_GitHub_Config', JSON.stringify(cfg));
-                        this.github_token = cfg.token; this.github_repo = cfg.repo; this.github_token_input = "";
-                        this.initOctokit(); this.github_connected = true; this.github_sync_status = 'pending';
-                        this.showToast("Konfigurasi GitHub disimpan", "success");
-                        setTimeout(function() { this.checkGitHubSync(); }.bind(this), 500);
-                    },
-                    initOctokit: function() {
-                        if (typeof Octokit !== 'undefined' && this.github_token) {
-                            _octokit = new Octokit({ auth: this.github_token });
-                        }
-                    },
-                    testGitHubConnection: async function() {
-                        var token = (this.github_token_input || '').trim() || this.github_token;
-                        if (!token) { this.github_connection_test_result = "Token diperlukan"; this.github_connection_test_error = true; return; }
-                        this.github_connection_test_result = "Menghubungkan..."; this.github_connection_test_error = false;
-                        try {
-                            var authClient = new Octokit({ auth: token });
-                            var resp = await authClient.rest.users.getAuthenticated();
-                            this.github_connection_test_result = 'Terhubung sebagai @' + resp.data.login;
-                            this.github_connection_test_error = false;
-                            this.showToast("Koneksi GitHub berhasil!", "success");
-                        } catch (e) {
-                            this.github_connection_test_result = e.message || "Gagal terhubung";
-                            this.github_connection_test_error = true;
-                            this.showToast("Gagal: " + e.message, "error");
-                        }
-                    },
-                    checkGitHubSync: async function() {
-                        if (!this.github_connected || !_octokit) { this.showToast("Konfigurasi GitHub belum lengkap", "warning"); return; }
-                        this.github_sync_loading = true; this.github_sync_results = []; this.github_checked = true;
-                        try {
-                            var parts = this.github_repo.split('/');
-                            var owner = parts[0], repo = parts[1];
-                            if (!owner || !repo) throw new Error("Format: username/nama-repo");
-                            var path = this.github_root_path || "";
-                            var ghFiles = [];
-                            try {
-                                var dirResp = await _octokit.rest.repos.getContent({ owner: owner, repo: repo, path: path, ref: this.github_branch });
-                                ghFiles = Array.isArray(dirResp.data) ? dirResp.data : [dirResp.data];
-                            } catch (e) { if (e.status !== 404) throw e; }
-                            var ghMap = {};
-                            ghFiles.forEach(function(f) {
-                                if (f.type === 'file') {
-                                    var rp = f.path.replace(path + (path ? '/' : ''), '');
-                                    ghMap[rp] = { sha: f.sha };
-                                }
+                  // ======== IndexedDB ========
+                  _initDB: async function () {
+                      return new Promise(function (resolve, reject) {
+                        var req = indexedDB.open(DB_NAME, DB_VERSION);
+                        req.onupgradeneeded = function (e) {
+                          var db = e.target.result;
+                          if (!db.objectStoreNames.contains('files')) {
+                            db.createObjectStore('files', {
+                              keyPath: 'path'
                             });
-
-                            // [FIX #9] Concurrent parallel fetch via Promise.all
-                            // Menggantikan sequential for-await yang N+1 HTTP request
-                            var self = this;
-                            var results = await Promise.all(this.files.map(async function(lf) {
-                                var status = 'pending';
-                                if (ghMap[lf.path]) {
-                                    try {
-                                        var gp = path ? (path + '/' + lf.path) : lf.path;
-                                        var resp = await _octokit.rest.repos.getContent({ owner: owner, repo: repo, path: gp, ref: self.github_branch });
-                                        status = (atob(resp.data.content) === lf.content) ? 'synced' : 'pending';
-                                    } catch(e) { status = 'pending'; }
-                                }
-                                return { path: lf.path, status: status, selected: status === 'pending' };
-                            }));
-                            this.github_sync_results = results;
-                            // [FIX #5] Batch update github_file_status via Object.assign
-                            var statusBatch = {};
-                            results.forEach(function(r) { statusBatch[r.path] = r.status; });
-                            Object.assign(this.github_file_status, statusBatch);
-                            this.github_sync_status = results.some(function(r) { return r.status === 'pending'; }) ? 'pending' : 'synced';
-                            var pendingCount = results.filter(function(r) { return r.status === 'pending'; }).length;
-                            this.showToast(pendingCount === 0 ? "Semua file sudah tersinkron!" : (pendingCount + ' file perlu diupload'), pendingCount === 0 ? "success" : "warning");
-                        } catch (e) {
-                            console.error("Sync check failed:", e);
-                            this.showToast("Gagal memeriksa sync: " + e.message, "error");
-                            this.github_sync_status = 'error';
-                        }
-                        finally { this.github_sync_loading = false; }
+                          }
+                        };
+                        req.onsuccess = function (e) {
+                          _db = e.target.result;
+                          resolve();
+                        };
+                        req.onerror = function (e) {
+                          reject(e.target.error);
+                        };
+                      });
                     },
-                    _markFilePending: function(p) {
-                        Object.assign(this.github_file_status, obj(p, 'pending'));
-                        this.github_sync_status = 'pending';
-                    },
-                    _updateGitHubFileStatus: function() {},
-                    selectAllForSync: function(s) {
-                        this.github_sync_results.forEach(function(i) { if (i.status === 'pending') i.selected = s; });
-                    },
-
-                    // [FIX #1 & #7] TextEncoder-based base64, gantikan btoa(unescape(encodeURIComponent(...)))
-                    _base64Encode: function(str) {
-                        try {
-                            var bytes = new TextEncoder().encode(str);
-                            var binary = '';
-                            for (var i = 0; i < bytes.length; i++) {
-                                binary += String.fromCharCode(bytes[i]);
-                            }
-                            return btoa(binary);
-                        } catch(e) {
-                            // Fallback safe
-                            return btoa(unescape(encodeURIComponent(str)));
-                        }
-                    },
-
-                    executeGitHubUpload: async function(fromManage) {
-                        fromManage = fromManage || false;
-                        if (!this.github_connected || !_octokit) { this.showToast("GitHub belum terkoneksi", "error"); return; }
-                        var files = fromManage
-                            ? this.files.filter(function(f) { return this.github_manage_selection[f.path]; }.bind(this))
-                            : this.github_sync_results.filter(function(r) { return r.selected && r.status === 'pending'; }).map(function(r) { return this.files.find(function(f) { return f.path === r.path; }); }.bind(this)).filter(Boolean);
-                        if (!files.length) { this.showToast("Pilih file untuk diupload", "warning"); return; }
-                        this.github_upload_loading = true; this.github_upload_progress = 0;
-                        var parts = this.github_repo.split('/');
-                        var owner = parts[0], repo = parts[1];
-                        var bp = this.github_root_path ? this.github_root_path.replace(/\/$/, '') : '';
-                        var done = 0;
-                        var self = this;
-                        try {
-                            await Promise.all(files.map(async function(file) {
-                                var gp = bp ? (bp + '/' + file.path) : file.path;
-                                try {
-                                    var sha = null;
-                                    try {
-                                        var shaResp = await _octokit.rest.repos.getContent({ owner: owner, repo: repo, path: gp, ref: self.github_branch });
-                                        sha = shaResp.data.sha;
-                                    } catch(e) { if (e.status !== 404) throw e; }
-                                    // [FIX #1] Gunakan TextEncoder-based base64
-                                    await _octokit.rest.repos.createOrUpdateFileContents({
-                                        owner: owner, repo: repo, path: gp,
-                                        message: 'Update via RaaJS: ' + file.name,
-                                        content: self._base64Encode(file.content),
-                                        branch: self.github_branch, sha: sha || undefined
-                                    });
-                                    Object.assign(self.github_file_status, obj(file.path, 'synced'));
-                                    var r = self.github_sync_results.find(function(x) { return x.path === file.path; });
-                                    if (r) r.status = 'synced';
-                                } catch(e) {
-                                    console.error('Upload fail ' + file.path + ':', e);
-                                    Object.assign(self.github_file_status, obj(file.path, 'error'));
-                                    self.showToast('Gagal upload ' + file.path + ': ' + e.message, "error");
-                                }
-                                finally { done++; self.github_upload_progress = Math.round((done / files.length) * 100); }
-                            }));
-                            this.github_sync_status = this.files.every(function(f) { return this.github_file_status[f.path] === 'synced'; }.bind(this)) ? 'synced' : 'pending';
-                            this.showToast(done + ' file berhasil diupload!', "success");
-                        } catch(e) { console.error("Batch upload failed:", e); this.showToast("Error: " + e.message, "error"); }
-                        finally { this.github_upload_loading = false; setTimeout(function() { self.github_upload_progress = 0; }, 1000); }
-                    },
-                    executeGitHubDelete: async function() {
-                        if (!this.github_connected || !_octokit) { this.showToast("GitHub belum terkoneksi", "error"); return; }
-                        var sel = this.files.filter(function(f) { return this.github_manage_selection[f.path]; }.bind(this));
-                        if (!sel.length) { this.showToast("Pilih file untuk dihapus", "warning"); return; }
-                        if (!confirm('Hapus ' + sel.length + ' file dari GitHub?\n\nFile lokal TIDAK akan terhapus.')) return;
-                        this.github_upload_loading = true;
-                        var parts = this.github_repo.split('/');
-                        var owner = parts[0], repo = parts[1];
-                        var bp = this.github_root_path ? this.github_root_path.replace(/\/$/, '') : '';
-                        var self = this;
-                        try {
-                            // [FIX #9] Concurrent parallel delete juga via Promise.all
-                            await Promise.all(sel.map(async function(file) {
-                                var gp = bp ? (bp + '/' + file.path) : file.path;
-                                try {
-                                    var delResp = await _octokit.rest.repos.getContent({ owner: owner, repo: repo, path: gp, ref: self.github_branch });
-                                    await _octokit.rest.repos.deleteFile({ owner: owner, repo: repo, path: gp, message: 'Hapus via RaaJS: ' + file.name, sha: delResp.data.sha, branch: self.github_branch });
-                                    Object.assign(self.github_file_status, obj(file.path, 'pending'));
-                                } catch(e) {
-                                    if (e.status === 404) {
-                                        Object.assign(self.github_file_status, obj(file.path, 'pending'));
-                                    } else {
-                                        console.error('Delete fail ' + file.path + ':', e);
-                                        self.showToast('Gagal hapus ' + file.path + ': ' + e.message, "error");
-                                    }
-                                }
-                            }));
-                            this.github_sync_status = 'pending';
-                            this.showToast(sel.length + ' file dihapus dari GitHub', "success");
-                        } catch(e) { console.error("Batch delete failed:", e); this.showToast("Error: " + e.message, "error"); }
-                        finally { this.github_upload_loading = false; }
-                    },
-
-                    // ======== Reset ========
-                    resetProject: async function() {
-                        if (!confirm("Reset ke file bawaan?")) return;
-                        this.loading_files = true;
-                        var tx = _db.transaction('files', 'readwrite');
-                        tx.objectStore('files').clear();
-                        await new Promise(function(r) { tx.oncomplete = r; });
-                        var defs = DEFAULT_FILES.map(function(f) { return { path: f.path, name: f.name, content: f.content }; });
-                        for (var fi = 0; fi < defs.length; fi++) { await this._saveFile(defs[fi]); }
-                        this.files = defs;
-                        this.active_file_path = defs[0].path;
-                        this.active_file_content = defs[0].content;
-                        // [FIX #5] Reset github_file_status
-                        var initSt = {};
-                        defs.forEach(function(f) { initSt[f.path] = 'pending'; });
-                        Object.assign(this.github_file_status, initSt);
-                        this.loading_files = false; this.show_settings = false;
-                        if (this.show_preview) this.runPreview();
-                        this.showToast("Proyek direset ke default", "success");
-                    },
-                    factoryReset: async function() {
-                        if (!confirm("Hapus SEMUA data lokal?")) return;
-                        localStorage.removeItem('RaaJS_Gemini_Session');
-                        localStorage.removeItem('RaaJS_GitHub_Config');
-                        localStorage.removeItem('RaaJS_UI_Persist');
-                        var tx = _db.transaction('files', 'readwrite');
-                        tx.objectStore('files').clear();
-                        await new Promise(function(r) { tx.oncomplete = r; });
-                        location.reload();
-                    },
-
-                    showToast: function(msg, type) {
-                        type = type || "success";
-                        this.toast = { visible: true, message: msg, type: type };
-                        setTimeout(function() { this.toast.visible = false; }.bind(this), 3500);
-                    },
-
-                    // ======== Selective Persist (menggantikan raa-eco:persist) ========
-                    // [FIX #3] Hanya persist 3 booleans UI — bukan seluruh app state
-                    _saveUIPersist: function() {
-                        try {
-                            var uiState = {
-                                show_tree: this.show_tree,
-                                show_preview: this.show_preview,
-                                show_chat: this.show_chat
-                            };
-                            localStorage.setItem('RaaJS_UI_Persist', JSON.stringify(uiState));
-                        } catch(e) { /* quota exceeded */ }
-                    },
-                    _loadUIPersist: function() {
-                        try {
-                            var raw = localStorage.getItem('RaaJS_UI_Persist');
-                            if (raw) {
-                                var saved = JSON.parse(raw);
-                                if (typeof saved.show_tree === 'boolean') this.show_tree = saved.show_tree;
-                                if (typeof saved.show_preview === 'boolean') this.show_preview = saved.show_preview;
-                                if (typeof saved.show_chat === 'boolean') this.show_chat = saved.show_chat;
-                            }
-                        } catch(e) { /* corrupt data */ }
-                    },
-
-                    // ======== IndexedDB ========
-                    _initDB: async function() {
-                        return new Promise(function(resolve, reject) {
-                            var req = indexedDB.open(DB_NAME, DB_VERSION);
-                            req.onupgradeneeded = function(e) {
-                                var db = e.target.result;
-                                if (!db.objectStoreNames.contains('files')) db.createObjectStore('files', { keyPath: 'path' });
-                            };
-                            req.onsuccess = function(e) { _db = e.target.result; resolve(); };
-                            req.onerror = function(e) { reject(e.target.error); };
-                        });
-                    },
-                    _loadFiles: async function() {
+                    _loadFiles: async function () {
                         var tx = _db.transaction('files', 'readonly');
-                        var items = await new Promise(function(r) {
-                            var req = tx.objectStore('files').getAll();
-                            req.onsuccess = function() { r(req.result); };
-                            req.onerror = function() { r([]); };
+                        var items = await new Promise(function (r) {
+                          var req = tx.objectStore('files')
+                            .getAll();
+                          req.onsuccess = function () {
+                            r(req.result);
+                          };
+                          req.onerror = function () {
+                            r([]);
+                          };
                         });
                         if (!items.length) {
-                            var defs = DEFAULT_FILES.map(function(f) { return { path: f.path, name: f.name, content: f.content }; });
-                            for (var fi = 0; fi < defs.length; fi++) { await this._saveFile(defs[fi]); }
-                            this.files = defs;
+                          var defs = DEFAULT_FILES.map(function (f) {
+                            return {
+                              path: f.path,
+                              name: f.name,
+                              content: f.content
+                            };
+                          });
+                          for (var i = 0; i < defs.length; i++) {
+                            await this._saveFile(defs[i]);
+                          }
+                          this.files = defs;
                         } else {
-                            this.files = items;
+                          this.files = items;
                         }
-                    },
-                    _saveFile: async function(f) {
-                        var tx = _db.transaction('files', 'readwrite');
-                        tx.objectStore('files').put({ path: f.path, name: f.name, content: f.content });
-                        return new Promise(function(r) { tx.oncomplete = r; });
-                    },
-                    _deleteFile: async function(p) {
-                        var tx = _db.transaction('files', 'readwrite');
-                        tx.objectStore('files').delete(p);
-                        return new Promise(function(r) { tx.oncomplete = r; });
-                    }
-                }
-            };
+                      },
+                      _saveFile: async function (f) {
+                          var tx = _db.transaction('files', 'readwrite');
+                          tx.objectStore('files')
+                            .put({
+                              path: f.path,
+                              name: f.name,
+                              content: f.content
+                            });
+                          return new Promise(function (r) {
+                            tx.oncomplete = r;
+                          });
+                        },
+                        _deleteFile: async function (p) {
+                          var tx = _db.transaction('files', 'readwrite');
+                          tx.objectStore('files')
+                            .delete(p);
+                          return new Promise(function (r) {
+                            tx.oncomplete = r;
+                          });
+                        }
+            }
+          };
         });
 
-        // Helper untuk membuat { key: value } object — menghindari computed property
-        // syntax yang tidak didukung expression RaaJS (tapi ini pure JS, jadi aman)
-        function obj(k, v) { var o = {}; o[k] = v; return o; }
-    </script>
-    <script>
-(function () {
-  function c() {
-    var b = a.contentDocument || a.contentWindow.document;
-    if (b) {
-      var d = b.createElement('script');
-      d.innerHTML = "window.__CF$cv$params={r:'a0262e39de9d4b1b',t:'MTc3OTg5NzA4MQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";
-      b.getElementsByTagName('head')[0].appendChild(d)
-    }
-  }
-  if (document.body) {
-    var a = document.createElement('iframe');
-    a.height = 1;
-    a.width = 1;
-    a.style.position = 'absolute';
-    a.style.top = 0;
-    a.style.left = 0;
-    a.style.border = 'none';
-    a.style.visibility = 'hidden';
-    document.body.appendChild(a);
-    if ('loading' !== document.readyState) c();
-    else if (window.addEventListener) document.addEventListener('DOMContentLoaded', c);
-    else {
-      var e = document.onreadystatechange || function () {};
-      document.onreadystatechange = function (b) {
-        e(b);
-        'loading' !== document.readyState && (document.onreadystatechange = e, c())
-      }
-    }
-  }
-})();
     </script>
 </body>
 </html>
