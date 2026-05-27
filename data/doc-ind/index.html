@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RaaJS Skeleton - The Art of Minimalism</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.0/engine/raa-min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.0/engine/extensions/raa-http.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.0/engine/extensions/raa-template.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.0/engine/extensions/raa-ui.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.0/engine/extensions/raa-animation.min.js"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.5/dist/purify.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/tokyonight-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/victor-mono@5.0.8/index.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/victor-mono@5.0.8/400.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/victor-mono@5.0.8/700.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/victor-mono@5.0.8/400-italic.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Palette Terinspirasi dari Logo Baru */
+            --brand-gradient: linear-gradient(135deg, #FF7E62 0%, #E55FA5 50%, #9C64FF 100%);
+            --brand-gradient-hover: linear-gradient(135deg, #ff927a 0%, #ed77b3 50%, #ad7cff 100%);
+            --brand-coral: #FF7E62;
+            --brand-pink: #E55FA5;
+            --brand-purple: #9C64FF;
+            
+            /* Latar Belakang & Teks */
+            --bg-base: #faf9fc;
+            --bg-glow: radial-gradient(circle at 10% 20%, rgba(255, 126, 98, 0.05) 0%, rgba(229, 95, 165, 0.05) 50%, rgba(156, 100, 255, 0.05) 100%);
+            --bg-card: rgba(255, 255, 255, 0.75);
+            --bg-main: #ffffff;
+            
+            --text-main: #1d1826;
+            --text-secondary: #6e657c;
+            --text-light: #9f96b0;
+            --text-on-dark: #f3f0f7;
+            
+            --border-color: rgba(156, 100, 255, 0.09);
+            --border-color-hover: rgba(156, 100, 255, 0.18);
+            
+            /* Premium Shadow */
+            --shadow-sm: 0 4px 12px rgba(29, 24, 38, 0.03);
+            --shadow-md: 0 12px 32px rgba(156, 100, 255, 0.06);
+            --shadow-lg: 0 20px 48px rgba(156, 100, 255, 0.1);
+            --shadow-xl: 0 32px 64px rgba(29, 24, 38, 0.15);
+            
+            --sidebar-width: 280px;
+            --header-height: 76px;
+            --transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            --transition-fast: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            
+            --radius-sm: 10px;
+            --radius-md: 16px;
+            --radius-lg: 24px;
+            --radius-xl: 32px;
+        }
+
+        html,
+        body {
+            height: 100%;
+            width: 100%;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            background-image: var(--bg-glow), radial-gradient(circle at 90% 80%, rgba(156, 100, 255, 0.06) 0%, transparent 50%);
+            background-attachment: fixed;
+            color: var(--text-main);
+            font-family: 'Bricolage Grotesque', sans-serif;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            padding-top: var(--header-height);
+            min-height: 100dvh;
+        }
+
+        /* ========== HEADER - Elegant Glassmorphism ========== */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: var(--header-height);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 36px;
+            background: rgba(255, 255, 255, 0.7);
+            border-bottom: 1px solid var(--border-color);
+            z-index: 1000;
+            box-shadow: var(--shadow-sm);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        header .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        header .header-brand-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* SVG Logo Styling */
+        .logo-svg {
+            width: 32px;
+            height: 32px;
+            filter: drop-shadow(0 2px 8px rgba(229, 95, 165, 0.3));
+        }
+
+        header .header-brand {
+            font-weight: 800;
+            font-size: 24px;
+            letter-spacing: -0.8px;
+            background: var(--brand-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            cursor: default;
+            user-select: none;
+        }
+
+        header .header-version {
+            color: var(--brand-purple);
+            font-size: 12px;
+            font-weight: 600;
+            background: rgba(156, 100, 255, 0.08);
+            border: 1px solid rgba(156, 100, 255, 0.12);
+            padding: 4px 12px;
+            border-radius: 30px;
+            letter-spacing: 0.3px;
+        }
+
+        header .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        header .header-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid var(--border-color);
+            padding: 6px 14px;
+            border-radius: 30px;
+        }
+
+        header .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10b981;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.6);
+            animation: statusPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes statusPulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 0.8;
+                box-shadow: 0 0 4px rgba(16, 185, 129, 0.4);
+            }
+            50% {
+                transform: scale(1.2);
+                opacity: 1;
+                box-shadow: 0 0 12px rgba(16, 185, 129, 0.8);
+            }
+        }
+
+        header .hamburger-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-main);
+            padding: 8px;
+            border-radius: var(--radius-sm);
+            transition: var(--transition-fast);
+            line-height: 1;
+        }
+
+        header .hamburger-btn:hover {
+            background: rgba(156, 100, 255, 0.06);
+            color: var(--brand-pink);
+        }
+
+        /* ========== LAYOUT WRAPPER ========== */
+        .layout-wrapper {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+            min-height: 0;
+        }
+
+        /* ========== SIDEBAR OVERLAY ========== */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: var(--header-height);
+            left: 0;
+            width: 100%;
+            height: calc(100dvh - var(--header-height));
+            background: rgba(29, 24, 38, 0.4);
+            z-index: 998;
+            opacity: 0;
+            transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            pointer-events: none;
+            backdrop-filter: blur(4px);
+        }
+
+        .sidebar-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* ========== SIDEBAR (Modern Glass UI) ========== */
+        aside {
+            width: var(--sidebar-width);
+            min-width: var(--sidebar-width);
+            border-right: 1px solid var(--border-color);
+            background: rgba(255, 255, 255, 0.45);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            transition: var(--transition);
+            height: 100%;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 24px 0;
+            padding-top: 0;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            z-index: 999;
+            flex-shrink: 0;
+        }
+
+        aside::-webkit-scrollbar {
+            width: 6px;
+        }
+        aside::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        aside::-webkit-scrollbar-thumb {
+            background: rgba(156, 100, 255, 0.15);
+            border-radius: 10px;
+        }
+        aside::-webkit-scrollbar-thumb:hover {
+            background: rgba(156, 100, 255, 0.3);
+        }
+
+        aside .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px 20px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 20px;
+            margin-top: 0;
+            flex-shrink: 0;
+            position: sticky;
+            top: 0;
+            background: var(--bg-card);
+            z-index: 500;
+        }
+
+        aside .sidebar-header .header-brand {
+            font-weight: 800;
+            font-size: 21px;
+            letter-spacing: -0.6px;
+            background: var(--brand-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        aside .sidebar-header .navbar-toggler {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            padding: 6px 10px;
+            border-radius: var(--radius-sm);
+            transition: var(--transition-fast);
+            line-height: 1;
+        }
+
+        aside .sidebar-header .navbar-toggler:hover {
+            background: rgba(156, 100, 255, 0.08);
+            color: var(--brand-pink);
+        }
+
+        aside nav {
+            padding: 0 16px;
+            flex: 1;
+        }
+
+        aside h3 {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            color: var(--text-light);
+            text-transform: uppercase;
+            margin: 24px 0 12px 10px;
+            user-select: none;
+        }
+
+        aside .btn-nav {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            text-align: left;
+            background: none;
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            padding: 12px 16px;
+            margin: 4px 0;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: var(--transition-fast);
+            position: relative;
+            letter-spacing: -0.1px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        aside .btn-nav:hover {
+            background: rgba(156, 100, 255, 0.05);
+            color: var(--brand-purple);
+            transform: translateX(4px);
+        }
+
+        aside .btn-nav.active {
+            background: var(--brand-gradient);
+            color: #ffffff;
+            font-weight: 600;
+            box-shadow: 0 8px 20px rgba(229, 95, 165, 0.25);
+            transform: translateX(2px);
+        }
+        
+        aside .btn-nav.active:hover {
+            background: var(--brand-gradient-hover);
+            color: #ffffff;
+        }
+
+        /* ========== MAIN CONTENT AREA (Scrollable) ========== */
+        main {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            background: transparent;
+            scroll-behavior: smooth;
+            min-height: 0;
+        }
+
+        .main-scroll-container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100%;
+            width: 100%;
+        }
+
+        .main-content-area {
+            flex: 1;
+            width: 100%;
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 40px 36px;
+        }
+        
+        .content {
+            background: var(--bg-main);
+            border-radius: var(--radius-xl);
+            padding: 48px 54px;
+            width: 100%;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-color);
+            animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            min-height: 450px;
+            position: relative;
+        }
+
+        /* Menu Toggle Button untuk Mobile */
+        .toggle-menu {
+            display: none;
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            background: var(--brand-gradient);
+            border: none;
+            border-radius: 50%;
+            width: 56px;
+            height: 56px;
+            font-size: 22px;
+            cursor: pointer;
+            color: #fff;
+            box-shadow: 0 10px 25px rgba(229, 95, 165, 0.4);
+            transition: var(--transition-fast);
+            z-index: 997;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .toggle-menu:hover {
+            background: var(--brand-gradient-hover);
+            transform: scale(1.06) translateY(-2px);
+            box-shadow: 0 12px 30px rgba(229, 95, 165, 0.5);
+        }
+
+        /* ========== FOOTER WRAPPER - Di dalam Main Scroll ========== */
+        .footer-wrapper {
+            width: 100%;
+            margin-top: auto; /* Mendorong footer ke paling bawah jika konten sedikit */
+            border-top: 1px solid var(--border-color);
+            background: #0f0c16; /* Gelap premium ultra-deep violet */
+        }
+
+        .footer-main {
+            color: var(--text-on-dark);
+            padding: 56px 48px 40px;
+            display: grid;
+            grid-template-columns: 1.5fr 1fr 1fr 1.2fr;
+            gap: 48px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            padding-bottom: 80px;
+        }
+
+        .footer-col h4 {
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: #ff927a; /* Aksen coral cerah */
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            position: relative;
+        }
+
+        .footer-col h4::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 35px;
+            height: 2px;
+            background: var(--brand-gradient);
+            border-radius: 2px;
+        }
+
+        .footer-col p,
+        .footer-col ul li a {
+            font-size: 13.5px;
+            line-height: 1.8;
+            color: #a39eb0;
+            text-decoration: none;
+            transition: var(--transition-fast);
+        }
+
+        .footer-col ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .footer-col ul li {
+            margin-bottom: 10px;
+        }
+
+        .footer-col ul li a:hover {
+            color: #ffffff;
+            transform: translateX(3px);
+            display: inline-block;
+        }
+
+        .footer-brand {
+            font-weight: 800;
+            font-size: 24px;
+            background: var(--brand-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: inline-block;
+            margin-bottom: 8px;
+        }
+
+        .footer-tagline {
+            font-size: 13px;
+            color: #e55fa5;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 12px;
+            margin-top: 18px;
+        }
+
+        .social-link {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            color: #a39eb0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            font-size: 16px;
+            transition: var(--transition-fast);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .social-link:hover {
+            background: var(--brand-gradient);
+            color: #fff;
+            transform: translateY(-4px);
+            border-color: transparent;
+            box-shadow: 0 6px 15px rgba(229, 95, 165, 0.3);
+        }
+
+        /* ========== FOOTER BOTTOM ========== */
+        .footer-bottom-sticky {
+            background: #09070d; /* Sedikit lebih gelap dari footer-main */
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+            color: #6e697a;
+            font-size: 13px;
+            padding: 20px 48px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            width: 100%;
+            position: fixed;
+            bottom: 0;
+        }
+
+        .footer-bottom-links {
+            display: flex;
+            gap: 24px;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .footer-bottom-links a {
+            color: #6e697a;
+            text-decoration: none;
+            transition: var(--transition-fast);
+        }
+
+        .footer-bottom-links a:hover {
+            color: #ffffff;
+        }
+        
+        /* ========== MARKDOWN STYLING (Premium) ========== */
+        .markdown-body {
+            line-height: 1.85;
+            color: var(--text-main);
+            font-size: 16px;
+        }
+        .markdown-body h1 {
+            font-size: 34px;
+            margin: 0 0 24px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            background: var(--brand-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .markdown-body h2 {
+            font-size: 24px;
+            margin: 36px 0 16px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            color: var(--brand-purple);
+        }
+        .markdown-body h3 {
+            font-size: 20px;
+            margin: 28px 0 12px;
+            font-weight: 600;
+            color: var(--brand-pink);
+        }
+        .markdown-body p {
+            margin: 0 0 20px;
+            color: var(--text-secondary);
+        }
+        .markdown-body code {
+            background: rgba(156, 100, 255, 0.07);
+            color: var(--brand-pink);
+            padding: 3px 8px;
+            border-radius: 8px;
+            font-family: 'Victor Mono' !important, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+        .markdown-body pre {
+            background: #110e16;
+            color: #f3f0f7;
+            padding: 24px;
+            border-radius: 16px;
+            overflow-x: auto;
+            margin: 24px 0;
+            border: 1px solid rgba(156, 100, 255, 0.15);
+            box-shadow: var(--shadow-sm);
+        }
+        .markdown-body pre code {
+            background: transparent;
+            color: inherit;
+            padding: 0;
+            border-radius: 0;
+            font-size: 14px;
+        }
+        .markdown-body blockquote {
+            border-left: 5px solid var(--brand-pink);
+            padding: 16px 24px;
+            margin: 24px 0;
+            background: rgba(229, 95, 165, 0.04);
+            border-radius: 4px var(--radius-md) var(--radius-md) 4px;
+            font-style: italic;
+        }
+
+        /* Loading Skeleton */
+        .loading-skeleton {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .sk-title {
+            height: 36px;
+            width: 55%;
+            background: linear-gradient(90deg, #f0ecf6 25%, #e5deee 50%, #f0ecf6 75%);
+            background-size: 200% 100%;
+            border-radius: 12px;
+            animation: loadingGlow 1.5s infinite;
+        }
+        .sk-line {
+            height: 16px;
+            width: 100%;
+            background: linear-gradient(90deg, #f0ecf6 25%, #e5deee 50%, #f0ecf6 75%);
+            background-size: 200% 100%;
+            border-radius: 8px;
+            animation: loadingGlow 1.5s infinite;
+        }
+        .sk-short {
+            height: 16px;
+            width: 75%;
+            background: linear-gradient(90deg, #f0ecf6 25%, #e5deee 50%, #f0ecf6 75%);
+            background-size: 200% 100%;
+            border-radius: 8px;
+            animation: loadingGlow 1.5s infinite;
+            animation-delay: 0.2s;
+        }
+        @keyframes loadingGlow {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ========== RESPONSIVE ========== */
+        @media (max-width: 1024px) {
+            .footer-main {
+                grid-template-columns: 1fr 1fr;
+                gap: 36px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            header {
+                padding: 0 20px;
+            }
+            header .hamburger-btn {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            header .header-status {
+                display: none;
+            }
+            .sidebar-overlay {
+                display: block;
+            }
+            aside {
+                position: fixed;
+                left: 0;
+                top: var(--header-height);
+                width: var(--sidebar-width);
+                min-width: var(--sidebar-width);
+                height: calc(100dvh - var(--header-height));
+                z-index: 999;
+                transform: translateX(-105%);
+                border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+                box-shadow: var(--shadow-xl);
+                background: rgba(255, 255, 255, 0.95);
+            }
+            aside.sidebar-open {
+                transform: translateX(0);
+            }
+            aside .sidebar-header .navbar-toggler {
+                display: inline-flex;
+            }
+            .main-content-area {
+                padding: 24px 16px;
+            }
+            .content {
+                padding: 32px 24px;
+                border-radius: var(--radius-lg);
+            }
+            .toggle-menu {
+                display: flex;
+            }
+            .footer-main {
+                grid-template-columns: 1fr;
+                gap: 36px;
+                padding: 48px 24px 32px;
+                padding-bottom: 100px;
+            }
+            .footer-bottom-sticky {
+                flex-direction: column;
+                text-align: center;
+                padding: 20px 24px;
+            }
+        }
+
+        @media (min-width: 769px) {
+            aside {
+                transform: translateX(0) !important;
+                position: relative !important;
+                top: auto !important;
+                left: auto !important;
+                height: 100% !important;
+                border-radius: 0 !important;
+                box-shadow: none !important;
+            }
+            aside .sidebar-header .navbar-toggler {
+                display: none !important;
+            }
+            .sidebar-overlay {
+                display: none !important;
+            }
+            .toggle-menu {
+                display: none !important;
+            }
+            header .hamburger-btn {
+                display: none !important;
+            }
+        }
+        
+.markdown-body pre code span {
+    color: inherit; /* Biarkan highlight.js yang menentukan warna */
+    background: transparent;
+}
+
+.hljs { display: block; overflow-x: auto; padding: 1.2em; background: #1a1b26; color: #c0caf5; border-radius: 14px; line-height: 1.7; font-family: "Victor Mono" !important, monospace; font-size: 14px, font-ligatures: true; }
+
+ .hljs-keyword, .hljs-selector-tag, .hljs-literal, .hljs-section, .hljs-link { color: #bb9af7 !important; font-weight: 600 }
+
+ .hljs-string, .hljs-title, .hljs-name, .hljs-type, .hljs-attribute, .hljs-symbol, .hljs-bullet, .hljs-addition, .hljs-template-tag, .hljs-template-variable { color: #9ece6a !important }
+
+ .hljs-comment, .hljs-quote, .hljs-deletion { color: #565f89 !important; font-style: italic }
+
+ .hljs-number, .hljs-regexp, .hljs-variable, .hljs-tag .hljs-attr { color: #ff9e64 !important }
+
+ .hljs-function .hljs-title, .hljs-title.function_ { color: #7aa2f7 !important }
+
+ .hljs-class .hljs-title, .hljs-title.class_ { color: #e0af68 !important }
+
+ .hljs-operator, .hljs-punctuation { color: #89ddff !important }
+
+ .hljs-meta { color: #7dcfff !important }
+
+ .hljs::-webkit-scrollbar { height: 8px }
+
+ .hljs::-webkit-scrollbar-thumb { background: #414868; border-radius: 10px }
+
+ .hljs::-webkit-scrollbar-track { background: transparent }
+
+    </style>
+</head>
+
+<body raa-core:app="mainLayout">
+
+    <header>
+        <div class="header-left">
+            <div class="header-brand-wrapper">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1465 1465" width="40" height="40"><defs><linearGradient id="gradientIkon" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#f78166;stop-opacity:1" /><stop offset="100%" style="stop-color:#d2a8ff;stop-opacity:1" /></linearGradient></defs><path fill-rule="evenodd" fill="url(#gradientIkon)" stroke-linecap="round" stroke-linejoin="round" stroke-width="13.7" d="M267 1150c74 4 248 19 258-178m-260-26-2 204m262-178-89-143q6 219-91 222-1-414 2-406c2-86 49-173 154-225 183-64 342 45 344 176 8 102-31 194-219 205q60 171 239 169 203-25 185-253-9-111 83-157c4 118 2 130 1 220q-32 252-263 271-141 0-221-117C521 773 499 685 506 659q17-94 111-108 117-4 118 146c65-101 48-187-71-227q-194-24-241 176c-1 72 36 156 98 237q152 227 272 248 148 30 268-53 130-113 156-265 4-320 2-337-151-13-242 146c1 4-20 62-8 162q-7 92-93 108-67 11-104-32 147-68 156-186 16-206-135-303c-137-96-366-46-432 34-205 127-71 683-94 745m947-836q12 92-104 97-81 6-151 101-22-63-45-82c84-82 182-126 300-116"/></svg>
+                <span class="header-brand">RaaJS</span>
+                <span class="header-version">v3.1.0</span>
+            </div>
+        </div>
+        <div class="header-right">
+            <span class="header-status">
+                <span class="status-dot"></span> Stable Release
+            </span>
+        </div>
+    </header>
+
+    <div class="sidebar-overlay" raa-bind:class="{ 'show': isSidebarOpen }" raa-on:click="toggleSidebar()"></div>
+
+    <div class="layout-wrapper">
+        <aside raa-flow:show="isSidebarOpen" raa-bind:class="{ 'sidebar-open': isSidebarOpen }">
+            <div class="sidebar-header">
+                <span class="header-brand">RaaJS Docs</span>
+                <button raa-on:click="toggleSidebar()" class="navbar-toggler">✕</button>
+            </div>
+            <nav>
+<h3 raa-bind:text="menu1"></h3>
+<div class="sub-menu">
+    <template raa-flow:for="item in itemsMenu1" raa-key="item.file">
+        <button raa-on:click="setActivePath(item.file)" raa-bind:class="{ 'active': activePath === item.file }" class="btn-nav">
+            <span raa-bind:text="item.submenu"></span>
+        </button>
+    </template>
+</div>
+
+<h3 raa-bind:text="menu2" style="margin-top: 24px;"></h3>
+<div class="sub-menu">
+    <template raa-flow:for="item in itemsMenu2" raa-key="item.file">
+        <button raa-on:click="setActivePath(item.file)" raa-bind:class="{ 'active': activePath === item.file }" class="btn-nav">
+            <span raa-bind:text="item.submenu"></span>
+        </button>
+    </template>
+</div>
+
+<h3 raa-bind:text="menu3" style="margin-top: 24px;"></h3>
+<div class="sub-menu">
+    <template raa-flow:for="item in itemsMenu3" raa-key="item.file">
+        <button raa-on:click="setActivePath(item.file)" raa-bind:class="{ 'active': activePath === item.file }" class="btn-nav">
+            <span raa-bind:text="item.submenu"></span>
+        </button>
+    </template>
+</div>
+
+<h3 raa-bind:text="menu4" style="margin-top: 24px;"></h3>
+<div class="sub-menu">
+    <template raa-flow:for="item in itemsMenu4" raa-key="item.file">
+        <button raa-on:click="setActivePath(item.file)" raa-bind:class="{ 'active': activePath === item.file }" class="btn-nav">
+            <span raa-bind:text="item.submenu"></span>
+        </button>
+    </template>
+</div>
+
+<h3 raa-bind:text="menu5" style="margin-top: 24px;"></h3>
+<div class="sub-menu">
+    <template raa-flow:for="item in itemsMenu5" raa-key="item.file">
+        <button raa-on:click="setActivePath(item.file)" raa-bind:class="{ 'active': activePath === item.file }" class="btn-nav">
+            <span raa-bind:text="item.submenu"></span>
+        </button>
+    </template>
+</div>
+
+<h3 raa-bind:text="menu6" style="margin-top: 24px;"></h3>
+<div class="sub-menu">
+    <template raa-flow:for="item in itemsMenu6" raa-key="item.file">
+        <button raa-on:click="setActivePath(item.file)" raa-bind:class="{ 'active': activePath === item.file }" class="btn-nav">
+            <span raa-bind:text="item.submenu"></span>
+        </button>
+    </template>
+</div>
+
+<h3 raa-bind:text="menu7" style="margin-top: 24px;"></h3>
+<div class="sub-menu">
+    <template raa-flow:for="item in itemsMenu7" raa-key="item.file">
+        <button raa-on:click="setActivePath(item.file)" raa-bind:class="{ 'active': activePath === item.file }" class="btn-nav">
+            <span raa-bind:text="item.submenu"></span>
+        </button>
+    </template>
+</div>
+
+            </nav>
+        </aside>
+
+        <!-- Main Area dengan Scroll Container Khusus agar Footer mengalir sempurna -->
+        <main>
+            <div class="main-scroll-container">
+                <div class="main-content-area">
+                    <button raa-flow:show="!isSidebarOpen" raa-on:click="toggleSidebar()" class="toggle-menu">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" viewBox="0 0 256 256"><path d="M224,128a8,8,0,0,1-8,8H112a8,8,0,0,1,0-16H216A8,8,0,0,1,224,128ZM112,72H216a8,8,0,0,0,0-16H112a8,8,0,0,0,0,16ZM216,184H40a8,8,0,0,0,0,16H216a8,8,0,0,0,0-16ZM34.34,141.66a8,8,0,0,0,11.32,0l40-40a8,8,0,0,0,0-11.32l-40-40A8,8,0,0,0,34.34,61.66L68.69,96,34.34,130.34A8,8,0,0,0,34.34,141.66Z"></path></svg>
+                    </button>
+                    
+                    <article class="content">
+                        <template raa-flow:if="isLoading">
+                            <div class="loading-skeleton">
+                                <div class="sk-title"></div>
+                                <div class="sk-line"></div>
+                                <div class="sk-line"></div>
+                                <div class="sk-short"></div>
+                            </div>
+                        </template>
+                        <div raa-bind:html="fileContent" class="markdown-body"></div>
+                        <template raa-flow:if="!activePath && !isLoading">
+                            <div class="empty-state" style="text-align:center; padding: 80px 20px;">
+                                <div style="display:inline-flex; margin-bottom: 24px; position:relative;">
+                                    <img style="width: 150px; height: 150px;" src="https://i.ibb.co.com/1Gc22xJd/logo-color-raajs.png" alt="logo-color-raajs" border="0">
+                                </div>
+                                <h2 style="font-size: 28px; margin-bottom: 12px; font-weight:800;">Selamat Datang di Panduan RaaJS</h2>
+                                <p style="font-size: 15px; color: var(--text-secondary); max-width:460px; margin: 0 auto 24px;">Silakan pilih topik panduan di sidebar kiri untuk mulai menjelajahi fitur minimalis yang ditawarkan.</p>
+                            </div>
+                        </template>
+                    </article>
+                </div>
+                
+                <!-- Footer Wrapper: Mengalir secara natural di bawah konten -->
+                <div class="footer-wrapper">
+                    <!-- Footer Main -->
+                    <div class="footer-main">
+                        <div class="footer-col">
+                          <div style="display: flex; flex-direction: column;">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1465 1465" width="50" height="50" style="margin-bottom: 0; padding: 0;"><defs><linearGradient id="gradientIkon" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#f78166;stop-opacity:1" /><stop offset="100%" style="stop-color:#d2a8ff;stop-opacity:1" /></linearGradient></defs><path fill-rule="evenodd" fill="url(#gradientIkon)" stroke-linecap="round" stroke-linejoin="round" stroke-width="13.7" d="M267 1150c74 4 248 19 258-178m-260-26-2 204m262-178-89-143q6 219-91 222-1-414 2-406c2-86 49-173 154-225 183-64 342 45 344 176 8 102-31 194-219 205q60 171 239 169 203-25 185-253-9-111 83-157c4 118 2 130 1 220q-32 252-263 271-141 0-221-117C521 773 499 685 506 659q17-94 111-108 117-4 118 146c65-101 48-187-71-227q-194-24-241 176c-1 72 36 156 98 237q152 227 272 248 148 30 268-53 130-113 156-265 4-320 2-337-151-13-242 146c1 4-20 62-8 162q-7 92-93 108-67 11-104-32 147-68 156-186 16-206-135-303c-137-96-366-46-432 34-205 127-71 683-94 745m947-836q12 92-104 97-81 6-151 101-22-63-45-82c84-82 182-126 300-116"/></svg>
+                            <span class="footer-brand">RaaJS</span>
+                           </div>
+                            <p class="footer-tagline">"Less magic, more method."</p>
+                            <p>Framework JavaScript ultra-minimalis yang dirancang khusus untuk mengutamakan kesederhanaan, performa instan, dan kontrol penuh.</p>
+                            <div class="social-links">
+                                <a href="#" class="social-link" aria-label="Github"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 256 256"><path d="M208.31,75.68A59.78,59.78,0,0,0,202.93,28,8,8,0,0,0,196,24a59.75,59.75,0,0,0-48,24H124A59.75,59.75,0,0,0,76,24a8,8,0,0,0-6.93,4,59.78,59.78,0,0,0-5.38,47.68A58.14,58.14,0,0,0,56,104v8a56.06,56.06,0,0,0,48.44,55.47A39.8,39.8,0,0,0,96,192v8H72a24,24,0,0,1-24-24A40,40,0,0,0,8,136a8,8,0,0,0,0,16,24,24,0,0,1,24,24,40,40,0,0,0,40,40H96v16a8,8,0,0,0,16,0V192a24,24,0,0,1,48,0v40a8,8,0,0,0,16,0V192a39.8,39.8,0,0,0-8.44-24.53A56.06,56.06,0,0,0,216,112v-8A58.14,58.14,0,0,0,208.31,75.68ZM200,112a40,40,0,0,1-40,40H112a40,40,0,0,1-40-40v-8a41.74,41.74,0,0,1,6.9-22.48A8,8,0,0,0,80,73.83a43.81,43.81,0,0,1,.79-33.58,43.88,43.88,0,0,1,32.32,20.06A8,8,0,0,0,119.82,64h32.35a8,8,0,0,0,6.74-3.69,43.87,43.87,0,0,1,32.32-20.06A43.81,43.81,0,0,1,192,73.83a8.09,8.09,0,0,0,1,7.65A41.72,41.72,0,0,1,200,104Z"></path></svg></a>
+                                <a href="#" class="social-link" aria-label="Instagram"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 256 256"><path d="M128,80a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,80a32,32,0,1,1,32-32A32,32,0,0,1,128,160ZM176,24H80A56.06,56.06,0,0,0,24,80v96a56.06,56.06,0,0,0,56,56h96a56.06,56.06,0,0,0,56-56V80A56.06,56.06,0,0,0,176,24Zm40,152a40,40,0,0,1-40,40H80a40,40,0,0,1-40-40V80A40,40,0,0,1,80,40h96a40,40,0,0,1,40,40ZM192,76a12,12,0,1,1-12-12A12,12,0,0,1,192,76Z"></path></svg></a>
+                                <a href="#" class="social-link" aria-label="Discord"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 256 256"><path d="M104,140a12,12,0,1,1-12-12A12,12,0,0,1,104,140Zm60-12a12,12,0,1,0,12,12A12,12,0,0,0,164,128Zm74.45,64.9-67,29.71a16.17,16.17,0,0,1-21.71-9.1l-8.11-22q-6.72.45-13.63.46t-13.63-.46l-8.11,22a16.18,16.18,0,0,1-21.71,9.1l-67-29.71a15.93,15.93,0,0,1-9.06-18.51L38,58A16.07,16.07,0,0,1,51,46.14l36.06-5.93a16.22,16.22,0,0,1,18.26,11.88l3.26,12.84Q118.11,64,128,64t19.4.93l3.26-12.84a16.21,16.21,0,0,1,18.26-11.88L205,46.14A16.07,16.07,0,0,1,218,58l29.53,116.38A15.93,15.93,0,0,1,238.45,192.9ZM232,178.28,202.47,62s0,0-.08,0L166.33,56a.17.17,0,0,0-.17,0l-2.83,11.14c5,.94,10,2.06,14.83,3.42A8,8,0,0,1,176,86.31a8.09,8.09,0,0,1-2.16-.3A172.25,172.25,0,0,0,128,80a172.25,172.25,0,0,0-45.84,6,8,8,0,1,1-4.32-15.4c4.82-1.36,9.78-2.48,14.82-3.42L89.83,56s0,0-.12,0h0L53.61,61.93a.17.17,0,0,0-.09,0L24,178.33,91,208a.23.23,0,0,0,.22,0L98,189.72a173.2,173.2,0,0,1-20.14-4.32A8,8,0,0,1,82.16,170,171.85,171.85,0,0,0,128,176a171.85,171.85,0,0,0,45.84-6,8,8,0,0,1,4.32,15.41A173.2,173.2,0,0,1,158,189.72L164.75,208a.22.22,0,0,0,.21,0Z"></path></svg></a>
+                                <a href="#" class="social-link" aria-label="Twitter"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 256 256"><path d="M247.39,68.94A8,8,0,0,0,240,64H209.57A48.66,48.66,0,0,0,168.1,40a46.91,46.91,0,0,0-33.75,13.7A47.9,47.9,0,0,0,120,88v6.09C79.74,83.47,46.81,50.72,46.46,50.37a8,8,0,0,0-13.65,4.92c-4.31,47.79,9.57,79.77,22,98.18a110.93,110.93,0,0,0,21.88,24.2c-15.23,17.53-39.21,26.74-39.47,26.84a8,8,0,0,0-3.85,11.93c.75,1.12,3.75,5.05,11.08,8.72C53.51,229.7,65.48,232,80,232c70.67,0,129.72-54.42,135.75-124.44l29.91-29.9A8,8,0,0,0,247.39,68.94Zm-45,29.41a8,8,0,0,0-2.32,5.14C196,166.58,143.28,216,80,216c-10.56,0-18-1.4-23.22-3.08,11.51-6.25,27.56-17,37.88-32.48A8,8,0,0,0,92,169.08c-.47-.27-43.91-26.34-44-96,16,13,45.25,33.17,78.67,38.79A8,8,0,0,0,136,104V88a32,32,0,0,1,9.6-22.92A30.94,30.94,0,0,1,167.9,56c12.66.16,24.49,7.88,29.44,19.21A8,8,0,0,0,204.67,80h16Z"></path></svg></a>
+                                <a href="#" class="social-link" aria-label="Email"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 256 256"><path d="M224,48H32a8,8,0,0,0-8,8V192a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V56A8,8,0,0,0,224,48Zm-96,85.15L52.57,64H203.43ZM98.71,128,40,181.81V74.19Zm11.84,10.85,12,11.05a8,8,0,0,0,10.82,0l12-11.05,58,53.15H52.57ZM157.29,128,216,74.18V181.82Z"></path></svg></a>
+                            </div>
+                        </div>
+                        <div class="footer-col">
+                            <h4>Quick Links</h4>
+                            <ul>
+                                <li><a href="#">Dokumentasi</a></li>
+                                <li><a href="#">API Reference</a></li>
+                                <li><a href="#">Contoh Proyek</a></li>
+                                <li><a href="#">Playground</a></li>
+                            </ul>
+                        </div>
+                        <div class="footer-col">
+                            <h4>Resources</h4>
+                            <ul>
+                                <li><a href="#">GitHub Repository</a></li>
+                                <li><a href="#">Changelog</a></li>
+                                <li><a href="#">Migration Guide</a></li>
+                                <li><a href="#">Komunitas</a></li>
+                            </ul>
+                        </div>
+                        <div class="footer-col">
+                            <h4>Stay Updated</h4>
+                            <p>Dapatkan pembaruan rilis dan teknik optimalisasi RaaJS langsung di kotak masuk Anda.</p>
+                            <p style="margin-top:12px; font-weight: 600; color: #fff;">raarionofficial@gmail.com</p>
+                        </div>
+                    </div>
+
+                    <!-- Footer Bottom -->
+                    <div class="footer-bottom-sticky">
+                        <span>&copy; 2026 RaaJS. All rights reserved. Crafted for extreme performance.</span>
+                        <ul class="footer-bottom-links">
+                            <li><a href="#">Privasi</a></li>
+                            <li><a href="#">Ketentuan</a></li>
+                            <li><a href="#">Lisensi MIT</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+          
+    </div>
+
+    <script>
+        RaaJS.define('mainLayout', () => ({
+            state: {
+                isSidebarOpen: true,
+    menu1: 'Pengenalan & Dasar (Getting Started)',
+    itemsMenu1: [
+        { submenu: 'Apa itu RaaJS?', file: 'submenu-1-1.md' },
+        { submenu: 'Instalasi Cepat', file: 'submenu-1-2.md' },
+        { submenu: 'Konsep Hello World', file: 'submenu-1-3.md' }
+    ],
+
+    menu2: 'Panduan Inti (Core Concepts)',
+    itemsMenu2: [
+        { submenu: 'Model Reaktivitas', file: 'submenu-2-1.md' },
+        { submenu: 'State Management', file: 'submenu-2-2.md' },
+        { submenu: 'Siklus Hidup Aplikasi', file: 'submenu-2-3.md' }
+    ],
+
+    menu3: 'Direktif & Template (API Reference)',
+    itemsMenu3: [
+        { submenu: 'Direktif Root & Setup', file: 'submenu-3-1.md' },
+        { submenu: 'Data Binding', file: 'submenu-3-2.md' },
+        { submenu: 'Kontrol Alur', file: 'submenu-3-3.md' },
+        { submenu: 'Event Handling', file: 'submenu-3-4.md' }
+    ],
+
+    menu4: 'Bahasa Ekspresi & Keamanan',
+    itemsMenu4: [
+        { submenu: 'Sintaks Ekspresi', file: 'submenu-4-1.md' },
+        { submenu: 'Scope Evaluator', file: 'submenu-4-2.md' },
+        { submenu: 'Sanitasi Keamanan', file: 'submenu-4-3.md' }
+    ],
+
+    menu5: 'Ekosistem & Plugin (Extended Features)',
+    itemsMenu5: [
+        { submenu: 'Computed & Watchers', file: 'submenu-5-1.md' },
+        { submenu: 'Komunikasi Komponen', file: 'submenu-5-2.md' },
+        { submenu: 'HTTP & Data Fetching', file: 'submenu-5-3.md' },
+        { submenu: 'Validasi & UI', file: 'submenu-5-4.md' },
+        { submenu: 'Internasionalisasi (i18n) & Animasi', file: 'submenu-5-5.md' }
+    ],
+
+    menu6: 'Arsitektur Plugin Kustom (Advanced)',
+    itemsMenu6: [
+        { submenu: 'Membuat Plugin', file: 'submenu-6-1.md' },
+        { submenu: 'Hook Siklus Hidup', file: 'submenu-6-2.md' },
+        { submenu: 'Direktif & Efek Kustom', file: 'submenu-6-3.md' }
+    ],
+
+    menu7: 'Troubleshooting & Migrasi',
+    itemsMenu7: [
+        { submenu: 'FAQ & Pitfalls', file: 'submenu-7-1.md' },
+        { submenu: 'Panduan Migrasi v3.0 → v3.1', file: 'submenu-7-2.md' },
+        { submenu: 'Optimasi Performa', file: 'submenu-7-3.md' }
+    ],
+                activePath: '',
+                fileContent: '',
+                isLoading: false
+            },
+            methods: {
+                toggleSidebar() {
+                    if (window.innerWidth <= 768) this.isSidebarOpen = !this.isSidebarOpen;
+                },
+                setActivePath(filePath) {
+                    this.activePath = filePath;
+                    this.loadContent(filePath);
+                    if (window.innerWidth <= 768) this.isSidebarOpen = false;
+                },
+async loadContent(filePath) {
+    if (!filePath) return;
+    this.isLoading = true;
+    this.fileContent = '';
+    
+    try {
+        const res = await fetch(filePath);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const rawMd = await res.text();
+        
+        // Tetap gunakan DOMPurify yang aman, tapi izinkan span
+        const parsedHtml = marked.parse(rawMd);
+        this.fileContent = DOMPurify.sanitize(parsedHtml, {
+            ALLOWED_TAGS: ['h1','h2','h3','h4','p','ul','ol','li','code','pre','strong','em','a','img','br','hr','blockquote','table','thead','tbody','tr','th','td','span'],
+            ALLOWED_ATTR: ['href','src','alt','title','class','id']
+        });
+
+        // 🚀 KUNCI KESUKSESAN: Gunakan requestAnimationFrame
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                const codeBlocks = document.querySelectorAll('.markdown-body pre code');
+                codeBlocks.forEach((el) => {
+                    hljs.highlightElement(el);
+                    // Force styling
+                    el.style.display = 'block'; 
+                });
+            });
+        });
+
+    } catch (err) {
+        this.fileContent = `<div style="color:red">Error: ${err.message}</div>`;
+    } finally {
+        this.isLoading = false;
+    }
+}
+            }
+        }));
+    </script>
+</body>
+</html>
