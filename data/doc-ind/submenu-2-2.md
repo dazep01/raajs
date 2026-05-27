@@ -1,4 +1,4 @@
-# 🔄 State Management
+# State Management
 
 > **Versi:** RaaJS v3.1.0 "Data Liberation"
 > *Panduan Naratif: Mengelola Data Aplikasi dari Sederhana hingga Canggih*
@@ -7,7 +7,7 @@ State adalah **jantung** dari setiap aplikasi RaaJS. Ia menentukan apa yang dili
 
 ---
 
-## 🫀 Apa Itu State? (Dan Kenapa Ia Sangat Penting)
+## Apa Itu State? (Dan Kenapa Ia Sangat Penting)
 
 **State** adalah kumpulan semua data yang dimiliki aplikasimu pada satu momen tertentu. Ia adalah "foto instan" dari kondisi aplikasi: apa yang sedang ditampilkan, apa yang sedang diproses, dan apa yang sudah diketahui aplikasi tentang penggunanya.
 
@@ -34,11 +34,11 @@ Di RaaJS:
 
 ---
 
-## 🏗️ Anatomi `RaaJS.define()`: Blueprint Aplikasi Kamu
+## Anatomi `RaaJS.define()`: Blueprint Aplikasi Kamu
 
 Semua definisi aplikasi RaaJS dimulai dari `RaaJS.define()`. Fungsi ini menerima sebuah **factory function** — sebuah fungsi yang dipanggil saat aplikasi diinisialisasi dan mengembalikan konfigurasi lengkap aplikasimu.
 
-### 🔄 Alur Eksekusi `RaaJS.define()`
+### Alur Eksekusi `RaaJS.define()`
 
 Berikut urutan yang terjadi saat `RaaJS.define()` diproses:
 
@@ -48,7 +48,7 @@ Berikut urutan yang terjadi saat `RaaJS.define()` diproses:
 4. **Methods diikat ke state** — Agar `this` di dalam method merujuk ke state yang sama
 5. **`init()` dijadwalkan** — Akan dijalankan via `queueMicrotask` setelah kompilasi selesai
 
-### 📦 Struktur Lengkap Definisi Aplikasi
+### Struktur Lengkap Definisi Aplikasi
 
 ```javascript
 RaaJS.define('namaApp', () => ({
@@ -116,9 +116,9 @@ RaaJS.define('namaApp', () => ({
 
 ---
 
-## 📚 Bagian `state`: Aturan Emas dan Praktik Terbaik
+## Bagian `state`: Aturan Emas dan Praktik Terbaik
 
-### 🎯 Aturan #1: Deklarasikan Semua Properti dari Awal
+### Aturan #1: Deklarasikan Semua Properti dari Awal
 
 Seperti yang sudah dibahas di Model Reaktivitas, **hanya properti yang dideklarasikan sejak awal yang akan reaktif**. Jika kamu menambahkan properti baru di tengah jalan (misal: `this.baru = 'x'`), properti tersebut tidak akan memicu update DOM.
 
@@ -139,7 +139,7 @@ state: {
 }
 ```
 
-### 🎯 Aturan #2: Struktur State yang Semantik dan Terkelompok
+### Aturan #2: Struktur State yang Semantik dan Terkelompok
 
 State yang terstruktur dengan baik bukan hanya enak dibaca — ia juga memudahkan debugging, testing, dan kolaborasi tim.
 
@@ -175,11 +175,11 @@ state: {
 
 ---
 
-## ⚙️ Bagian `methods`: Cara Aman Bekerja dengan State
+## Bagian `methods`: Cara Aman Bekerja dengan State
 
 Methods adalah **satu-satunya tempat yang direkomendasikan** untuk memodifikasi state secara eksplisit. Di dalam setiap method, kata kunci `this` merujuk langsung ke objek state yang reaktif.
 
-### 🔍 Mengakses dan Memodifikasi State via `this`
+### Mengakses dan Memodifikasi State via `this`
 
 ```javascript
 methods: {
@@ -201,7 +201,7 @@ methods: {
 }
 ```
 
-### 🌐 Method Asinkronus: Fetch Data dengan Elegan
+### Method Asinkronus: Fetch Data dengan Elegan
 
 RaaJS mendukung penuh method `async/await`. State akan diperbarui secara reaktif begitu nilai baru di-assign, meskipun di dalam fungsi asinkronus:
 
@@ -232,7 +232,7 @@ methods: {
 }
 ```
 
-#### 🎨 Template yang Merespons Seluruh Siklus Loading
+#### Template yang Merespons Seluruh Siklus Loading
 
 ```html
 <div raa-core:app="produkApp">
@@ -261,7 +261,7 @@ methods: {
 
 > 🎯 *Pattern ini memungkinkan UI-mu secara deklaratif merespons setiap fase dari operasi asinkronus — tanpa callback hell atau state management yang rumit.*
 
-### 🎁 Method dengan Parameter: Fleksibilitas dari Template
+### Method dengan Parameter: Fleksibilitas dari Template
 
 Method bisa menerima parameter langsung dari template, memungkinkan interaksi yang dinamis:
 
@@ -295,11 +295,11 @@ methods: {
 
 ---
 
-## 🚀 Bagian `init()`: Titik Awal Aplikasi yang Terkontrol
+## Bagian `init()`: Titik Awal Aplikasi yang Terkontrol
 
 `init()` dipanggil **satu kali** oleh RaaJS setelah seluruh root selesai dikompilasi. Ini adalah tempat yang tepat untuk logika startup yang hanya perlu dijalankan sekali.
 
-### 🔄 Urutan Eksekusi `init()` dalam Siklus Hidup
+### Urutan Eksekusi `init()` dalam Siklus Hidup
 
 Berikut alur lengkap kapan `init()` dijalankan:
 
@@ -311,7 +311,7 @@ Berikut alur lengkap kapan `init()` dijalankan:
 6. Di dalam `init()`, kamu bisa: fetch data awal, setup timer, cek autentikasi, dll
 7. Perubahan state dari `init()` akan memicu update DOM secara normal
 
-### 💻 Contoh: Inisialisasi Dashboard dengan Parallel Fetch
+### Contoh: Inisialisasi Dashboard dengan Parallel Fetch
 
 ```javascript
 RaaJS.define('dashboardApp', () => ({
@@ -338,7 +338,7 @@ RaaJS.define('dashboardApp', () => ({
 }));
 ```
 
-### 🎯 `init()` vs `raa-core:init`: Kapan Menggunakan yang Mana?
+### `init()` vs `raa-core:init`: Kapan Menggunakan yang Mana?
 
 | Aspek | `init()` di factory | `raa-core:init` di HTML |
 |-------|---------------------|-------------------------|
@@ -351,13 +351,13 @@ RaaJS.define('dashboardApp', () => ({
 
 ---
 
-## 🌐 Berbagi Data Antar Aplikasi: Global Store (`$store`)
+## Berbagi Data Antar Aplikasi: Global Store (`$store`)
 
 Bagaimana jika kamu punya beberapa aplikasi (`raa-core:app`) di halaman yang sama dan perlu berbagi data di antara mereka? Gunakan **Global Store**.
 
 Global Store adalah objek JavaScript biasa yang bisa diakses dari **semua** aplikasi dan template melalui variabel khusus `$store`.
 
-### 🛠️ Cara Mendefinisikan Global Store
+### Cara Mendefinisikan Global Store
 
 Global Store diatur saat membuat instance RaaJS. Normalnya RaaJS membuat instance secara otomatis, tapi kamu bisa mengonfigurasinya sebelum `DOMContentLoaded`:
 
@@ -393,7 +393,7 @@ const raa = new RaaJS({
 window.Raa = raa;
 ```
 
-### 🔗 Mengakses `$store` dari Template: Cross-App Reactivity
+### Mengakses `$store` dari Template: Cross-App Reactivity
 
 ```html
 <!-- Aplikasi A: Header -->
@@ -410,7 +410,7 @@ window.Raa = raa;
 </div>
 ```
 
-### 🔧 Mengakses dan Memodifikasi `$store` dari Method
+### Mengakses dan Memodifikasi `$store` dari Method
 
 ```javascript
 methods: {
@@ -427,7 +427,7 @@ methods: {
 }
 ```
 
-### 🔄 Alur Reaktivitas Global Store
+### Alur Reaktivitas Global Store
 
 Berikut bagaimana perubahan di `$store` menyebar ke seluruh aplikasi:
 
@@ -441,7 +441,7 @@ Berikut bagaimana perubahan di `$store` menyebar ke seluruh aplikasi:
 
 ---
 
-## 💾 Mempersistensikan State: `raa-eco:persist`
+## Mempersistensikan State: `raa-eco:persist`
 
 Secara default, state RaaJS hilang begitu halaman di-refresh. Untuk menyimpan state ke `localStorage` secara otomatis, gunakan direktif `raa-eco:persist`:
 
@@ -457,9 +457,10 @@ Secara default, state RaaJS hilang begitu halaman di-refresh. Untuk menyimpan st
 </div>
 ```
 
-### 🔄 Alur Persistensi: Dari Load ke Save
+### Alur Persistensi: Dari Load ke Save
 
 Berikut bagaimana `raa-eco:persist` bekerja dari awal hingga akhir:
+
 
 #### 📥 Saat Halaman Dimuat (Load)
 
@@ -469,6 +470,7 @@ Berikut bagaimana `raa-eco:persist` bekerja dari awal hingga akhir:
 4. DOM dirender dengan preferensi yang tersimpan
 5. Pengguna melihat aplikasi dalam keadaan terakhir yang mereka tinggalkan
 
+
 #### 📤 Saat State Berubah (Save)
 
 1. Pengguna mengubah `darkMode` dari `true` ke `false`
@@ -477,12 +479,14 @@ Berikut bagaimana `raa-eco:persist` bekerja dari awal hingga akhir:
 4. JSON disimpan ke `localStorage` dengan kunci `'pengaturan-user'`
 5. Proses ini terjadi setelah flush efek selesai, sehingga tidak memblokir UI
 
+
 #### 🔄 Saat Halaman Di-refresh
 
 1. Proses load berulang dari awal
 2. Preferensi pengguna tetap terjaga — pengalaman yang mulus! 🎉
 
-### 🧠 Apa yang Disimpan dan Tidak: Filter Cerdas RaaJS
+
+### Apa yang Disimpan dan Tidak: Filter Cerdas RaaJS
 
 RaaJS secara cerdas menyaring apa yang boleh disimpan ke localStorage agar tidak error saat serialisasi:
 
@@ -497,7 +501,7 @@ RaaJS secara cerdas menyaring apa yang boleh disimpan ke localStorage agar tidak
 
 > 💡 *Tips: Jika state-mu berisi data kompleks yang tidak bisa di-JSON.stringify, pertimbangkan untuk memisahkan data yang perlu persist ke objek terpisah.*
 
-### 🎯 Tips: Selektif dalam Persisten — Pisahkan State Permanen vs Sementara
+### Tips: Selektif dalam Persisten — Pisahkan State Permanen vs Sementara
 
 Tidak semua state perlu disimpan. Jika state-mu campuran antara data permanen dan data sementara, pertimbangkan untuk memisahkannya ke dalam dua aplikasi atau island:
 
@@ -517,11 +521,11 @@ Tidak semua state perlu disimpan. Jika state-mu campuran antara data permanen da
 
 ---
 
-## 🏝️ Isolasi State: Island Architecture dengan `raa-eco:island`
+## Isolasi State: Island Architecture dengan `raa-eco:island`
 
 Kadang kamu butuh beberapa komponen di halaman yang sama dengan state yang **sepenuhnya terisolasi** satu sama lain. Inilah kegunaan `raa-eco:island`:
 
-### 🎯 Use Case: Daftar Produk dengan Counter Independen
+### Use Case: Daftar Produk dengan Counter Independen
 
 ```html
 <div class="daftar-produk">
@@ -547,7 +551,7 @@ Kadang kamu butuh beberapa komponen di halaman yang sama dengan state yang **sep
 </div>
 ```
 
-### 🔒 Bagaimana Isolasi Bekerja
+### Bagaimana Isolasi Bekerja
 
 Berikut mekanisme di balik `raa-eco:island`:
 
@@ -561,11 +565,11 @@ Berikut mekanisme di balik `raa-eco:island`:
 
 ---
 
-## 🔗 Referensi Elemen DOM: `$refs` untuk Interaksi Langsung
+## Referensi Elemen DOM: `$refs` untuk Interaksi Langsung
 
 Selain state data, RaaJS juga mengelola referensi ke elemen DOM melalui `$refs`. Ini berguna ketika kamu perlu berinteraksi langsung dengan elemen DOM dari dalam method — misalnya untuk fokus input, scroll ke elemen tertentu, atau integrasi dengan library pihak ketiga.
 
-### 💻 Contoh: Form dengan Fokus Otomatis
+### Contoh: Form dengan Fokus Otomatis
 
 ```html
 <div raa-core:app="formApp">
@@ -599,7 +603,7 @@ Selain state data, RaaJS juga mengelola referensi ke elemen DOM melalui `$refs`.
 </script>
 ```
 
-### ⚠️ Catatan Penting: `$refs` dengan Nama yang Sama
+### Catatan Penting: `$refs` dengan Nama yang Sama
 
 Jika kamu memberikan `raa-core:ref` yang sama ke lebih dari satu elemen, `$refs.namaRef` akan berupa **array** berisi semua elemen tersebut, bukan satu elemen:
 
@@ -629,11 +633,11 @@ Jika kamu memberikan `raa-core:ref` yang sama ke lebih dari satu elemen, `$refs.
 
 ---
 
-## 🧭 Pola Arsitektur State: Panduan Memilih yang Tepat
+## Pola Arsitektur State: Panduan Memilih yang Tepat
 
 Dengan semua pilihan yang tersedia, bagaimana memutuskan mana yang sebaiknya digunakan? Berikut panduan naratif berbasis skenario:
 
-### 🎯 Skenario 1: Data Hanya Dipakai di Satu Aplikasi
+### Skenario 1: Data Hanya Dipakai di Satu Aplikasi
 
 **Pertanyaan:** Apakah data ini hanya diakses oleh satu aplikasi (`raa-core:app`)?
 
@@ -645,7 +649,7 @@ Dengan semua pilihan yang tersedia, bagaimana memutuskan mana yang sebaiknya dig
   → Gunakan `state` + `raa-eco:persist`.  
   *Contoh: Preferensi tema, bahasa, pengaturan tampilan.*
 
-### 🎯 Skenario 2: Data Dipakai oleh Beberapa Aplikasi
+### Skenario 2: Data Dipakai oleh Beberapa Aplikasi
 
 **Pertanyaan:** Apakah data ini perlu diakses oleh lebih dari satu aplikasi di halaman yang sama?
 
@@ -655,7 +659,7 @@ Dengan semua pilihan yang tersedia, bagaimana memutuskan mana yang sebaiknya dig
 
 > 💡 *Tips: Jika data di `$store` perlu reaktif mendalam, pastikan akses ke properti `$store` dilakukan dalam konteks efek reaktif (misal: di dalam `raa-bind:` atau method yang dipanggil dari template).*
 
-### 🎯 Skenario 3: Komponen Berulang dengan State Independen
+### Skenario 3: Komponen Berulang dengan State Independen
 
 **Pertanyaan:** Apakah kamu merender banyak instance komponen yang sama, dan masing-masing perlu state sendiri?
 
@@ -663,7 +667,7 @@ Dengan semua pilihan yang tersedia, bagaimana memutuskan mana yang sebaiknya dig
   → Gunakan **`raa-eco:island`** dengan state lokal.  
   *Contoh: Kartu produk dengan counter qty, accordion dengan state terbuka/tertutup, carousel item.*
 
-### 🗺️ Decision Tree Naratif
+### Decision Tree Naratif
 
 ```
 Data yang kamu butuhkan...
@@ -686,7 +690,7 @@ Data yang kamu butuhkan...
 
 ---
 
-## 📋 Contoh Lengkap: Aplikasi Todo dengan State Komprehensif
+## Contoh Lengkap: Aplikasi Todo dengan State Komprehensif
 
 Berikut adalah contoh yang menggabungkan semua konsep state management yang telah kita pelajari. Kode ini bisa langsung kamu copy-paste dan jalankan:
 
@@ -863,35 +867,35 @@ Berikut adalah contoh yang menggabungkan semua konsep state management yang tela
 
 ---
 
-## 🗂️ Ringkasan: Hierarki State di RaaJS
+## Ringkasan: Hierarki State di RaaJS
 
 Berikut adalah gambaran lengkap bagaimana berbagai lapisan state berinteraksi dalam aplikasi RaaJS:
 
-### 🌐 Lapisan 1: Global Store (`$store`)
+### Lapisan 1: Global Store (`$store`)
 - **Cakupan**: Seluruh halaman, semua aplikasi
 - **Akses**: `this.$store` di method, `$store` di template
 - **Use case**: Konfigurasi global, user sesi, tema, bahasa
 - **Persistensi**: Manual (kamu yang atur jika perlu simpan ke localStorage)
 
-### 📦 Lapisan 2: State Aplikasi (`state` di `RaaJS.define()`)
+### Lapisan 2: State Aplikasi (`state` di `RaaJS.define()`)
 - **Cakupan**: Satu root aplikasi (`raa-core:app`)
 - **Akses**: `this.properti` di method, `properti` langsung di template
 - **Use case**: Data utama aplikasi, state UI lokal, data dari API
 - **Persistensi**: Opsional via `raa-eco:persist`
 
-### 🏝️ Lapisan 3: State Island (`raa-eco:island`)
+### Lapisan 3: State Island (`raa-eco:island`)
 - **Cakupan**: Satu elemen island saja
 - **Akses**: `$state` di `raa-core:init`, variabel langsung di template dalam island
 - **Use case**: Komponen berulang dengan state independen (kartu produk, accordion item)
 - **Persistensi**: Tidak didukung (desain yang disengaja untuk state sementara)
 
-### 🔗 Lapisan 4: Referensi DOM (`$refs`)
+### Lapisan 4: Referensi DOM (`$refs`)
 - **Cakupan**: Satu aplikasi atau island
 - **Akses**: `this.$refs.namaRef` di method
 - **Use case**: Fokus input, scroll, integrasi library pihak ketiga
 - **Persistensi**: Tidak pernah (DOM references tidak perlu disimpan)
 
-### 🔄 Alur Data Antar Lapisan
+### Alur Data Antar Lapisan
 
 ```
 Global Store ($store)
@@ -917,7 +921,7 @@ State Island (raa-eco:island)
 
 ---
 
-## 🎁 Bonus: Tips Pro untuk State Management yang Sehat
+## Bonus: Tips Pro untuk State Management yang Sehat
 
 1. **Mulai sederhana** — Jangan over-engineering. Mulai dengan `state` lokal, lalu tingkatkan ke `$store` atau `persist` hanya jika benar-benar diperlukan.
 
@@ -935,6 +939,6 @@ State Island (raa-eco:island)
 
 ---
 
-> 📚 *Dokumentasi ini adalah bagian dari RaaJS v3.1.0 Official Docs. Kontribusi, koreksi, dan ide perbaikan disambut hangat di repositori resmi. Mari bersama bangun ekosistem yang lebih baik!* 🚀
+> *Dokumentasi ini adalah bagian dari RaaJS v3.1.0 Official Docs. Kontribusi, koreksi, dan ide perbaikan disambut hangat di repositori resmi. Mari bersama bangun ekosistem yang lebih baik!* 🚀
 
 ---
