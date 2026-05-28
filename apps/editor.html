@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
@@ -9,7 +9,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
-    <!-- [FIX #11] Removed unused extensions: raa-http, raa-animation, raa-i18n, raa-eventbus, raa-template -->
     <script src="../engine/raa.js"></script>
     <script src="../engine/extensions/raa-computed-watch.js"></script>
     <script src="../engine/extensions/raa-validate.js"></script>
@@ -108,6 +107,12 @@
  .tree-item:hover { background: var(--bg-hover); color: var(--text-primary) }
 
  .tree-item.active { background: rgba(255,140,95,0.08); border-left-color: var(--accent-orange); color: var(--accent-orange) }
+
+.tree-folder { font-weight: 600; color: var(--text-primary) }
+
+.tree-folder:hover { background: rgba(176,109,212,0.06) }
+
+.tree-item.active .tree-item-name { font-weight: 600 }
 
  .tree-item.synced { border-left-color: var(--accent-mint) }
 
@@ -309,9 +314,6 @@
 
  .w-full { width: 100% }
 
- /* [FIX #13] Added missing .flex-1 utility class */
- .flex-1 { flex: 1 }
-
  .text-center { text-align: center }
 
  .text-muted { color: var(--text-muted) }
@@ -389,8 +391,8 @@
     <!-- ═════════ WORKSPACE ═════════ -->
     <div class="workspace">
 
-      <!-- TREE PANEL - FIXED: raa-bind:style, hierarchical sort, reactive expandedFolders -->
-      <section class="panel panel-tree" raa-flow:show="showTree" raa-core:ref="panelTree">
+      <!-- TREE PANEL - UPDATED FOR FOLDERS -->
+      <section class="panel panel-tree" raa-flow:show="showTree">
         <div class="panel-header">
           <span>Struktur Proyek</span>
           <button raa-on:click="openNewFileModal()" class="btn btn-sm">+ Berkas</button>
@@ -407,11 +409,11 @@
                   </svg>
                   <span raa-bind:text="item.name"></span>
                 </div>
-                <span raa-bind:text="expandedFolders[item.path] !== false ? '\u25BC' : '\u25B6'" style="font-size:10px;"></span>
+                <span raa-bind:text="expandedFolders[item.path] ? '▼' : '▶'" style="font-size:10px;"></span>
               </div>
-              <div raa-flow:show="!item.isFolder" class="tree-item" raa-bind:class="{ 'active': activeFilePath === item.path, 'pending': _ghStatus(item.path) === 'pending', 'synced': _ghStatus(item.path) === 'synced' }" raa-on:click="selectFile(item.path)" raa-bind:style="{ paddingLeft: (10 + item.depth * 15) + 'px' }">
+              <div raa-flow:show="!item.isFolder" class="tree-item" raa-bind:class="{ 'active': activeFilePath === item.path, 'pending': ghFileStatus[item.path] === 'pending', 'synced': ghFileStatus[item.path] === 'synced' }" raa-on:click="selectFile(item.path)" raa-bind:style="{ paddingLeft: (10 + item.depth * 15) + 'px' }">
                 <div class="tree-item-left">
-                  <span class="tree-item-status" raa-bind:class="_ghStatus(item.path) || 'none'" raa-flow:show="ghConnected"></span>
+                  <span class="tree-item-status" raa-bind:class="ghFileStatus[item.path] || 'none'" raa-flow:show="ghConnected"></span>
                   <span class="tree-item-name" raa-bind:text="item.name"></span>
                 </div>
                 <button raa-on:click.stop="deleteFile(item.path)" class="tree-delete" title="Hapus">
@@ -433,9 +435,10 @@
             <svg width="12" height="12" fill="var(--accent-orange)" viewBox="0 0 256 256">
               <path d="M213.66,82.34l-56-56A8,8,0,0,0,152,24H56A16,16,0,0,0,40,40V216a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V88A8,8,0,0,0,213.66,82.34ZM160,51.31,188.69,80H160ZM200,216H56V40H88V88a8,8,0,0,0,8,8h48a8,8,0,0,0,0-16H104V40h56V88a8,8,0,0,0,8,8h40V216Z" />
             </svg>
-            <span raa-bind:text="activeFileName || 'Pilih Berkas'"></span>
+            <span raa-bind:text="activeFileName"></span>
+            <span class="tree-item-status" raa-bind:class="ghFileStatus[activeFilePath] || 'none'" raa-flow:show="ghConnected && activeFilePath" style="margin-left:4px;"></span>
           </div>
-          <div class="editor-tab-status" raa-bind:class="{ 'unsaved': unsavedChanges }" raa-bind:text="unsavedChanges ? '\u25CF Modified' : (lastSaved ? 'Saved ' + lastSaved : 'Ready')"></div>
+          <div class="editor-tab-status" raa-bind:class="{ 'unsaved': unsavedChanges }" raa-bind:text="editorStatusLabel"></div>
           <div style="display: flex; gap: 4px; margin-left: auto;">
             <button raa-on:click="toggleTree()" class="btn-icon" title="Toggle Tree">
               <svg width="16" height="16" fill="var(--accent-purple)" viewBox="0 0 256 256">
@@ -455,39 +458,39 @@
 
           <div class="editor-toolbar">
             <select class="toolbar-select" raa-on:change="handleSnippetSelect($event)">
-              <option value="">Directive...</option>
-              <optgroup label="Bind">
+              <option value="">⚡ Directive...</option>
+              <optgroup label="🔗 Bind">
                 <option value="raa-bind:text=&quot;&quot;">bind:text</option>
                 <option value="raa-bind:html=&quot;&quot;">bind:html</option>
                 <option value="raa-bind:model=&quot;&quot;">bind:model</option>
                 <option value="raa-bind:class=&quot;{ : }&quot;">bind:class</option>
                 <option value="raa-bind:style=&quot;{ : }&quot;">bind:style</option>
               </optgroup>
-              <optgroup label="Flow">
+              <optgroup label="🔀 Flow">
                 <option value="raa-flow:if=&quot;&quot;">flow:if</option>
                 <option value="raa-flow:for=&quot;item in list&quot;">flow:for</option>
                 <option value="raa-flow:show=&quot;&quot;">flow:show</option>
               </optgroup>
-              <optgroup label="Events">
+              <optgroup label="🎯 Events">
                 <option value="raa-on:click=&quot;&quot;">on:click</option>
                 <option value="raa-on:submit.prevent=&quot;&quot;">on:submit.prevent</option>
               </optgroup>
-              <optgroup label="Core">
+              <optgroup label="⚙️ Core">
                 <option value="raa-core:app=&quot;&quot;">core:app</option>
                 <option value="raa-core:init=&quot;Object.assign($state, { })&quot;">core:init</option>
                 <option value="raa-core:ref=&quot;&quot;">core:ref</option>
               </optgroup>
-              <optgroup label="Eco">
+              <optgroup label="🏝️ Eco">
                 <option value="raa-eco:island">eco:island</option>
                 <option value="raa-eco:persist=&quot;&quot;">eco:persist</option>
                 <option value="raa-eco:router">eco:router</option>
                 <option value="raa-eco:route=&quot;&quot;">eco:route</option>
               </optgroup>
-              <optgroup label="Net">
+              <optgroup label="🌐 Net">
                 <option value="raa-net:fetch=&quot;'url' -&gt; data&quot;">net:fetch</option>
                 <option value="raa-net:sync=&quot;'ws://url' -&gt; data&quot;">net:sync</option>
               </optgroup>
-              <optgroup label="UX">
+              <optgroup label="✨ UX">
                 <option value="raa-ux:lazy">ux:lazy</option>
                 <option value="raa-ux:focus">ux:focus</option>
                 <option value="raa-ux:loading=&quot;&quot;">ux:loading</option>
@@ -593,7 +596,7 @@
           <div raa-flow:show="showAiContextPicker" style="max-height:150px; overflow:auto; background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 8px; margin-bottom: 8px;">
             <template raa-flow:for="file in files" raa-key="file.path">
               <label style="display:flex; align-items:center; gap:6px; font-size:0.85rem; margin-bottom:4px; color: var(--text-primary); cursor:pointer;">
-                <input type="checkbox" raa-on:change="toggleContextFile(file.path, $event)" />
+                <input type="checkbox" raa-bind:checked="aiContextFiles.includes(file.path)" raa-on:change="toggleContextFile(file.path, $event)" />
                 <span raa-bind:text="file.name"></span>
               </label>
             </template>
@@ -718,19 +721,15 @@
             Konfigurasikan GitHub di tab <strong>Config</strong> terlebih dahulu.
           </div>
           <div raa-flow:show="ghConnected">
-            <!-- UI hint jika belum scan -->
-            <div raa-flow:show="!ghChecked" style="text-align:center; padding:20px; color:var(--text-muted); font-size:0.85rem; background:rgba(255,140,95,0.05); border:1px solid rgba(255,140,95,0.2); border-radius:6px; margin-bottom:16px;">
-              Klik <strong>"Deteksi Perubahan"</strong> di tab Sync terlebih dahulu, atau tunggu scan otomatis...
-              <button raa-on:click="checkGitHubSync()" class="btn btn-sm btn-primary" style="margin-top:10px;" raa-ux:disable="ghSyncLoading">
-                <span raa-flow:show="!ghSyncLoading">Scan Sekarang</span>
-                <span raa-flow:show="ghSyncLoading">Memindai...</span>
-              </button>
+            <!-- Prompt scan jika belum pernah scan -->
+            <div raa-flow:show="!ghChecked" style="text-align:center; padding:20px; color:var(--text-muted); font-size:0.85rem;">
+              <p>Scan GitHub diperlukan untuk menampilkan file.</p>
+              <button raa-on:click="checkGitHubSync()" class="btn btn-primary btn-sm" style="margin-top:10px;">Scan Sekarang</button>
             </div>
 
-            <!-- Konten Manage tab (hanya tampil setelah scan) -->
             <div raa-flow:show="ghChecked">
               <div class="warn-box" raa-flow:show="remoteOnlyFiles.length > 0" style="background: rgba(255,140,95,0.1); border:1px solid var(--accent-orange); padding:8px; border-radius:6px; margin-bottom:12px; font-size:0.8rem;">
-                Ditemukan <span raa-bind:text="remoteOnlyFiles.length"></span> file di GitHub yang tidak ada di lokal.
+                ⚠️ Ditemukan <span raa-bind:text="remoteOnlyFiles.length"></span> file di GitHub yang tidak ada di lokal.
               </div>
               <div class="form-group">
                 <label>Hapus File dari GitHub (Remote Only)</label>
@@ -742,6 +741,9 @@
                       <span class="file-badge" style="background: rgba(232,125,168,0.15); color: var(--accent-rose);">Remote Only</span>
                     </label>
                   </template>
+                </div>
+                <div raa-flow:show="remoteOnlyFiles.length === 0" style="text-align:center; padding:12px; color:var(--text-muted); font-size:0.8rem;">
+                  Semua file remote sudah ada di lokal.
                 </div>
                 <div raa-flow:show="files.length > 0" style="margin-top: 12px;">
                   <label style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-secondary); margin-bottom: 8px; display:block;">Atau Hapus File Lokal dari GitHub</label>
@@ -756,19 +758,17 @@
                   </div>
                 </div>
               </div>
-
-              <!-- Progress bar delete -->
+              <!-- Select All / Cancel -->
+              <div class="flex gap-2" style="margin-bottom:8px;">
+                <button raa-on:click="selectAllManage(true)" class="btn btn-sm">Pilih Semua</button>
+                <button raa-on:click="selectAllManage(false)" class="btn btn-sm">Batal</button>
+              </div>
+              <!-- Delete progress -->
               <div class="progress-box" raa-flow:show="ghDeleteProgress > 0">
                 <div class="progress-track">
                   <div class="progress-fill" raa-bind:style="{ width: ghDeleteProgress + '%' }"></div>
                 </div>
                 <div class="progress-text" raa-bind:text="ghDeleteProgress + '% menghapus...'"></div>
-              </div>
-
-              <!-- Tombol Semua/Batal + Hapus -->
-              <div class="flex gap-2" style="margin-bottom:8px;">
-                <button raa-on:click="selectAllManage(true)" class="btn btn-sm">Pilih Semua</button>
-                <button raa-on:click="selectAllManage(false)" class="btn btn-sm">Batal</button>
               </div>
               <div class="flex gap-2 mt-3">
                 <button raa-on:click="executeGitHubDelete()" class="btn btn-danger flex-1" raa-ux:disable="ghUploadLoading || !hasSelectedManageFiles">
@@ -847,18 +847,71 @@
 
   <!-- ═════════ SCRIPT ═════════ -->
 <script>
+// ✅ Zero-Dependency GitHub Wrapper (Native fetch)
+class GitHubAPI {
+  constructor(token) {
+    this.base = 'https://api.github.com';
+    this.headers = {
+      'Accept': 'application/vnd.github+json',
+      'X-GitHub-Api-Version': '2022-11-28',
+      'Authorization': `Bearer ${token}`
+    };
+  }
+  async _req(method, path, body) {
+    const opts = {
+      method,
+      headers: {
+        ...this.headers
+      }
+    };
+    if (body) opts.body = JSON.stringify(body);
+    const res = await fetch(`${this.base}${path}`, opts);
+    if (!res.ok) {
+      const err = await res.json()
+        .catch(() => ({
+          message: res.statusText
+        }));
+      throw new Error(err.message || `HTTP ${res.status}`);
+    }
+    return res.status === 204 ? null : res.json();
+  }
+  async test() {
+    const u = await this._req('GET', '/user');
+    return u.login;
+  }
+  async getContents(owner, repo, path, ref) {
+    const q = ref ? `?ref=${encodeURIComponent(ref)}` : '';
+    return this._req('GET', `/repos/${owner}/${repo}/contents/${path}${q}`);
+  }
+  async putFile(owner, repo, path, msg, content, branch, sha = null) {
+    return this._req('PUT', `/repos/${owner}/${repo}/contents/${path}`, {
+      message: msg,
+      content,
+      branch,
+      sha
+    });
+  }
+  async deleteFile(owner, repo, path, msg, branch, sha) {
+    return this._req('DELETE', `/repos/${owner}/${repo}/contents/${path}`, {
+      message: msg,
+      branch,
+      sha
+    });
+  }
+}
+
 RaaJS.define('studio', () => {
   const DB_NAME = 'RaaJS_Studio_DB';
   const DB_VERSION = 1;
   const DEFAULT_FILES = [{
       path: 'index.html',
       name: 'index.html',
-      content: '<!DOCTYPE html>\n<html lang="id">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  <title>Proyek RaaJS</title>\n  <script src="raa.js"><\/script>\n  <style>\n    body { font-family: system-ui, sans-serif; padding: 40px; background: #f8f9fa; color: #333; }\n    h1 { color: #FF8C5F; }\n  </style>\n</head>\n<body>\n  <h1>Selamat Datang di RaaJS v3.1.0!</h1>\n  <p>Mulai kreasimu di sini. Data 100% lokal.</p>\n  <div raa-core:app="demo">\n    <p raa-bind:text="message"></p>\n    <button raa-on:click="update()">Klik Saya</button>\n  </div>\n  <script>\n    RaaJS.define(\'demo\', () => ({\n      state: { message: \'Halo dari RaaJS!\' },\n      methods: { update() { this.message = \'State bereaksi secara otomatis!\'; } }\n    }));\n  <\/script>\n</body>\n</html>'
+      content: `<!DOCTYPE html>\n<html lang="id">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  <title>Proyek RaaJS</title>\n  <script src="raa.js"><\/script>\n  <style>\n    body { font-family: system-ui, sans-serif; padding: 40px; background: #f8f9fa; color: #333; }\n    h1 { color: #FF8C5F; }\n  </style>\n</head>\n<body>\n  <h1>Selamat Datang di RaaJS v3.1.0!</h1>\n  <p>Mulai kreasimu di sini. Data 100% lokal.</p>\n  <div raa-core:app="demo">\n    <p raa-bind:text="message"></p>\n    <button raa-on:click="update()">Klik Saya</button>\n  </div>\n  <script>\n    RaaJS.define('demo', () => ({\n      state: { message: 'Halo dari RaaJS!' },\n      methods: { update() { this.message = 'State bereaksi secara otomatis!'; } }\n    }));\n  <\/script>\n</body>\n</html>`
     },
     {
       path: 'README.md',
       name: 'README.md',
-      content: '# Proyek RaaJS\n\nWorkspace ini menggunakan RaaJS v3.1.0.\n\n## Prinsip\n> State adalah sumber kebenaran. Template adalah cermin pasif.'
+      content: `# Proyek RaaJS\n\nWorkspace ini menggunakan RaaJS v3.1.0.\n\n## Prinsip\n> State adalah sumber kebenaran. Template adalah cermin pasif.`
     }
   ];
 
@@ -866,45 +919,6 @@ RaaJS.define('studio', () => {
   let _gh = null;
   let _saveTimer = null;
   let _msgId = 0;
-
-  class GitHubAPI {
-    constructor(token) {
-      this.base = 'https://api.github.com';
-      this.headers = {
-        'Accept': 'application/vnd.github+json',
-        'X-GitHub-Api-Version': '2022-11-28',
-        'Authorization': 'Bearer ' + token
-      };
-    }
-    async _req(method, path, body) {
-      const opts = { method, headers: { ...this.headers } };
-      if (body) opts.body = JSON.stringify(body);
-      const res = await fetch(this.base + path, opts);
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({ message: res.statusText }));
-        throw new Error(err.message || 'HTTP ' + res.status);
-      }
-      return res.status === 204 ? null : res.json();
-    }
-    async test() {
-      const u = await this._req('GET', '/user');
-      return u.login;
-    }
-    async getContents(owner, repo, path, ref) {
-      const q = ref ? '?ref=' + encodeURIComponent(ref) : '';
-      return this._req('GET', '/repos/' + owner + '/' + repo + '/contents/' + path + q);
-    }
-    async putFile(owner, repo, path, msg, content, branch, sha) {
-      return this._req('PUT', '/repos/' + owner + '/' + repo + '/contents/' + path, {
-        message: msg, content, branch, sha: sha || null
-      });
-    }
-    async deleteFile(owner, repo, path, msg, branch, sha) {
-      return this._req('DELETE', '/repos/' + owner + '/' + repo + '/contents/' + path, {
-        message: msg, branch, sha
-      });
-    }
-  }
 
   return {
     state: {
@@ -953,17 +967,11 @@ RaaJS.define('studio', () => {
       toastVisible: false,
       toastMessage: '',
       toastType: 'success',
+      activeFileName: 'Pilih Berkas',
+      isPreviewable: false,
       expandedFolders: {}
     },
     computed: {
-      activeFileName() {
-        if (!this.activeFilePath) return 'Pilih Berkas';
-        const f = this.files.find(x => x.path === this.activeFilePath);
-        return f ? f.name : 'Pilih Berkas';
-      },
-      isPreviewable() {
-        return this.files.some(f => f.path === 'index.html');
-      },
       treeEmpty() {
         return this.files.length === 0;
       },
@@ -981,115 +989,91 @@ RaaJS.define('studio', () => {
         return vals.some(s => s === 'pending') ? 'pending' : 'synced';
       },
       pendingSyncCount() {
-        return this.ghSyncResults.filter(r => r.status === 'pending').length;
+        return this.ghSyncResults.filter(r => r.status === 'pending')
+          .length;
       },
       selectedSyncCount() {
-        return this.ghSyncResults.filter(r => r.selected).length;
+        return this.ghSyncResults.filter(r => r.selected)
+          .length;
       },
       remoteOnlyFiles() {
         if (!this.ghConnected || !this.ghSyncResults.length) return [];
         const localPaths = this.files.map(f => f.path);
-        return this.ghSyncResults.filter(r => !localPaths.includes(r.path)).map(r => ({
-          path: r.path,
-          sha: r.sha
-        }));
+        return this.ghSyncResults.filter(r => !localPaths.includes(r.path))
+          .map(r => ({
+            path: r.path,
+            sha: r.sha
+          }));
       },
       hasSelectedManageFiles() {
-        return Object.values(this.ghManageSel).some(v => v);
+        return Object.values(this.ghManageSel)
+          .some(selected => selected);
+      },
+      editorStatusLabel() {
+        if (this.unsavedChanges) return '● Modified';
+        if (this.lastSaved) return 'Saved ' + this.lastSaved;
+        return 'Ready';
       },
       sortedTreeItems() {
         const items = [];
-        const folderSet = new Set();
-
-        // Collect all folder paths from file paths
+        const folders = new Set();
         this.files.forEach(f => {
           const parts = f.path.split('/');
           let currentPath = '';
           for (let i = 0; i < parts.length - 1; i++) {
-            currentPath = currentPath ? currentPath + '/' + parts[i] : parts[i];
-            folderSet.add(currentPath);
+            currentPath = currentPath ? `${currentPath}/${parts[i]}` : parts[i];
+            folders.add(currentPath);
           }
         });
-
-        // Build a tree structure for hierarchical sorting
-        const root = { children: [], folderMap: {} };
-
-        // Add folders to tree
-        folderSet.forEach(fp => {
-          const parts = fp.split('/');
-          let node = root;
-          let currentPath = '';
-          for (const part of parts) {
-            currentPath = currentPath ? currentPath + '/' + part : part;
-            if (!node.folderMap[part]) {
-              const newNode = { path: currentPath, name: part, children: [], folderMap: {} };
-              node.folderMap[part] = newNode;
-              node.children.push({ 
-                type: 'folder', 
-                path: currentPath, 
-                name: part, 
-                node: newNode
-              });
-            }
-            node = node.folderMap[part];
-          }
+        folders.forEach(fp => {
+          if (this.expandedFolders[fp] === undefined) this.expandedFolders[fp] = true;
         });
-
-        // Add files to tree
-        this.files.forEach(f => {
-          const parts = f.path.split('/');
-          let node = root;
-          for (let i = 0; i < parts.length - 1; i++) {
-            const part = parts[i];
-            if (node.folderMap[part]) {
-              node = node.folderMap[part];
-            }
-          }
-          node.children.push({ type: 'file', path: f.path, name: f.name });
-        });
-
-        // Sort children at each level: folders first, then alphabetical by name
-        const sortChildren = (children) => {
-          children.sort((a, b) => {
-            if (a.type !== b.type) return a.type === 'folder' ? -1 : 1;
-            return a.name.localeCompare(b.name);
+        folders.forEach(folderPath => {
+          const depth = folderPath.split('/')
+            .length - 1;
+          const name = folderPath.split('/')
+            .pop();
+          items.push({
+            key: `folder_${folderPath}`,
+            path: folderPath,
+            name: name,
+            isFolder: true,
+            depth: depth
           });
-        };
-
-        const flatten = (parentNode, depth) => {
-          sortChildren(parentNode.children);
-          for (const child of parentNode.children) {
-            if (child.type === 'folder') {
-              items.push({
-                key: 'folder_' + child.path,
-                path: child.path,
-                name: child.name,
-                isFolder: true,
-                depth: depth
-              });
-              // ✅ FIX 1: Validasi node valid sebelum recursive
-              if (child.node && this.expandedFolders[child.path] !== false) {
-                flatten(child.node, depth + 1);
+        });
+        this.files.forEach(f => {
+          const parts = f.path.split('/');
+          const parentDir = parts.length > 1 ? parts.slice(0, -1)
+            .join('/') : '';
+          let isVisible = true;
+          if (parentDir) {
+            const ancestors = parentDir.split('/');
+            let p = '';
+            for (const seg of ancestors) {
+              p = p ? `${p}/${seg}` : seg;
+              if (this.expandedFolders[p] === false) {
+                isVisible = false;
+                break;
               }
-            } else {
-              items.push({
-                key: 'file_' + child.path,
-                path: child.path,
-                name: child.name,
-                isFolder: false,
-                depth: depth
-              });
             }
           }
-        };
-
-        flatten(root, 0);
-        return items;
+          if (isVisible) {
+            items.push({
+              key: `file_${f.path}`,
+              path: f.path,
+              name: f.name,
+              isFolder: false,
+              depth: parts.length - 1
+            });
+          }
+        });
+        return items.sort((a, b) => {
+          if (a.isFolder !== b.isFolder) return a.isFolder ? -1 : 1;
+          return a.path.localeCompare(b.path);
+        });
       }
     },
     init() {
-      // ✅ FIX: Initialize expandedFolders
-      this.expandedFolders = {};
       this._loadUIPersist();
       this._checkApiKey();
       this._loadGitHubConfig();
@@ -1108,6 +1092,7 @@ RaaJS.define('studio', () => {
             }
           }
           this._initGhStatus();
+          if (this.ghConnected) this._updateGitHubStatus();
           if (this.showPreview) this.runPreview();
         })
         .catch(err => {
@@ -1117,20 +1102,17 @@ RaaJS.define('studio', () => {
         });
     },
     methods: {
-      _ghStatus(path) {
-        return this.ghFileStatus[path] || '';
-      },
       getPathParts(path) {
         const parts = path.split('/');
         return {
-          dir: parts.length > 1 ? parts.slice(0, -1).join('/') : '',
+          dir: parts.length > 1 ? parts.slice(0, -1)
+            .join('/') : '',
           name: parts[parts.length - 1],
           isFolder: false
         };
       },
       toggleFolder(dirPath) {
-        const currentState = this.expandedFolders[dirPath] !== false;
-        this.expandedFolders = Object.assign({}, this.expandedFolders, { [dirPath]: !currentState });
+        this.expandedFolders[dirPath] = !this.expandedFolders[dirPath];
       },
       toggleAiContextPicker() {
         this.showAiContextPicker = !this.showAiContextPicker;
@@ -1142,16 +1124,14 @@ RaaJS.define('studio', () => {
           this.aiContextFiles = this.aiContextFiles.filter(p => p !== path);
         }
       },
-      // ✅ FIX 2: toggleManageSel - Gunakan raa-bind:checked + raa-on:change
-      toggleManageSel(path, event) {
-        const sel = Object.assign({}, this.ghManageSel);
-        sel[path] = event.target.checked;
-        this.ghManageSel = sel;
-      },
       handleSnippetSelect(event) {
         const s = event.target.value;
         if (!s) return;
-        this.insertText(s.replace(/&quot;/g, '"').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/-&gt;/g, '->'));
+        this.insertText(s.replace(/&quot;/g, '"')
+          .replace(/&amp;/g, '&')
+          .replace(/&lt;/g, '<')
+          .replace(/&gt;/g, '>')
+          .replace(/-&gt;/g, '->'));
         event.target.selectedIndex = 0;
       },
       toggleTree() {
@@ -1172,13 +1152,11 @@ RaaJS.define('studio', () => {
       },
       openGitHubModal() {
         this.showGitHubModal = true;
-        this.ghManageSel = {};
         if (this.ghConnected && !this.ghChecked) setTimeout(() => this.checkGitHubSync(), 300);
       },
       closeGitHubModal() {
         this.showGitHubModal = false;
         this.ghUploadProgress = 0;
-        this.ghDeleteProgress = 0;
       },
       openNewFileModal() {
         this.showNewFileModal = true;
@@ -1187,11 +1165,25 @@ RaaJS.define('studio', () => {
         this.showNewFileModal = false;
         this.newFileName = '';
       },
-      // ✅ FIX 5: setGhTab - Auto-scan saat buka Manage tab
       setGhTab(t) {
         this.ghTab = t;
         if (t === 'manage' && this.ghConnected && !this.ghChecked) {
           setTimeout(() => this.checkGitHubSync(), 300);
+        }
+      },
+      toggleManageSel(path, event) {
+        const sel = Object.assign({}, this.ghManageSel);
+        sel[path] = event.target.checked;
+        this.ghManageSel = sel;
+      },
+      selectAllManage(val) {
+        if (val) {
+          const sel = {};
+          this.remoteOnlyFiles.forEach(f => { sel[f.path] = true; });
+          this.files.forEach(f => { sel[f.path] = true; });
+          this.ghManageSel = sel;
+        } else {
+          this.ghManageSel = {};
         }
       },
       selectFile(path) {
@@ -1199,6 +1191,7 @@ RaaJS.define('studio', () => {
         if (f) {
           this.activeFilePath = f.path;
           this.activeFileContent = f.content;
+          this.activeFileName = f.name;
           this.unsavedChanges = false;
         }
       },
@@ -1213,7 +1206,11 @@ RaaJS.define('studio', () => {
           f.content = this.activeFileContent;
           this._saveFile(f);
           this.unsavedChanges = false;
-          this.lastSaved = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+          this.lastSaved = new Date()
+            .toLocaleTimeString('id-ID', {
+              hour: '2-digit',
+              minute: '2-digit'
+            });
           if (this.ghConnected && this.ghAutoSync) {
             this._markGhPending(this.activeFilePath);
             setTimeout(() => this.checkGitHubSync(), 800);
@@ -1231,7 +1228,8 @@ RaaJS.define('studio', () => {
       insertText(ch) {
         const ta = this.$refs.editorTextarea;
         if (!ta) return;
-        const s = ta.selectionStart, e = ta.selectionEnd;
+        const s = ta.selectionStart,
+          e = ta.selectionEnd;
         this.activeFileContent = this.activeFileContent.substring(0, s) + ch + this.activeFileContent.substring(e);
         this.unsavedChanges = true;
         setTimeout(() => {
@@ -1242,28 +1240,36 @@ RaaJS.define('studio', () => {
         this.handleEditorInput();
       },
       createNewFile() {
-        let name = (this.newFileName || '').trim().replace(/\\/g, '/');
+        let name = (this.newFileName || '')
+          .trim()
+          .replace(/\\/g, '/');
         if (!name) return;
         if (this.files.some(f => f.path === name)) {
           this.showToast('Berkas sudah ada!', 'warning');
           return;
         }
-        const nf = { path: name, name: name.split('/').pop(), content: '' };
+        const nf = {
+          path: name,
+          name: name.split('/')
+            .pop(),
+          content: ''
+        };
         this._saveFile(nf);
         this.files.push(nf);
         const parts = name.split('/');
         if (parts.length > 1) {
           let parent = '';
-          const updates = {};
           for (let i = 0; i < parts.length - 1; i++) {
-            parent = parent ? parent + '/' + parts[i] : parts[i];
-            updates[parent] = true;
+            parent = parent ? `${parent}/${parts[i]}` : parts[i];
+            this.expandedFolders[parent] = true;
           }
-          this.expandedFolders = Object.assign({}, this.expandedFolders, updates);
         }
-        this.ghFileStatus = Object.assign({}, this.ghFileStatus, { [name]: 'pending' });
+        Object.assign(this.ghFileStatus, {
+          [name]: 'pending'
+        });
         this.activeFilePath = nf.path;
         this.activeFileContent = nf.content;
+        this.activeFileName = nf.name;
         this.unsavedChanges = false;
         this.closeNewFileModal();
         this.showToast('Berkas "' + name + '" dibuat', 'success');
@@ -1275,7 +1281,7 @@ RaaJS.define('studio', () => {
         }
       },
       async deleteFile(path) {
-        if (!confirm('Hapus "' + path + '"?')) return;
+        if (!confirm(`Hapus "${path}"?`)) return;
         await this._deleteFile(path);
         this.files = this.files.filter(f => f.path !== path);
         if (this.activeFilePath === path) {
@@ -1283,13 +1289,15 @@ RaaJS.define('studio', () => {
           else {
             this.activeFilePath = '';
             this.activeFileContent = '';
+            this.activeFileName = 'Pilih Berkas';
           }
         }
         if (this.ghFileStatus[path]) {
-          const rest = Object.assign({}, this.ghFileStatus);
-          delete rest[path];
-          this.ghFileStatus = rest;
+          const s = Object.assign({}, this.ghFileStatus);
+          delete s[path];
+          this.ghFileStatus = s;
         }
+        this.isPreviewable = this.files.some(f => f.path === 'index.html');
         this.showToast('Berkas dihapus', 'success');
       },
       runPreview() {
@@ -1307,31 +1315,34 @@ RaaJS.define('studio', () => {
         if (other.length > 0) {
           let inj = '<!-- Injected by RaaJS Studio -->\n';
           other.forEach(f => {
-            if (f.path.endsWith('.css')) inj += '<style data-file="' + f.path + '">\n' + f.content + '\n</style>\n';
-            else if (f.path.endsWith('.js')) inj += '<script data-file="' + f.path + '">\n' + f.content + '\n<\/script>\n';
+            if (f.path.endsWith('.css')) inj += `<style data-file="${f.path}">\n${f.content}\n</style>\n`;
+            else if (f.path.endsWith('.js')) inj += `<script data-file="${f.path}">\n${f.content}\n<\/script>\n`;
           });
           const pos = html.indexOf('</head>');
           html = pos > -1 ? html.substring(0, pos) + inj + html.substring(pos) : inj + html;
         }
-        frame.srcdoc = html.replace(/<head([^>]*)>/i, '<head$1><base href="' + window.location.href.replace(/\/[^/]*$/, '/') + '">');
-        setTimeout(() => { this.previewLoading = false; }, 250);
+        frame.srcdoc = html.replace(/<head([^>]*)>/i, `<head$1><base href="${window.location.href.replace(/\/[^/]*$/, '/')}">`);
+        setTimeout(() => {
+          this.previewLoading = false;
+        }, 250);
       },
       startResizeTree(e) {
-        this._startResize(e, 'tree', this.$refs.panelTree, 200, 360);
+        this._startResize(e, 'tree', 'tree', 200, 360);
       },
       startResizePreview(e) {
-        const previewPanel = this.$refs.resizePreview?.parentElement?.querySelector('.panel-preview');
-        this._startResize(e, 'preview', previewPanel, 320, 600);
+        this._startResize(e, 'preview', 'preview', 320, 600);
       },
-      // ✅ FIX 8: _startResize - Gunakan $refs bukan querySelector
-      _startResize(e, name, panelEl, min, max) {
+      _startResize(e, name, refName, min, max) {
         e.preventDefault();
-        if (!panelEl) return;
-        const startX = e.clientX, startW = panelEl.offsetWidth, handle = e.target;
+        const handle = e.target;
+        const panel = handle.previousElementSibling;
+        if (!panel) return;
+        const startX = e.clientX;
+        const startW = panel.offsetWidth;
         handle.classList.add('dragging');
         const onMove = ev => {
           const d = name === 'tree' ? (ev.clientX - startX) : (startX - ev.clientX);
-          panelEl.style.width = Math.max(min, Math.min(max, startW + d)) + 'px';
+          panel.style.width = Math.max(min, Math.min(max, startW + d)) + 'px';
         };
         const onUp = () => {
           document.removeEventListener('mousemove', onMove);
@@ -1342,9 +1353,13 @@ RaaJS.define('studio', () => {
         document.addEventListener('mouseup', onUp);
       },
       saveApiKey() {
-        const key = (this.aiKeyInput || '').trim();
+        const key = (this.aiKeyInput || '')
+          .trim();
         if (!key) return;
-        localStorage.setItem('RaaJS_Gemini_Session', JSON.stringify({ key, expiry: Date.now() + 86400000 }));
+        localStorage.setItem('RaaJS_Gemini_Session', JSON.stringify({
+          key,
+          expiry: Date.now() + 86400000
+        }));
         this.aiKey = key;
         this.aiHasKey = true;
         this.showSettings = false;
@@ -1380,32 +1395,56 @@ RaaJS.define('studio', () => {
         }
       },
       async sendMessage() {
-        const text = (this.chatInput || '').trim();
+        const text = (this.chatInput || '')
+          .trim();
         if (!text || this.aiLoading || !this.aiKey) return;
         _msgId++;
-        this.aiMessages.push({ id: 'msg-' + _msgId, sender: 'user', text });
+        this.aiMessages.push({
+          id: 'msg-' + _msgId,
+          sender: 'user',
+          text
+        });
         this.chatInput = '';
         this._scrollChat();
         this.aiLoading = true;
         const ctx = this.aiContextFiles.length ? this.files.filter(f => this.aiContextFiles.includes(f.path)) : [];
-        const hist = this.aiMessages.map(m => ({ role: m.sender === 'user' ? 'user' : 'model', parts: [{ text: m.text }] }));
-        const ctxTxt = ctx.map(f => 'File "' + f.name + '":\n' + f.content).join('\n\n');
-        if (ctxTxt) hist.unshift({ role: 'system', parts: [{ text: 'Context file terkait:\n' + ctxTxt }] });
-        const url = 'https://generativelanguage.googleapis.com/v1beta/models/' + this.aiModel + ':generateContent?key=' + this.aiKey;
-        let res = '', ok = false, back = 1000;
+        const hist = this.aiMessages.map(m => ({
+          role: m.sender === 'user' ? 'user' : 'model',
+          parts: [{
+            text: m.text
+          }]
+        }));
+        const ctxTxt = ctx.map(f => `File "${f.name}":\n${f.content}`)
+          .join('\n\n');
+        if (ctxTxt) hist.unshift({
+          role: 'system',
+          parts: [{
+            text: `Context file terkait:\n${ctxTxt}`
+          }]
+        });
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${this.aiModel}:generateContent?key=${this.aiKey}`;
+        let res = '',
+          ok = false,
+          back = 1000;
         for (let i = 0; i < 5; i++) {
           try {
             const r = await fetch(url, {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
+              headers: {
+                'Content-Type': 'application/json'
+              },
               body: JSON.stringify({
                 contents: hist,
-                systemInstruction: { parts: [{ text: 'Anda adalah asisten ahli RaaJS v3.1.0...' }] }
+                systemInstruction: {
+                  parts: [{
+                    text: 'Anda adalah asisten ahli RaaJS v3.1.0...'
+                  }]
+                }
               })
             });
             if (r.ok) {
               const d = await r.json();
-              res = (d.candidates && d.candidates[0] && d.candidates[0].content && d.candidates[0].content.parts && d.candidates[0].content.parts[0] && d.candidates[0].content.parts[0].text) || 'Respon kosong.';
+              res = d.candidates?.[0]?.content?.parts?.[0]?.text || 'Respon kosong.';
               ok = true;
               break;
             } else if (r.status === 429) {
@@ -1413,13 +1452,19 @@ RaaJS.define('studio', () => {
               ok = true;
               break;
             }
-          } catch (e) { console.warn(e); }
+          } catch (e) {
+            console.warn(e);
+          }
           await new Promise(r => setTimeout(r, back));
           back *= 2;
         }
         if (!ok) res = 'Gagal terhubung ke AI setelah 5 percobaan. Periksa API Key atau koneksi.';
         _msgId++;
-        this.aiMessages.push({ id: 'msg-' + _msgId, sender: 'model', text: res });
+        this.aiMessages.push({
+          id: 'msg-' + _msgId,
+          sender: 'model',
+          text: res
+        });
         this.aiLoading = false;
         this._scrollChat();
       },
@@ -1439,7 +1484,6 @@ RaaJS.define('studio', () => {
             this.ghBranch = c.branch || 'main';
             this.ghRootPath = c.rootPath || 'dist';
             this.ghAutoSync = c.autoSync || false;
-            this.ghRepoInput = this.ghRepo;
             if (this.ghToken && this.ghRepo) {
               this._initGitHubClient();
             }
@@ -1447,14 +1491,17 @@ RaaJS.define('studio', () => {
         }
       },
       saveGitHubConfig() {
-        const token = (this.ghTokenInput || '').trim();
-        const repo = (this.ghRepoInput || '').trim();
+        const token = (this.ghTokenInput || '')
+          .trim(),
+          repo = (this.ghRepoInput || '')
+          .trim();
         if (!token || !repo) {
           this.showToast('Token dan Repository wajib diisi', 'error');
           return;
         }
         localStorage.setItem('RaaJS_GitHub_Config', JSON.stringify({
-          token, repo,
+          token,
+          repo,
           branch: this.ghBranch,
           rootPath: this.ghRootPath,
           autoSync: this.ghAutoSync
@@ -1476,7 +1523,8 @@ RaaJS.define('studio', () => {
         }
       },
       async testGitHubConnection() {
-        const token = (this.ghTokenInput || '').trim() || this.ghToken;
+        const token = (this.ghTokenInput || '')
+          .trim() || this.ghToken;
         if (!token) {
           this.ghTestResult = 'Token diperlukan';
           this.ghTestError = true;
@@ -1487,7 +1535,7 @@ RaaJS.define('studio', () => {
         try {
           const client = new GitHubAPI(token);
           const login = await client.test();
-          this.ghTestResult = 'Terhubung sebagai @' + login;
+          this.ghTestResult = `Terhubung sebagai @${login}`;
           this.ghTestError = false;
           this.ghToken = token;
           this._initGitHubClient();
@@ -1495,7 +1543,7 @@ RaaJS.define('studio', () => {
         } catch (e) {
           this.ghTestResult = e.message;
           this.ghTestError = true;
-          this.showToast('Gagal: ' + e.message, 'error');
+          this.showToast(`Gagal: ${e.message}`, 'error');
         }
       },
       async checkGitHubSync() {
@@ -1506,12 +1554,8 @@ RaaJS.define('studio', () => {
         this.ghSyncLoading = true;
         this.ghSyncResults = [];
         this.ghChecked = true;
-        this.ghManageSel = {};
         try {
-          const repoStr = this.ghRepo || this.ghRepoInput;
-          const parts = repoStr.split('/');
-          const owner = parts[0];
-          const repo = parts[1];
+          const [owner, repo] = this.ghRepo.split('/');
           if (!owner || !repo) throw new Error('Format: username/repo');
           const basePath = this.ghRootPath || '';
           const allGhFiles = [];
@@ -1532,8 +1576,11 @@ RaaJS.define('studio', () => {
           await walk(basePath);
           const ghMap = {};
           allGhFiles.forEach(f => {
-            const relativePath = basePath ? f.path.replace(new RegExp('^' + basePath + '/'), '') : f.path;
-            ghMap[relativePath] = { sha: f.sha, fullPath: f.path };
+            const relativePath = basePath ? f.path.replace(new RegExp(`^${basePath}/`), '') : f.path;
+            ghMap[relativePath] = {
+              sha: f.sha,
+              fullPath: f.path
+            };
           });
           const localPaths = this.files.map(f => f.path);
           const results = await Promise.all(this.files.map(async lf => {
@@ -1544,51 +1591,66 @@ RaaJS.define('studio', () => {
               try {
                 const resp = await _gh.getContents(owner, repo, ghMap[lf.path].fullPath, this.ghBranch);
                 status = (this._b64Decode(resp.content) === lf.content) ? 'synced' : 'pending';
-              } catch (e) { status = 'pending'; }
+              } catch (e) {
+                status = 'pending';
+              }
             }
-            return { path: lf.path, status, selected: status === 'pending', sha };
+            return {
+              path: lf.path,
+              status,
+              selected: status === 'pending',
+              sha
+            };
           }));
-          Object.keys(ghMap).forEach(relPath => {
-            if (!localPaths.includes(relPath)) {
-              results.push({ path: relPath, status: 'remote-only', selected: false, sha: ghMap[relPath].sha });
-            }
-          });
+          Object.keys(ghMap)
+            .forEach(relPath => {
+              if (!localPaths.includes(relPath)) {
+                results.push({
+                  path: relPath,
+                  status: 'remote-only',
+                  selected: false,
+                  sha: ghMap[relPath].sha
+                });
+              }
+            });
           this.ghSyncResults = results;
           const batch = {};
-          results.forEach(r => { if (r.status !== 'remote-only') batch[r.path] = r.status; });
-          this.ghFileStatus = Object.assign({}, this.ghFileStatus, batch);
-          const pending = results.filter(r => r.status === 'pending').length;
-          const remoteOnly = results.filter(r => r.status === 'remote-only').length;
-          this.showToast(pending === 0 && remoteOnly === 0 ? 'Semua file tersinkron!' : pending + ' perlu upload, ' + remoteOnly + ' remote-only', pending === 0 && remoteOnly === 0 ? 'success' : 'warning');
+          results.forEach(r => {
+            if (r.status !== 'remote-only') batch[r.path] = r.status;
+          });
+          Object.assign(this.ghFileStatus, batch);
+          const pending = results.filter(r => r.status === 'pending')
+            .length;
+          const remoteOnly = results.filter(r => r.status === 'remote-only')
+            .length;
+          this.showToast(pending === 0 && remoteOnly === 0 ? 'Semua file tersinkron!' : `${pending} perlu upload, ${remoteOnly} remote-only`, pending === 0 && remoteOnly === 0 ? 'success' : 'warning');
         } catch (e) {
           console.error(e);
-          this.showToast('Gagal memeriksa sync: ' + e.message, 'error');
+          this.showToast(`Gagal memeriksa sync: ${e.message}`, 'error');
         }
         this.ghSyncLoading = false;
       },
       _initGhStatus() {
         const b = {};
-        this.files.forEach(f => { b[f.path] = 'pending'; });
-        this.ghFileStatus = b;
+        this.files.forEach(f => b[f.path] = 'pending');
+        Object.assign(this.ghFileStatus, b);
       },
       _markGhPending(p) {
-        this.ghFileStatus = Object.assign({}, this.ghFileStatus, { [p]: 'pending' });
+        Object.assign(this.ghFileStatus, {
+          [p]: 'pending'
+        });
       },
+      _updateGitHubStatus() {},
       selectAllSync(s) {
-        this.ghSyncResults = this.ghSyncResults.map(r => r.status === 'pending' ? Object.assign({}, r, { selected: s }) : r);
-      },
-      // ✅ FIX 6: selectAllManage - Tombol Pilih Semua/Batal di Manage tab
-      selectAllManage(val) {
-        const sel = {};
-        if (val) {
-          this.remoteOnlyFiles.forEach(f => { sel[f.path] = true; });
-          this.files.forEach(f => { sel[f.path] = true; });
-        }
-        this.ghManageSel = sel;
+        this.ghSyncResults = this.ghSyncResults.map(r => r.status === 'pending' ? {
+          ...r,
+          selected: s
+        } : r);
       },
       _b64Encode(str) {
         try {
-          const b = new TextEncoder().encode(str);
+          const b = new TextEncoder()
+            .encode(str);
           let bin = '';
           for (let i = 0; i < b.length; i += 0x8000) bin += String.fromCharCode.apply(null, b.subarray(i, i + 0x8000));
           return btoa(bin);
@@ -1601,41 +1663,44 @@ RaaJS.define('studio', () => {
           const b = atob(str.replace(/\s/g, ''));
           const u = new Uint8Array(b.length);
           for (let i = 0; i < b.length; i++) u[i] = b.charCodeAt(i);
-          return new TextDecoder().decode(u);
+          return new TextDecoder()
+            .decode(u);
         } catch (e) {
           return decodeURIComponent(escape(atob(str)));
         }
       },
-      async executeGitHubUpload(fromManage) {
+      async executeGitHubUpload(fromManage = false) {
         if (!this.ghConnected || !_gh) {
           this.showToast('GitHub belum terkoneksi', 'error');
           return;
         }
-        const files = fromManage ? this.files.filter(f => this.ghManageSel[f.path]) : this.ghSyncResults.filter(r => r.selected && r.status === 'pending').map(r => this.files.find(f => f.path === r.path)).filter(Boolean);
+        const files = fromManage ? this.files.filter(f => this.ghManageSel[f.path]) : this.ghSyncResults.filter(r => r.selected && r.status === 'pending')
+          .map(r => this.files.find(f => f.path === r.path))
+          .filter(Boolean);
         if (!files.length) {
           this.showToast('Pilih file untuk diupload', 'warning');
           return;
         }
         this.ghUploadLoading = true;
         this.ghUploadProgress = 0;
-        const repoStr = this.ghRepo;
-        const parts = repoStr.split('/');
-        const owner = parts[0];
-        const repo = parts[1];
+        const [owner, repo] = this.ghRepo.split('/');
         const basePath = this.ghRootPath ? this.ghRootPath.replace(/\/$/, '') : '';
         let done = 0;
         try {
           await Promise.all(files.map(async file => {
-            const githubPath = basePath ? basePath + '/' + file.path : file.path;
+            const githubPath = basePath ? `${basePath}/${file.path}` : file.path;
             try {
               let sha = null;
               try {
-                sha = (await _gh.getContents(owner, repo, githubPath, this.ghBranch)).sha;
+                sha = (await _gh.getContents(owner, repo, githubPath, this.ghBranch))
+                  .sha;
               } catch (e) {
                 if (!e.message.includes('404')) throw e;
               }
-              await _gh.putFile(owner, repo, githubPath, 'Update via RaaJS Studio: ' + file.path, this._b64Encode(file.content), this.ghBranch, sha);
-              this.ghFileStatus = Object.assign({}, this.ghFileStatus, { [file.path]: 'synced' });
+              await _gh.putFile(owner, repo, githubPath, `Update via RaaJS Studio: ${file.path}`, this._b64Encode(file.content), this.ghBranch, sha);
+              Object.assign(this.ghFileStatus, {
+                [file.path]: 'synced'
+              });
               const sr = this.ghSyncResults.find(x => x.path === file.path);
               if (sr) {
                 sr.status = 'synced';
@@ -1643,51 +1708,50 @@ RaaJS.define('studio', () => {
               }
             } catch (e) {
               console.error(e);
-              this.ghFileStatus = Object.assign({}, this.ghFileStatus, { [file.path]: 'error' });
-              this.showToast('Gagal upload ' + file.path, 'error');
+              Object.assign(this.ghFileStatus, {
+                [file.path]: 'error'
+              });
+              this.showToast(`Gagal upload ${file.path}`, 'error');
             } finally {
               done++;
               this.ghUploadProgress = Math.round((done / files.length) * 100);
             }
           }));
-          this.showToast(done + ' file berhasil diupload!', 'success');
+          this.showToast(`${done} file berhasil diupload!`, 'success');
         } catch (e) {
           console.error(e);
-          this.showToast('Error: ' + e.message, 'error');
+          this.showToast(`Error: ${e.message}`, 'error');
         }
         this.ghUploadLoading = false;
-        setTimeout(() => { this.ghUploadProgress = 0; }, 1200);
+        setTimeout(() => this.ghUploadProgress = 0, 1200);
       },
-      // ✅ FIX 3, 4, 7: executeGitHubDelete - Reactivity, SHA optimization, Progress bar
       async executeGitHubDelete() {
         if (!this.ghConnected || !_gh) {
           this.showToast('GitHub belum terkoneksi', 'error');
           return;
         }
-        const selectedPaths = Object.keys(this.ghManageSel).filter(path => this.ghManageSel[path]);
+        const selectedPaths = Object.keys(this.ghManageSel)
+          .filter(path => this.ghManageSel[path]);
         if (!selectedPaths.length) {
           this.showToast('Pilih file untuk dihapus', 'warning');
           return;
         }
-        if (!confirm('Hapus ' + selectedPaths.length + ' file dari GitHub?\n\nFile yang dipilih akan PERMANEN dihapus dari repository.')) return;
+        if (!confirm('Hapus ' + selectedPaths.length + ' file dari GitHub?\n\nFile: ' + selectedPaths.join(', ') + '\n\nPERMANEN dihapus dari repository.')) return;
         this.ghUploadLoading = true;
         this.ghDeleteProgress = 0;
-        const repoStr = this.ghRepo;
-        const parts = repoStr.split('/');
-        const owner = parts[0];
-        const repo = parts[1];
+        const [owner, repo] = this.ghRepo.split('/');
         const basePath = this.ghRootPath ? this.ghRootPath.replace(/\/$/, '') : '';
         let deleteDone = 0;
         try {
           await Promise.all(selectedPaths.map(async path => {
-            const githubPath = basePath ? `${basePath}/${path}` : path;
+            const githubPath = basePath ? basePath + '/' + path : path;
             try {
-              // ✅ FIX 4: Cek SHA dari remoteOnlyFiles dulu (sudah ada dari scan)
+              // Gunakan SHA dari remoteOnlyFiles (sudah ada dari scan), hindari fetch ulang
               const remoteFile = this.remoteOnlyFiles.find(f => f.path === path);
               let sha = remoteFile ? remoteFile.sha : null;
-              
+
               if (!sha) {
-                // Fallback: fetch SHA dari GitHub
+                // Fallback: fetch SHA dari GitHub API
                 try {
                   const remoteData = await _gh.getContents(owner, repo, githubPath, this.ghBranch);
                   sha = remoteData.sha;
@@ -1696,26 +1760,25 @@ RaaJS.define('studio', () => {
                   throw e;
                 }
               }
-              
-              await _gh.deleteFile(owner, repo, githubPath, `Hapus via RaaJS Studio: ${path}`, this.ghBranch, sha);
+
+              await _gh.deleteFile(owner, repo, githubPath, 'Hapus via RaaJS Studio: ' + path, this.ghBranch, sha);
+              // Fix reactivity: reassign object, jangan delete langsung
               if (this.ghFileStatus[path]) {
-                // ✅ FIX 3: Gunakan reassignment bukan delete operator
                 const s = Object.assign({}, this.ghFileStatus);
                 delete s[path];
                 this.ghFileStatus = s;
               }
               this.ghSyncResults = this.ghSyncResults.filter(r => r.path !== path);
             } catch (e) {
-              console.error(`Gagal hapus ${path}:`, e);
-              this.showToast(`Gagal hapus ${path}: ${e.message}`, 'error');
+              console.error('Gagal hapus ' + path + ':', e);
+              this.showToast('Gagal hapus ' + path + ': ' + e.message, 'error');
             } finally {
-              // ✅ FIX 7: Progress bar saat delete
               deleteDone++;
               this.ghDeleteProgress = Math.round((deleteDone / selectedPaths.length) * 100);
             }
           }));
-          this.showToast(selectedPaths.length + ' file berhasil dihapus dari GitHub', 'success');
-          // ✅ FIX 3: Reset ghManageSel dengan reassignment
+          this.showToast(deleteDone + ' file berhasil dihapus dari GitHub', 'success');
+          // Fix reactivity: reassign ghManageSel
           const clean = Object.assign({}, this.ghManageSel);
           selectedPaths.forEach(p => { delete clean[p]; });
           this.ghManageSel = clean;
@@ -1730,13 +1793,19 @@ RaaJS.define('studio', () => {
         if (!confirm('Reset ke file bawaan?')) return;
         this.loadingFiles = true;
         const tx = _db.transaction('files', 'readwrite');
-        tx.objectStore('files').clear();
-        await new Promise(r => { tx.oncomplete = r; });
-        const defs = DEFAULT_FILES.map(f => ({ path: f.path, name: f.name, content: f.content }));
+        tx.objectStore('files')
+          .clear();
+        await new Promise(r => tx.oncomplete = r);
+        const defs = DEFAULT_FILES.map(f => ({
+          path: f.path,
+          name: f.name,
+          content: f.content
+        }));
         for (const d of defs) await this._saveFile(d);
         this.files = defs;
         this.activeFilePath = defs[0].path;
         this.activeFileContent = defs[0].content;
+        this.activeFileName = defs[0].name;
         this.unsavedChanges = false;
         this._initGhStatus();
         this.loadingFiles = false;
@@ -1748,15 +1817,16 @@ RaaJS.define('studio', () => {
         localStorage.removeItem('RaaJS_GitHub_Config');
         localStorage.removeItem('RaaJS_UI_Persist');
         const tx = _db.transaction('files', 'readwrite');
-        tx.objectStore('files').clear();
-        await new Promise(r => { tx.oncomplete = r; });
+        tx.objectStore('files')
+          .clear();
+        await new Promise(r => tx.oncomplete = r);
         location.reload();
       },
-      showToast(msg, type) {
+      showToast(msg, type = 'success') {
         this.toastMessage = msg;
-        this.toastType = type || 'success';
+        this.toastType = type;
         this.toastVisible = true;
-        setTimeout(() => { this.toastVisible = false; }, 3500);
+        setTimeout(() => this.toastVisible = false, 3500);
       },
       _saveUIPersist() {
         try {
@@ -1783,40 +1853,58 @@ RaaJS.define('studio', () => {
           const req = indexedDB.open(DB_NAME, DB_VERSION);
           req.onupgradeneeded = e => {
             const db = e.target.result;
-            if (!db.objectStoreNames.contains('files')) db.createObjectStore('files', { keyPath: 'path' });
+            if (!db.objectStoreNames.contains('files')) db.createObjectStore('files', {
+              keyPath: 'path'
+            });
           };
-          req.onsuccess = e => { _db = e.target.result; resolve(); };
+          req.onsuccess = e => {
+            _db = e.target.result;
+            resolve();
+          };
           req.onerror = e => reject(e.target.error);
         });
       },
       async _loadFiles() {
         const tx = _db.transaction('files', 'readonly');
         const items = await new Promise(r => {
-          const req = tx.objectStore('files').getAll();
+          const req = tx.objectStore('files')
+            .getAll();
           req.onsuccess = () => r(req.result);
           req.onerror = () => r([]);
         });
         if (!items.length) {
-          const defs = DEFAULT_FILES.map(f => ({ path: f.path, name: f.name, content: f.content }));
+          const defs = DEFAULT_FILES.map(f => ({
+            path: f.path,
+            name: f.name,
+            content: f.content
+          }));
           for (const d of defs) await this._saveFile(d);
           this.files = defs;
         } else {
           this.files = items;
         }
+        this.isPreviewable = this.files.some(f => f.path === 'index.html');
       },
       _saveFile(f) {
         const tx = _db.transaction('files', 'readwrite');
-        tx.objectStore('files').put({ path: f.path, name: f.name, content: f.content });
-        return new Promise(r => { tx.oncomplete = r; });
+        tx.objectStore('files')
+          .put({
+            path: f.path,
+            name: f.name,
+            content: f.content
+          });
+        return new Promise(r => tx.oncomplete = r);
       },
       _deleteFile(p) {
         const tx = _db.transaction('files', 'readwrite');
-        tx.objectStore('files').delete(p);
-        return new Promise(r => { tx.oncomplete = r; });
+        tx.objectStore('files')
+          .delete(p);
+        return new Promise(r => tx.oncomplete = r);
       }
     }
   };
 });
+
 </script>
 </body>
 </html>
