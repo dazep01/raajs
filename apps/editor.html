@@ -349,459 +349,493 @@
 <base target="_blank">
 </head>
 <body>
-    <div raa-core:app="studio" class="flex-col w-full h-full">
+  <div raa-core:app="studio" class="flex-col w-full h-full">
 
-        <!-- ═════════ HEADER ═════════ -->
-        <header>
-            <div class="header-brand">
-                <div class="header-brand-icon">R</div>
-                <div class="header-brand-text">
-                    <h1>Raa<span>JS</span> STUDIO</h1>
-                    <p v3.1.0 "Data Liberation"</p>
+    <!-- ═════════ HEADER ═════════ -->
+    <header>
+      <div class="header-brand">
+        <div class="header-brand-icon">R</div>
+        <div class="header-brand-text">
+          <h1>Raa<span>JS</span> STUDIO</h1>
+          <p>v3.1.0 "Data Liberation"</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="badge" raa-on:click="openGitHubModal()" title="Kelola GitHub">
+          <span class="badge-dot" raa-bind:class="githubDotClass"></span>
+          <span raa-bind:text="githubStatusLabel"></span>
+        </button>
+        <button raa-on:click="toggleSettings()" class="btn-icon" title="Pengaturan">
+          <svg width="18" height="18" fill="currentColor" viewBox="0 0 256 256"><path d="M128,80a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,80a32,32,0,1,1,32-32A32,32,0,0,1,128,160Zm88-29.84q.06-2.16,0-4.32l14.92-18.64a8,8,0,0,0,1.48-7.06,107.21,107.21,0,0,0-10.88-26.25,8,8,0,0,0-6-3.93l-23.72-2.64q-1.48-1.56-3-3L186,40.54a8,8,0,0,0-3.94-6,107.71,107.71,0,0,0-26.25-10.87,8,8,0,0,0-7.06,1.49L130.16,40Q128,40,125.84,40L107.2,25.11a8,8,0,0,0-7.06-1.48A107.6,107.6,0,0,0,73.89,34.51a8,8,0,0,0-3.93,6L67.32,64.27q-1.56,1.49-3,3L40.54,70a8,8,0,0,0-6,3.94,107.71,107.71,0,0,0-10.87,26.25,8,8,0,0,0,1.49,7.06L40,125.84Q40,128,40,130.16L25.11,148.8a8,8,0,0,0-1.48,7.06,107.21,107.21,0,0,0,10.88,26.25,8,8,0,0,0,6,3.93l23.72,2.64q1.49,1.56,3,3L70,215.46a8,8,0,0,0,3.94,6,107.71,107.71,0,0,0,26.25,10.87,8,8,0,0,0,7.06-1.49L125.84,216q2.16.06,4.32,0l18.64,14.92a8,8,0,0,0,7.06,1.48,107.21,107.21,0,0,0,26.25-10.88,8,8,0,0,0,3.93-6l2.64-23.72q1.56-1.48,3-3L215.46,186a8,8,0,0,0,6-3.94,107.71,107.71,0,0,0,10.87-26.25,8,8,0,0,0-1.49-7.06Zm-16.1-6.5a73.93,73.93,0,0,1,0,8.68,8,8,0,0,0,1.74,5.48l14.19,17.73a91.57,91.57,0,0,1-6.23,15L187,173.11a8,8,0,0,0-5.1,2.64,74.11,74.11,0,0,1-6.14,6.14,8,8,0,0,0-2.64,5.1l-2.51,22.58a91.32,91.32,0,0,1-15,6.23l-17.74-14.19a8,8,0,0,0-5-1.75h-.48a73.93,73.93,0,0,1-8.68,0,8,8,0,0,0-5.48,1.74L100.45,215.8a91.57,91.57,0,0,1-15-6.23L82.89,187a8,8,0,0,0-2.64-5.1,74.11,74.11,0,0,1-6.14-6.14,8,8,0,0,0-5.1-2.64L46.43,170.6a91.32,91.32,0,0,1-6.23-15l14.19-17.74a8,8,0,0,0,1.74-5.48,73.93,73.93,0,0,1,0-8.68,8,8,0,0,0-1.74-5.48L40.2,100.45a91.57,91.57,0,0,1,6.23-15L69,82.89a8,8,0,0,0,5.1-2.64,74.11,74.11,0,0,1,6.14-6.14A8,8,0,0,0,82.89,69L85.4,46.43a91.32,91.32,0,0,1,15-6.23l17.74,14.19a8,8,0,0,0,5.48,1.74,73.93,73.93,0,0,1,8.68,0,8,8,0,0,0,5.48-1.74L155.55,40.2a91.57,91.57,0,0,1,15,6.23L173.11,69a8,8,0,0,0,2.64,5.1,74.11,74.11,0,0,1,6.14,6.14,8,8,0,0,0,5.1,2.64l22.58,2.51a91.32,91.32,0,0,1,6.23,15l-14.19,17.74A8,8,0,0,0,199.87,123.66Z"/></svg>
+        </button>
+        <button raa-on:click="toggleChat()" class="btn-icon" title="Tanya AI">
+          <svg width="18" height="18" fill="currentColor" viewBox="0 0 256 256"><path d="M132,24A100.11,100.11,0,0,0,32,124v84a16,16,0,0,0,16,16h84a100,100,0,0,0,0-200Zm0,184H48V124a84,84,0,1,1,84,84Zm12-80a12,12,0,1,1-12-12A12,12,0,0,1,144,128Zm-44,0a12,12,0,1,1-12-12A12,12,0,0,1,100,128Zm88,0a12,12,0,1,1-12-12A12,12,0,0,1,188,128Z"/></svg>
+        </button>
+        <button raa-on:click="openGitHubModal()" class="btn btn-primary btn-sm" title="GitHub Connector">
+          <svg width="15" height="15" fill="currentColor" viewBox="0 0 256 256"><path d="M128,24A104,104,0,0,0,95.2,202.13c5.2.93,7.11-2.27,7.11-5,0-2.47-.09-9-.13-17.65-28.94,6.29-35-13.93-35-13.93-4.73-12-11.58-15.22-11.58-15.22-9.47-6.48.72-6.35.72-6.35,10.49.74,16,10.77,16,10.77,9.32,15.94,24.45,11.33,30.38,8.66a21.14,21.14,0,0,1,6.29-13.28c-22.94-2.61-47.06-11.47-47.06-51a39.89,39.89,0,0,1,10.64-27.6c-1.07-2.61-4.62-13.14,1-27.4,0,0,8.7-2.79,28.48,10.6a98.33,98.33,0,0,1,51.84,0c19.76-13.4,28.45-10.6,28.45-10.6,5.63,14.26,2.09,24.79,1,27.4A39.84,39.84,0,0,1,193.6,120c0,39.63-24.17,48.37-47.17,50.93a24.68,24.68,0,0,1,7,19.14c0,13.82-.13,24.94-.13,28.33,0,2.75,1.86,5.94,7.14,4.94A104,104,0,0,0,128,24Z"/></svg>
+          GitHub
+        </button>
+      </div>
+    </header>
+
+    <!-- ═════════ WORKSPACE ═════════ -->
+    <div class="workspace">
+
+      <!-- TREE PANEL -->
+      <section class="panel panel-tree" raa-flow:show="showTree">
+        <div class="panel-header">
+          <span>Struktur Proyek</span>
+          <button raa-on:click="openNewFileModal()" class="btn btn-sm">+ Berkas</button>
+        </div>
+        <div class="tree-scroll">
+          <div raa-flow:show="loadingFiles" class="tree-loading">Memuat data proyek...</div>
+          <div raa-flow:show="!loadingFiles && treeEmpty" class="tree-empty">Proyek kosong. Buat berkas pertama.</div>
+          <div raa-flow:show="!loadingFiles && !treeEmpty" class="flex-col">
+            <template raa-flow:for="item in files" raa-key="item.path">
+              <div class="tree-item"
+                   raa-bind:class="{ 'active': activeFilePath === item.path, 'pending': ghFileStatus[item.path] === 'pending', 'synced': ghFileStatus[item.path] === 'synced' }"
+                   raa-on:click="selectFile(item.path)">
+                <div class="tree-item-left">
+                  <span class="tree-item-status" raa-bind:class="ghFileStatus[item.path] || 'none'" raa-flow:show="ghConnected"></span>
+                  <span class="tree-item-name" raa-bind:text="item.name"></span>
                 </div>
-            </div>
-            <div class="header-actions">
-                <button class="badge" raa-on:click="openGitHubModal()" title="Kelola GitHub">
-                    <span class="badge-dot" raa-bind:class="githubDotClass"></span>
-                    <span raa-bind:text="githubStatusLabel"></span>
+                <button raa-on:click.stop="deleteFile(item.path)" class="tree-delete" title="Hapus">
+                  <svg width="14" height="14" fill="currentColor" viewBox="0 0 256 256"><path d="M216,40H68.53a16.08,16.08,0,0,0-13.72,7.77L9.14,123.88a8,8,0,0,0,0,8.24l45.67,76.11A16.08,16.08,0,0,0,68.53,216H216a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40ZM61.67,204.12,68.53,200h0ZM216,200H68.53l-43.2-72,43.2-72H216ZM106.34,146.34,124.69,128l-18.35-18.34a8,8,0,0,1,11.32-11.32L136,116.69l18.34-18.35a8,8,0,0,1,11.32,11.32L147.31,128l18.35,18.34a8,8,0,0,1-11.32,11.32L136,139.31l-18.34,18.35a8,8,0,0,1-11.32-11.32Z"/></svg>
                 </button>
-                <button raa-on:click="toggleSettings()" class="btn-icon" title="Pengaturan">
-                    <svg width="18" height="18" fill="currentColor" viewBox="0 0 256 256"><path d="M128,80a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,80a32,32,0,1,1,32-32A32,32,0,0,1,128,160Zm88-29.84q.06-2.16,0-4.32l14.92-18.64a8,8,0,0,0,1.48-7.06,107.21,107.21,0,0,0-10.88-26.25,8,8,0,0,0-6-3.93l-23.72-2.64q-1.48-1.56-3-3L186,40.54a8,8,0,0,0-3.94-6,107.71,107.71,0,0,0-26.25-10.87,8,8,0,0,0-7.06,1.49L130.16,40Q128,40,125.84,40L107.2,25.11a8,8,0,0,0-7.06-1.48A107.6,107.6,0,0,0,73.89,34.51a8,8,0,0,0-3.93,6L67.32,64.27q-1.56,1.49-3,3L40.54,70a8,8,0,0,0-6,3.94,107.71,107.71,0,0,0-10.87,26.25,8,8,0,0,0,1.49,7.06L40,125.84Q40,128,40,130.16L25.11,148.8a8,8,0,0,0-1.48,7.06,107.21,107.21,0,0,0,10.88,26.25,8,8,0,0,0,6,3.93l23.72,2.64q1.49,1.56,3,3L70,215.46a8,8,0,0,0,3.94,6,107.71,107.71,0,0,0,26.25,10.87,8,8,0,0,0,7.06-1.49L125.84,216q2.16.06,4.32,0l18.64,14.92a8,8,0,0,0,7.06,1.48,107.21,107.21,0,0,0,26.25-10.88,8,8,0,0,0,3.93-6l2.64-23.72q1.56-1.48,3-3L215.46,186a8,8,0,0,0,6-3.94,107.71,107.71,0,0,0,10.87-26.25,8,8,0,0,0-1.49-7.06Zm-16.1-6.5a73.93,73.93,0,0,1,0,8.68,8,8,0,0,0,1.74,5.48l14.19,17.73a91.57,91.57,0,0,1-6.23,15L187,173.11a8,8,0,0,0-5.1,2.64,74.11,74.11,0,0,1-6.14,6.14,8,8,0,0,0-2.64,5.1l-2.51,22.58a91.32,91.32,0,0,1-15,6.23l-17.74-14.19a8,8,0,0,0-5-1.75h-.48a73.93,73.93,0,0,1-8.68,0,8,8,0,0,0-5.48,1.74L100.45,215.8a91.57,91.57,0,0,1-15-6.23L82.89,187a8,8,0,0,0-2.64-5.1,74.11,74.11,0,0,1-6.14-6.14,8,8,0,0,0-5.1-2.64L46.43,170.6a91.32,91.32,0,0,1-6.23-15l14.19-17.74a8,8,0,0,0,1.74-5.48,73.93,73.93,0,0,1,0-8.68,8,8,0,0,0-1.74-5.48L40.2,100.45a91.57,91.57,0,0,1,6.23-15L69,82.89a8,8,0,0,0,5.1-2.64,74.11,74.11,0,0,1,6.14-6.14A8,8,0,0,0,82.89,69L85.4,46.43a91.32,91.32,0,0,1,15-6.23l17.74,14.19a8,8,0,0,0,5.48,1.74,73.93,73.93,0,0,1,8.68,0,8,8,0,0,0,5.48-1.74L155.55,40.2a91.57,91.57,0,0,1,15,6.23L173.11,69a8,8,0,0,0,2.64,5.1,74.11,74.11,0,0,1,6.14,6.14,8,8,0,0,0,5.1,2.64l22.58,2.51a91.32,91.32,0,0,1,6.23,15l-14.19,17.74A8,8,0,0,0,199.87,123.66Z"/></svg>
-                </button>
-                <button raa-on:click="toggleChat()" class="btn-icon" title="Tanya AI">
-                    <svg width="18" height="18" fill="currentColor" viewBox="0 0 256 256"><path d="M132,24A100.11,100.11,0,0,0,32,124v84a16,16,0,0,0,16,16h84a100,100,0,0,0,0-200Zm0,184H48V124a84,84,0,1,1,84,84Zm12-80a12,12,0,1,1-12-12A12,12,0,0,1,144,128Zm-44,0a12,12,0,1,1-12-12A12,12,0,0,1,100,128Zm88,0a12,12,0,1,1-12-12A12,12,0,0,1,188,128Z"/></svg>
-                </button>
-                <button raa-on:click="openGitHubModal()" class="btn btn-primary btn-sm" title="GitHub Connector">
-                    <svg width="15" height="15" fill="currentColor" viewBox="0 0 256 256"><path d="M128,24A104,104,0,0,0,95.2,202.13c5.2.93,7.11-2.27,7.11-5,0-2.47-.09-9-.13-17.65-28.94,6.29-35-13.93-35-13.93-4.73-12-11.58-15.22-11.58-15.22-9.47-6.48.72-6.35.72-6.35,10.49.74,16,10.77,16,10.77,9.32,15.94,24.45,11.33,30.38,8.66a21.14,21.14,0,0,1,6.29-13.28c-22.94-2.61-47.06-11.47-47.06-51a39.89,39.89,0,0,1,10.64-27.6c-1.07-2.61-4.62-13.14,1-27.4,0,0,8.7-2.79,28.48,10.6a98.33,98.33,0,0,1,51.84,0c19.76-13.4,28.45-10.6,28.45-10.6,5.63,14.26,2.09,24.79,1,27.4A39.84,39.84,0,0,1,193.6,120c0,39.63-24.17,48.37-47.17,50.93a24.68,24.68,0,0,1,7,19.14c0,13.82-.13,24.94-.13,28.33,0,2.75,1.86,5.94,7.14,4.94A104,104,0,0,0,128,24Z"/></svg>
-                    GitHub
-                </button>
-            </div>
-        </header>
+              </div>
+            </template>
+          </div>
+        </div>
+      </section>
+      <div class="resize-handle" raa-core:ref="resizeTree" raa-on:mousedown="startResizeTree($event)"></div>
 
-        <!-- ═════════ WORKSPACE ═════════ -->
-        <div class="workspace">
-            <!-- TREE PANEL -->
-            <section class="panel panel-tree" raa-flow:show="showTree">
-                <div class="panel-header">
-                    <span>Struktur Proyek</span>
-                    <button raa-on:click="openNewFileModal()" class="btn btn-sm">+ Berkas</button>
-                </div>
-                <div class="tree-scroll">
-                    <div raa-flow:show="loadingFiles" class="tree-loading">Memuat data proyek...</div>
-                    <div raa-flow:show="!loadingFiles && treeEmpty" class="tree-empty">Proyek kosong. Buat berkas pertama.</div>
-                    <div raa-flow:show="!loadingFiles && !treeEmpty" class="flex-col">
-                        <template raa-flow:for="item in files" raa-key="item.path">
-                            <div class="tree-item" raa-bind:class="{ 'active': activeFilePath === item.path, 'pending': ghFileStatus[item.path] === 'pending', 'synced': ghFileStatus[item.path] === 'synced' }" raa-on:click="selectFile(item.path)">
-                                <div class="tree-item-left">
-                                    <span class="tree-item-status" raa-bind:class="ghFileStatus[item.path] || 'none'" raa-flow:show="ghConnected"></span>
-                                    <span class="tree-item-name" raa-bind:text="item.name"></span>
-                                </div>
-                                <button raa-on:click.stop="deleteFile(item.path)" class="tree-delete" title="Hapus">
-                                    <svg width="14" height="14" fill="currentColor" viewBox="0 0 256 256"><path d="M216,40H68.53a16.08,16.08,0,0,0-13.72,7.77L9.14,123.88a8,8,0,0,0,0,8.24l45.67,76.11A16.08,16.08,0,0,0,68.53,216H216a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40ZM61.67,204.12,68.53,200h0ZM216,200H68.53l-43.2-72,43.2-72H216ZM106.34,146.34,124.69,128l-18.35-18.34a8,8,0,0,1,11.32-11.32L136,116.69l18.34-18.35a8,8,0,0,1,11.32,11.32L147.31,128l18.35,18.34a8,8,0,0,1-11.32,11.32L136,139.31l-18.34,18.35a8,8,0,0,1-11.32-11.32Z"/></svg>
-                                </button>
-                            </div>
-                        </template>
-                    </div>
-                </div>
-            </section>
-            <div class="resize-handle" raa-core:ref="resizeTree" raa-on:mousedown="startResizeTree($event)"></div>
-
-            <!-- EDITOR PANEL -->
-            <section class="panel panel-editor">
-                <div class="editor-tabs">
-                    <div class="editor-tab-active">
-                        <svg width="12" height="12" fill="var(--accent-orange)" viewBox="0 0 256 256"><path d="M213.66,82.34l-56-56A8,8,0,0,0,152,24H56A16,16,0,0,0,40,40V216a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V88A8,8,0,0,0,213.66,82.34ZM160,51.31,188.69,80H160ZM200,216H56V40H88V88a8,8,0,0,0,8,8h48a8,8,0,0,0,0-16H104V40h56V88a8,8,0,0,0,8,8h40V216Z"/></svg>
-                        <span raa-bind:text="activeFileName"></span>
-                    </div>
-                    <div class="editor-tab-status" raa-bind:class="{ 'unsaved': unsavedChanges }" raa-bind:text="unsavedChanges ? '● Modified' : (lastSaved ? 'Saved ' + lastSaved : 'Ready')">
-                    </div>
-                    <div style="display: flex; gap: 4px; margin-left: auto;">
-                        <button raa-on:click="toggleTree()" class="btn-icon" title="Toggle Tree">
-                            <svg width="16" height="16" fill="var(--accent-purple)" viewBox="0 0 256 256"><path d="M160,112h48a16,16,0,0,0,16-16V48a16,16,0,0,0-16-16H160a16,16,0,0,0-16,16V64H128a24,24,0,0,0-24,24v32H72v-8A16,16,0,0,0,56,96H24A16,16,0,0,0,8,112v32a16,16,0,0,0,16,16H56a16,16,0,0,0,16-16v-8h32v32a24,24,0,0,0,24,24h16v16a16,16,0,0,0,16,16h48a16,16,0,0,0,16-16V160a16,16,0,0,0-16-16H160a16,16,0,0,0-16,16v16H128a8,8,0,0,1-8-8V88a8,8,0,0,1,8-8h16V96A16,16,0,0,0,160,112ZM56,144H24V112H56v32Zm104,16h48v48H160Zm0-112h48V96H160Z"/></svg>
-                        </button>
-                        <button raa-on:click="togglePreview()" class="btn-icon" title="Toggle Preview">
-                            <svg width="16" height="16" fill="var(--accent-mint)" viewBox="0 0 256 256"><path d="M208,40H48A24,24,0,0,0,24,64V176a24,24,0,0,0,24,24H208a24,24,0,0,0,24-24V64A24,24,0,0,0,208,40Zm8,136a8,8,0,0,1-8,8H48a8,8,0,0,1-8-8V64a8,8,0,0,1,8-8H208a8,8,0,0,1,8,8Zm-48,48a8,8,0,0,1-8,8H96a8,8,0,0,1,0-16h64A8,8,0,0,1,168,224Zm-3.56-110.66-48-32A8,8,0,0,0,104,88v64a8,8,0,0,0,12.44,6.66l48-32a8,8,0,0,0,0-13.32ZM120,137.05V103l25.58,17Z"/></svg>
-                        </button>
-                    </div>
-                </div>
-                <div class="editor-body">
-                    <textarea raa-core:ref="editorTextarea" raa-bind:model="activeFileContent" raa-on:input="handleEditorInput()" placeholder="/* Pilih berkas atau mulai menulis kode RaaJS Anda */" class="editor-textarea" raa-on:keydown="handleEditorKeydown($event)"></textarea>
-<div class="editor-toolbar">
-    <!-- Basic chars -->
-    <button raa-on:click="insertText('	')" class="toolbar-btn" title="Tab">Tab</button>
-    <button raa-on:click="insertText('{')" class="toolbar-btn" title="{ }">{ }</button>
-    <button raa-on:click="insertText('[')" class="toolbar-btn" title="[ ]">[ ]</button>
-    <button raa-on:click="insertText('()')" class="toolbar-btn" title="( )">( )</button>
-    <button raa-on:click="insertText(';')" class="toolbar-btn" title=";">;</button>
-    
-    <!-- Snippet dropdown (kompak) -->
-    <select class="toolbar-select" raa-on:change="insertSnippet($event.target.value); $event.target.selectedIndex = 0;">
-        <option value="">⚡ Directive...</option>
-        <optgroup label="🔗 Bind">
-            <option value="raa-bind:text=&quot;&quot;">bind:text</option>
-            <option value="raa-bind:html=&quot;&quot;">bind:html</option>
-            <option value="raa-bind:model=&quot;&quot;">bind:model</option>
-            <option value="raa-bind:class=&quot;{ : }&quot;">bind:class</option>
-            <option value="raa-bind:style=&quot;{ : }&quot;">bind:style</option>
-        </optgroup>
-        <optgroup label="🔀 Flow">
-            <option value="raa-flow:if=&quot;&quot;">flow:if</option>
-            <option value="raa-flow:for=&quot;item in list&quot;">flow:for</option>
-            <option value="raa-flow:show=&quot;&quot;">flow:show</option>
-        </optgroup>
-        <optgroup label="🎯 Events">
-            <option value="raa-on:click=&quot;&quot;">on:click</option>
-            <option value="raa-on:submit.prevent=&quot;&quot;">on:submit.prevent</option>
-        </optgroup>
-        <optgroup label="⚙️ Core">
-            <option value="raa-core:app=&quot;&quot;">core:app</option>
-            <option value="raa-core:init=&quot;Object.assign($state, { })&quot;">core:init</option>
-            <option value="raa-core:ref=&quot;&quot;">core:ref</option>
-        </optgroup>
-        <optgroup label="🏝️ Eco">
-            <option value="raa-eco:island">eco:island</option>
-            <option value="raa-eco:persist=&quot;&quot;">eco:persist</option>
-            <option value="raa-eco:router">eco:router</option>
-            <option value="raa-eco:route=&quot;&quot;">eco:route</option>
-        </optgroup>
-        <optgroup label="🌐 Net">
-            <option value="raa-net:fetch=&quot;'url' -&gt; data&quot;">net:fetch</option>
-            <option value="raa-net:sync=&quot;'ws://url' -&gt; data&quot;">net:sync</option>
-        </optgroup>
-        <optgroup label="✨ UX">
-            <option value="raa-ux:lazy">ux:lazy</option>
-            <option value="raa-ux:focus">ux:focus</option>
-            <option value="raa-ux:loading=&quot;&quot;">ux:loading</option>
-            <option value="raa-ux:disable=&quot;&quot;">ux:disable</option>
-        </optgroup>
-    </select>
-
-    <!-- Tombol brand sering dipakai (label ultra-pendek) -->
-    <button raa-on:click="insertText('raa-bind:')" class="toolbar-btn brand" title="raa-bind:*">b:</button>
-    <button raa-on:click="insertText('raa-flow:')" class="toolbar-btn brand" title="raa-flow:*">f:</button>
-    <button raa-on:click="insertText('raa-on:')" class="toolbar-btn brand" title="raa-on:*">@:</button>
-    <button raa-on:click="insertText('raa-core:')" class="toolbar-btn brand" title="raa-core:*">c:</button>
-    <button raa-on:click="insertText('raa-eco:')" class="toolbar-btn brand" title="raa-eco:*">e:</button>
-    <button raa-on:click="insertText('raa-net:')" class="toolbar-btn brand" title="raa-net:*">n:</button>
-    <button raa-on:click="insertText('raa-ux:')" class="toolbar-btn brand" title="raa-ux:*">x:</button>
-
-    <!-- Save button -->
-    <button raa-on:click="saveActiveFile()" class="toolbar-btn" style="margin-left: auto; border-color: rgba(255,140,95,0.3); color: var(--accent-orange);" title="Save (Ctrl+S)">
-        <svg width="12" height="12" fill="currentColor" viewBox="0 0 256 256" style="vertical-align: middle; margin-right: 4px;"><path d="M216,40H68.53a16.08,16.08,0,0,0-13.72,7.77L9.14,123.88a8,8,0,0,0,0,8.24l45.67,76.11A16.08,16.08,0,0,0,68.53,216H216a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40ZM61.67,204.12,68.53,200h0ZM216,200H68.53l-43.2-72,43.2-72H216Z"/></svg>
-        Save
-    </button>
-</div>
-                </div>
-                <div class="editor-statusbar">
-                    <div raa-bind:text="files.length + ' files' + (ghConnected ? ' | GitHub: ' + ghRepo : '')"></div>
-                    <div raa-bind:text="activeFileContent.length + ' chars | RaaJS v3.1.0'"></div>
-                </div>
-            </section>
-            <div class="resize-handle" raa-core:ref="resizePreview" raa-on:mousedown="startResizePreview($event)"></div>
-
-            <!-- PREVIEW PANEL -->
-            <section class="panel panel-preview" raa-flow:show="showPreview">
-                <div class="panel-header">
-                    <span>Live Preview</span>
-                    <button raa-on:click="runPreview()" class="btn btn-sm btn-primary" raa-ux:loading="previewLoading">
-                        <svg width="12" height="12" fill="currentColor" viewBox="0 0 256 256"><path d="M236.6,144.5l-96-64a8,8,0,0,0-12.4,6.6v42.4L44.6,80.5a8,8,0,0,0-12.4,6.6v82.8a8,8,0,0,0,12.4,6.6l83.6-48.6V192a8,8,0,0,0,12.4,6.6l96-64a8,8,0,0,0,0-13.2ZM40,156.4V99.6L104,128Zm112,35.6V64l72,48Z"/></svg>
-                        Run
-                    </button>
-                </div>
-                <div class="preview-frame-wrap" raa-core:ref="previewWrap">
-                    <div class="preview-boundary"></div>
-                    <iframe raa-core:ref="previewFrame" title="Preview"></iframe>
-                    <div class="preview-placeholder" raa-flow:show="!isPreviewable">
-                        <svg width="48" height="48" fill="var(--accent-orange)" viewBox="0 0 256 256" opacity="0.3"><path d="M208,40H48A24,24,0,0,0,24,64V176a24,24,0,0,0,24,24H208a24,24,0,0,0,24-24V64A24,24,0,0,0,208,40Zm8,136a8,8,0,0,1-8,8H48a8,8,0,0,1-8-8V64a8,8,0,0,1,8-8H208a8,8,0,0,1,8,8Zm-48,48a8,8,0,0,1-8,8H96a8,8,0,0,1,0-16h64A8,8,0,0,1,168,224Zm-3.56-110.66-48-32A8,8,0,0,0,104,88v64a8,8,0,0,0,12.44,6.66l48-32a8,8,0,0,0,0-13.32ZM120,137.05V103l25.58,17Z"/></svg>
-                        <h3>index.html tidak ditemukan</h3>
-                        <p>Buat file index.html untuk melihat preview.</p>
-                    </div>
-                </div>
-            </section>
-
-            <!-- CHAT PANEL -->
-            <aside class="panel-chat" raa-flow:show="showChat">
-                <div class="panel-header">
-                    <div class="flex-col" style="gap: 2px;">
-                        <span>RaaJS AI Asisten</span>
-                        <select raa-bind:model="aiModel" class="form-control" style="padding: 2px 8px; font-size: 0.65rem; height: 22px; min-height: 22px; width: 160px;">
-                            <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
-                            <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
-                            <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
-                            <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
-                        </select>
-                    </div>
-                    <button raa-on:click="toggleChat()" class="btn-icon">
-                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 256 256"><path d="M165.66,101.66,139.31,128l26.35,26.34a8,8,0,0,1-11.32,11.32L128,139.31l-26.34,26.35a8,8,0,0,1-11.32-11.32L116.69,128,90.34,101.66a8,8,0,0,1,11.32-11.32L128,116.69l26.34-26.35a8,8,0,0,1,11.32,11.32ZM232,128A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128Z"/></svg>
-                    </button>
-                </div>
-                <div class="chat-history" raa-core:ref="chatHistory">
-                    <div raa-flow:show="chatEmpty" class="chat-empty">
-                        <svg width="40" height="40" fill="var(--text-muted)" viewBox="0 0 256 256" style="margin-bottom: 12px; opacity: 0.5;"><path d="M132,24A100.11,100.11,0,0,0,32,124v84a16,16,0,0,0,16,16h84a100,100,0,0,0,0-200Zm0,184H48V124a84,84,0,1,1,84,84Zm12-80a12,12,0,1,1-12-12A12,12,0,0,1,144,128Zm-44,0a12,12,0,1,1-12-12A12,12,0,0,1,100,128Zm88,0a12,12,0,1,1-12-12A12,12,0,0,1,188,128Z"/></svg>
-                        <div>Belum ada percakapan.</div>
-                        <div style="font-size: 0.75rem; margin-top: 4px;">Atur API Key di pengaturan.</div>
-                    </div>
-                    <div raa-flow:show="!chatEmpty" class="flex-col" style="gap: 12px;">
-                        <template raa-flow:for="msg in aiMessages" raa-key="msg.id">
-                            <div class="chat-msg" raa-bind:class="{ 'user': msg.sender === 'user', 'model': msg.sender === 'model' }">
-                                <div class="chat-msg-meta" raa-bind:text="msg.sender === 'user' ? 'Anda' : 'Asisten AI'"></div>
-                                <div class="chat-msg-text" raa-bind:text="msg.text"></div>
-                            </div>
-                        </template>
-                    </div>
-                </div>
-
-                <div class="chat-input-area">
-                    <!-- ✅ FIX #1: Ganti assignment = dengan method call -->
-                    <!-- ✅ FIX #2: Ganti {{ }} dengan raa-bind:text -->
-                    <button class="btn btn-sm" raa-on:click="toggleAiContextPicker()" style="margin-bottom:8px;">
-                        Pilih File Context (<span raa-bind:text="aiContextFiles.length"></span>)
-                    </button>
-
-                    <div raa-flow:show="showAiContextPicker" style="max-height:150px; overflow:auto; background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 8px; margin-bottom: 8px;">
-                        <template raa-flow:for="file in files" raa-key="file.path">
-                            <label style="display:flex; align-items:center; gap:6px; font-size:0.85rem; margin-bottom:4px; color: var(--text-primary); cursor:pointer;">
-                                <!-- ✅ FIX #3: Checkbox array binding dengan includes() + handler -->
-                                <input type="checkbox" 
-                                       raa-bind:checked="aiContextFiles.includes(file.path)"
-                                       raa-on:change="toggleContextFile(file.path, $event)" />
-                                <!-- ✅ FIX #4: Ganti {{ file.name }} dengan raa-bind:text -->
-                                <span raa-bind:text="file.name"></span>
-                            </label>
-                        </template>
-                        <button class="btn btn-sm btn-primary" raa-on:click="toggleAiContextPicker()" style="width:100%;">Tutup</button>
-                    </div>
-
-                    <textarea raa-bind:model="chatInput" raa-ux:disable="aiLoading" placeholder="Tanya tentang RaaJS..." class="chat-textarea" raa-on:keydown="handleChatKeydown($event)"></textarea>
-                    <button raa-on:click="sendMessage()" raa-ux:disable="aiLoading || !chatInput" class="btn-icon" style="height: 44px; width: 44px; border-radius: var(--radius-md); flex-shrink: 0;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="#000000" viewBox="0 0 256 256"><path d="M227.32,28.68a16,16,0,0,0-15.66-4.08l-.15,0L19.57,82.84a16,16,0,0,0-2.49,29.8L102,154l41.3,84.87A15.86,15.86,0,0,0,157.74,248q.69,0,1.38-.06a15.88,15.88,0,0,0,14-11.51l58.2-191.94c0-.05,0-.1,0-.15A16,16,0,0,0,227.32,28.68ZM157.83,231.85l-.05.14,0-.07-40.06-82.3,48-48a8,8,0,0,0-11.31-11.31l-48,48L24.08,98.25l-.07,0,.14,0L216,40Z"></path></svg>
-                    </button>
-                </div>
-
-            </aside>
+      <!-- EDITOR PANEL -->
+      <section class="panel panel-editor">
+        <div class="editor-tabs">
+          <div class="editor-tab-active">
+            <svg width="12" height="12" fill="var(--accent-orange)" viewBox="0 0 256 256"><path d="M213.66,82.34l-56-56A8,8,0,0,0,152,24H56A16,16,0,0,0,40,40V216a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V88A8,8,0,0,0,213.66,82.34ZM160,51.31,188.69,80H160ZM200,216H56V40H88V88a8,8,0,0,0,8,8h48a8,8,0,0,0,0-16H104V40h56V88a8,8,0,0,0,8,8h40V216Z"/></svg>
+            <span raa-bind:text="activeFileName"></span>
+          </div>
+          <div class="editor-tab-status"
+               raa-bind:class="{ 'unsaved': unsavedChanges }"
+               raa-bind:text="unsavedChanges ? '● Modified' : (lastSaved ? 'Saved ' + lastSaved : 'Ready')">
+          </div>
+          <div style="display: flex; gap: 4px; margin-left: auto;">
+            <button raa-on:click="toggleTree()" class="btn-icon" title="Toggle Tree">
+              <svg width="16" height="16" fill="var(--accent-purple)" viewBox="0 0 256 256"><path d="M160,112h48a16,16,0,0,0,16-16V48a16,16,0,0,0-16-16H160a16,16,0,0,0-16,16V64H128a24,24,0,0,0-24,24v32H72v-8A16,16,0,0,0,56,96H24A16,16,0,0,0,8,112v32a16,16,0,0,0,16,16H56a16,16,0,0,0,16-16v-8h32v32a24,24,0,0,0,24,24h16v16a16,16,0,0,0,16,16h48a16,16,0,0,0,16-16V160a16,16,0,0,0-16-16H160a16,16,0,0,0-16,16v16H128a8,8,0,0,1-8-8V88a8,8,0,0,1,8-8h16V96A16,16,0,0,0,160,112ZM56,144H24V112H56v32Zm104,16h48v48H160Zm0-112h48V96H160Z"/></svg>
+            </button>
+            <button raa-on:click="togglePreview()" class="btn-icon" title="Toggle Preview">
+              <svg width="16" height="16" fill="var(--accent-mint)" viewBox="0 0 256 256"><path d="M208,40H48A24,24,0,0,0,24,64V176a24,24,0,0,0,24,24H208a24,24,0,0,0,24-24V64A24,24,0,0,0,208,40Zm8,136a8,8,0,0,1-8,8H48a8,8,0,0,1-8-8V64a8,8,0,0,1,8-8H208a8,8,0,0,1,8,8Zm-48,48a8,8,0,0,1-8,8H96a8,8,0,0,1,0-16h64A8,8,0,0,1,168,224Zm-3.56-110.66-48-32A8,8,0,0,0,104,88v64a8,8,0,0,0,12.44,6.66l48-32a8,8,0,0,0,0-13.32ZM120,137.05V103l25.58,17Z"/></svg>
+            </button>
+          </div>
         </div>
 
-        <!-- ═════════ NEW FILE MODAL ═════════ -->
-        <div class="modal-overlay" raa-flow:show="showNewFileModal">
-            <div class="modal-card" style="max-width: 400px;">
-                <div class="modal-header">
-                    <h3 class="modal-title">Berkas Baru</h3>
-                    <button raa-on:click="closeNewFileModal()" class="btn-icon">
-                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 256 256"><path d="M165.66,101.66,139.31,128l26.35,26.34a8,8,0,0,1-11.32,11.32L128,139.31l-26.34,26.35a8,8,0,0,1-11.32-11.32L116.69,128,90.34,101.66a8,8,0,0,1,11.32-11.32L128,116.69l26.34-26.35a8,8,0,0,1,11.32,11.32ZM232,128A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128Z"/></svg>
-                    </button>
-                </div>
-                <div class="form-group">
-                    <label>Nama Berkas</label>
-                    <input type="text" raa-bind:model="newFileName" class="form-control" placeholder="contoh: halaman.html" raa-validate:required raa-on:keydown="handleNewFileKeydown($event)">
-                </div>
-                <div class="flex gap-2 mt-3">
-                    <button raa-on:click="createNewFile()" class="btn btn-primary flex-1" raa-ux:disable="!newFileName">Buat Berkas</button>
-                    <button raa-on:click="closeNewFileModal()" class="btn flex-1">Batal</button>
-                </div>
-            </div>
+        <div class="editor-body">
+          <textarea raa-core:ref="editorTextarea"
+                    raa-bind:model="activeFileContent"
+                    raa-on:input="handleEditorInput()"
+                    placeholder="/* Pilih berkas atau mulai menulis kode RaaJS Anda */"
+                    class="editor-textarea"
+                    raa-on:keydown="handleEditorKeydown($event)"></textarea>
+
+          <!-- Toolbar: Snippet Dropdown -->
+          <div class="editor-toolbar">
+            <select class="toolbar-select" raa-on:change="handleSnippetSelect($event)">
+              <option value="">⚡ Directive...</option>
+              <optgroup label="🔗 Bind">
+                <option value="raa-bind:text=&quot;&quot;">bind:text</option>
+                <option value="raa-bind:html=&quot;&quot;">bind:html</option>
+                <option value="raa-bind:model=&quot;&quot;">bind:model</option>
+                <option value="raa-bind:class=&quot;{ : }&quot;">bind:class</option>
+                <option value="raa-bind:style=&quot;{ : }&quot;">bind:style</option>
+              </optgroup>
+              <optgroup label="🔀 Flow">
+                <option value="raa-flow:if=&quot;&quot;">flow:if</option>
+                <option value="raa-flow:for=&quot;item in list&quot;">flow:for</option>
+                <option value="raa-flow:show=&quot;&quot;">flow:show</option>
+              </optgroup>
+              <optgroup label="🎯 Events">
+                <option value="raa-on:click=&quot;&quot;">on:click</option>
+                <option value="raa-on:submit.prevent=&quot;&quot;">on:submit.prevent</option>
+              </optgroup>
+              <optgroup label="⚙️ Core">
+                <option value="raa-core:app=&quot;&quot;">core:app</option>
+                <option value="raa-core:init=&quot;Object.assign($state, { })&quot;">core:init</option>
+                <option value="raa-core:ref=&quot;&quot;">core:ref</option>
+              </optgroup>
+              <optgroup label="🏝️ Eco">
+                <option value="raa-eco:island">eco:island</option>
+                <option value="raa-eco:persist=&quot;&quot;">eco:persist</option>
+                <option value="raa-eco:router">eco:router</option>
+                <option value="raa-eco:route=&quot;&quot;">eco:route</option>
+              </optgroup>
+              <optgroup label="🌐 Net">
+                <option value="raa-net:fetch=&quot;'url' -&gt; data&quot;">net:fetch</option>
+                <option value="raa-net:sync=&quot;'ws://url' -&gt; data&quot;">net:sync</option>
+              </optgroup>
+              <optgroup label="✨ UX">
+                <option value="raa-ux:lazy">ux:lazy</option>
+                <option value="raa-ux:focus">ux:focus</option>
+                <option value="raa-ux:loading=&quot;&quot;">ux:loading</option>
+                <option value="raa-ux:disable=&quot;&quot;">ux:disable</option>
+              </optgroup>
+            </select>
+          </div>
+
+          <!-- Toolbar: Quick Buttons -->
+          <div class="editor-toolbar">
+            <button raa-on:click="insertText('	')" class="toolbar-btn" title="Tab">Tab</button>
+            <button raa-on:click="insertText('{')" class="toolbar-btn" title="{ }">{ }</button>
+            <button raa-on:click="insertText('[')" class="toolbar-btn" title="[ ]">[ ]</button>
+            <button raa-on:click="insertText('()')" class="toolbar-btn" title="( )">( )</button>
+            <button raa-on:click="insertText(';')" class="toolbar-btn" title=";">;</button>
+
+            <!-- Prefix shortcuts -->
+            <button raa-on:click="insertText('raa-bind:')" class="toolbar-btn brand" title="raa-bind:*">b:</button>
+            <button raa-on:click="insertText('raa-flow:')" class="toolbar-btn brand" title="raa-flow:*">f:</button>
+            <button raa-on:click="insertText('raa-on:')" class="toolbar-btn brand" title="raa-on:*">@:</button>
+            <button raa-on:click="insertText('raa-core:')" class="toolbar-btn brand" title="raa-core:*">c:</button>
+            <button raa-on:click="insertText('raa-eco:')" class="toolbar-btn brand" title="raa-eco:*">e:</button>
+            <button raa-on:click="insertText('raa-net:')" class="toolbar-btn brand" title="raa-net:*">n:</button>
+            <button raa-on:click="insertText('raa-ux:')" class="toolbar-btn brand" title="raa-ux:*">x:</button>
+
+            <!-- Save -->
+            <button raa-on:click="saveActiveFile()"
+                    class="toolbar-btn"
+                    style="margin-left: auto; border-color: rgba(255,140,95,0.3); color: var(--accent-orange);"
+                    title="Save (Ctrl+S)">
+              <svg width="12" height="12" fill="currentColor" viewBox="0 0 256 256" style="vertical-align: middle; margin-right: 4px;"><path d="M216,40H68.53a16.08,16.08,0,0,0-13.72,7.77L9.14,123.88a8,8,0,0,0,0,8.24l45.67,76.11A16.08,16.08,0,0,0,68.53,216H216a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40ZM61.67,204.12,68.53,200h0ZM216,200H68.53l-43.2-72,43.2-72H216Z"/></svg>
+              Save
+            </button>
+          </div>
         </div>
 
-        <!-- ═════════ GITHUB MODAL ═════════ -->
-        <div class="modal-overlay" raa-flow:show="showGitHubModal">
-            <div class="modal-card">
-                <div class="modal-header">
-                    <h3 class="modal-title">
-                        <svg width="20" height="20" fill="currentColor" viewBox="0 0 256 256"><path d="M128,24A104,104,0,0,0,95.2,202.13c5.2.93,7.11-2.27,7.11-5,0-2.47-.09-9-.13-17.65-28.94,6.29-35-13.93-35-13.93-4.73-12-11.58-15.22-11.58-15.22-9.47-6.48.72-6.35.72-6.35,10.49.74,16,10.77,16,10.77,9.32,15.94,24.45,11.33,30.38,8.66a21.14,21.14,0,0,1,6.29-13.28c-22.94-2.61-47.06-11.47-47.06-51a39.89,39.89,0,0,1,10.64-27.6c-1.07-2.61-4.62-13.14,1-27.4,0,0,8.7-2.79,28.48,10.6a98.33,98.33,0,0,1,51.84,0c19.76-13.4,28.45-10.6,28.45-10.6,5.63,14.26,2.09,24.79,1,27.4A39.84,39.84,0,0,1,193.6,120c0,39.63-24.17,48.37-47.17,50.93a24.68,24.68,0,0,1,7,19.14c0,13.82-.13,24.94-.13,28.33,0,2.75,1.86,5.94,7.14,4.94A104,104,0,0,0,128,24Z"/></svg>
-                        GitHub Connector
-                    </h3>
-                    <button raa-on:click="closeGitHubModal()" class="btn-icon">
-                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 256 256"><path d="M165.66,101.66,139.31,128l26.35,26.34a8,8,0,0,1-11.32,11.32L128,139.31l-26.34,26.35a8,8,0,0,1-11.32-11.32L116.69,128,90.34,101.66a8,8,0,0,1,11.32-11.32L128,116.69l26.34-26.35a8,8,0,0,1,11.32,11.32ZM232,128A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128Z"/></svg>
-                    </button>
-                </div>
-                <div class="modal-tabs">
-                    <button class="modal-tab" raa-bind:class="{ 'active': ghTab === 'sync' }" raa-on:click="setGhTab('sync')">
-                        <span class="tab-dot sync"></span> Sync
-                    </button>
-                    <button class="modal-tab" raa-bind:class="{ 'active': ghTab === 'manage' }" raa-on:click="setGhTab('manage')">
-                        <span class="tab-dot manage"></span> Manage
-                    </button>
-                    <button class="modal-tab" raa-bind:class="{ 'active': ghTab === 'config' }" raa-on:click="setGhTab('config')">
-                        <span class="tab-dot config"></span> Config
-                    </button>
-                </div>
+        <div class="editor-statusbar">
+          <div raa-bind:text="files.length + ' files' + (ghConnected ? ' | GitHub: ' + ghRepo : '')"></div>
+          <div raa-bind:text="activeFileContent.length + ' chars | RaaJS v3.1.0'"></div>
+        </div>
+      </section>
+      <div class="resize-handle" raa-core:ref="resizePreview" raa-on:mousedown="startResizePreview($event)"></div>
 
-                <!-- SYNC TAB -->
-                <div raa-flow:show="ghTab === 'sync'">
-                    <div class="form-group">
-                        <label>Repository Target</label>
-                        <input type="text" raa-bind:model="ghRepoInput" class="form-control" placeholder="username/repository">
-                        <div class="form-hint">Contoh: dazep01/gaskuy-adventure</div>
-                    </div>
-                    <div class="form-group">
-                        <label>Branch</label>
-                        <input type="text" raa-bind:model="ghBranch" class="form-control">
-                    </div>
-                    <div class="form-group">
-                        <label>Root Path</label>
-                        <input type="text" raa-bind:model="ghRootPath" class="form-control" placeholder="kosongkan untuk root">
-                        <div class="form-hint">File disimpan di: <code>/' + root + '/' + nama_file</code></div>
-                    </div>
-                    <button raa-on:click="checkGitHubSync()" class="btn btn-primary w-full mt-2" raa-ux:disable="ghSyncLoading || !ghRepoInput">
-                        <span raa-flow:show="!ghSyncLoading">Deteksi Perubahan</span>
-                        <span raa-flow:show="ghSyncLoading">Memindai...</span>
-                    </button>
-                    <div raa-flow:show="ghSyncResults.length > 0" class="mt-4">
-                        <div class="checkbox-list">
-                            <template raa-flow:for="item in ghSyncResults" raa-key="item.path">
-                                <label class="checkbox-item">
-                                    <input type="checkbox" raa-bind:model="item.selected">
-                                    <span class="file-path" raa-bind:text="item.path"></span>
-                                    <span class="file-badge" raa-bind:class="{ 'pending': item.status === 'pending', 'synced': item.status === 'synced' }" raa-bind:text="item.status === 'pending' ? 'Perlu Push' : 'Synced'"></span>
-                                </label>
-                            </template>
-                        </div>
-                        <div class="progress-box" raa-flow:show="ghUploadProgress > 0">
-                            <div class="progress-track">
-                                <div class="progress-fill" raa-bind:style="{ width: ghUploadProgress + '%' }"></div>
-                            </div>
-                            <div class="progress-text" raa-bind:text="ghUploadProgress + '% selesai'"></div>
-                        </div>
-                        <div class="flex gap-2 mt-3">
-                            <button raa-on:click="executeGitHubUpload()" class="btn btn-primary flex-1" raa-ux:disable="ghUploadLoading">
-                                <span raa-flow:show="!ghUploadLoading">Upload Terpilih (<span raa-bind:text="selectedSyncCount"></span>)</span>
-                                <span raa-flow:show="ghUploadLoading">Mengupload...</span>
-                            </button>
-                            <button raa-on:click="selectAllSync(true)" class="btn btn-sm">Semua</button>
-                            <button raa-on:click="selectAllSync(false)" class="btn btn-sm">Batal</button>
-                        </div>
-                    </div>
-                    <div raa-flow:show="ghSyncResults.length === 0 && ghChecked" class="text-center p-4 text-muted">
-                        Semua file sudah tersinkron!
-                    </div>
-                </div>
+      <!-- PREVIEW PANEL -->
+      <section class="panel panel-preview" raa-flow:show="showPreview">
+        <div class="panel-header">
+          <span>Live Preview</span>
+          <button raa-on:click="runPreview()" class="btn btn-sm btn-primary" raa-ux:loading="previewLoading">
+            <svg width="12" height="12" fill="currentColor" viewBox="0 0 256 256"><path d="M236.6,144.5l-96-64a8,8,0,0,0-12.4,6.6v42.4L44.6,80.5a8,8,0,0,0-12.4,6.6v82.8a8,8,0,0,0,12.4,6.6l83.6-48.6V192a8,8,0,0,0,12.4,6.6l96-64a8,8,0,0,0,0-13.2ZM40,156.4V99.6L104,128Zm112,35.6V64l72,48Z"/></svg>
+            Run
+          </button>
+        </div>
+        <div class="preview-frame-wrap" raa-core:ref="previewWrap">
+          <div class="preview-boundary"></div>
+          <iframe raa-core:ref="previewFrame"
+                  title="Preview"
+                  sandbox="allow-scripts allow-modals allow-forms allow-popups allow-same-origin"></iframe>
+          <div class="preview-placeholder" raa-flow:show="!isPreviewable">
+            <svg width="48" height="48" fill="var(--accent-orange)" viewBox="0 0 256 256" opacity="0.3"><path d="M208,40H48A24,24,0,0,0,24,64V176a24,24,0,0,0,24,24H208a24,24,0,0,0,24-24V64A24,24,0,0,0,208,40Zm8,136a8,8,0,0,1-8,8H48a8,8,0,0,1-8-8V64a8,8,0,0,1,8-8H208a8,8,0,0,1,8,8Zm-48,48a8,8,0,0,1-8,8H96a8,8,0,0,1,0-16h64A8,8,0,0,1,168,224Zm-3.56-110.66-48-32A8,8,0,0,0,104,88v64a8,8,0,0,0,12.44,6.66l48-32a8,8,0,0,0,0-13.32ZM120,137.05V103l25.58,17Z"/></svg>
+            <h3>index.html tidak ditemukan</h3>
+            <p>Buat file index.html untuk melihat preview.</p>
+          </div>
+        </div>
+      </section>
 
-                <!-- MANAGE TAB -->
-                <div raa-flow:show="ghTab === 'manage'">
-                    <div raa-flow:show="!ghConnected" class="text-center p-4 text-muted">
-                        Konfigurasikan GitHub di tab <strong>Config</strong> terlebih dahulu.
-                    </div>
-                    <div raa-flow:show="ghConnected">
-                        <div class="form-group">
-                            <label>Pilih File</label>
-                            <div class="checkbox-list">
-                                <template raa-flow:for="file in files" raa-key="file.path">
-                                    <label class="checkbox-item">
-                                        <input type="checkbox" raa-bind:model="ghManageSel[file.path]">
-                                        <span class="file-path" raa-bind:text="file.path"></span>
-                                        <span class="file-badge local">Lokal</span>
-                                    </label>
-                                </template>
-                            </div>
-                        </div>
-                        <div class="flex gap-2 mt-3">
-                            <button raa-on:click="executeGitHubUpload(true)" class="btn btn-primary flex-1" raa-ux:disable="ghUploadLoading">Upload ke GitHub</button>
-                            <button raa-on:click="executeGitHubDelete()" class="btn btn-danger flex-1" raa-ux:disable="ghUploadLoading">Hapus dari GitHub</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- CONFIG TAB -->
-                <div raa-flow:show="ghTab === 'config'">
-                    <div class="form-group">
-                        <label>GitHub Personal Access Token</label>
-                        <input type="password" raa-bind:model="ghTokenInput" class="form-control" placeholder="ghp_xxxxxxxxxxxx">
-                        <div class="form-hint">Token disimpan lokal. <a href="https://github.com/settings/tokens" target="_blank">Buat token</a> dengan scope <code>repo</code>.</div>
-                    </div>
-                    <div class="form-group">
-                        <label>Default Repository</label>
-                        <input type="text" raa-bind:model="ghRepoInput" class="form-control" placeholder="username/repository">
-                    </div>
-                    <div class="form-group">
-                        <label style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; font-weight: 500; text-transform: none; letter-spacing: 0; cursor: pointer;">
-                            <input type="checkbox" raa-bind:model="ghAutoSync" style="width: 16px; height: 16px; accent-color: var(--accent-orange);">
-                            Auto-sync saat file disimpan
-                        </label>
-                    </div>
-                    <div class="flex gap-2 mt-3">
-                        <button raa-on:click="saveGitHubConfig()" class="btn btn-primary flex-1">Simpan</button>
-                        <button raa-on:click="testGitHubConnection()" class="btn flex-1" raa-ux:disable="!ghTokenInput">Uji Koneksi</button>
-                    </div>
-                    <div raa-flow:show="ghTestResult" class="conn-status" raa-bind:class="{ 'ok': !ghTestError, 'fail': ghTestError }">
-                        <strong raa-bind:text="ghTestError ? 'Gagal:' : 'Berhasil:'"></strong>
-                        <span raa-bind:text="ghTestResult"></span>
-                    </div>
-                </div>
-            </div>
+      <!-- CHAT PANEL -->
+      <aside class="panel-chat" raa-flow:show="showChat">
+        <div class="panel-header">
+          <div class="flex-col" style="gap: 2px;">
+            <span>RaaJS AI Asisten</span>
+            <select raa-bind:model="aiModel" class="form-control" style="padding: 2px 8px; font-size: 0.65rem; height: 22px; min-height: 22px; width: 160px;">
+              <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
+              <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+              <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
+              <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
+            </select>
+          </div>
+          <button raa-on:click="toggleChat()" class="btn-icon">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 256 256"><path d="M165.66,101.66,139.31,128l26.35,26.34a8,8,0,0,1-11.32,11.32L128,139.31l-26.34,26.35a8,8,0,0,1-11.32-11.32L116.69,128,90.34,101.66a8,8,0,0,1,11.32-11.32L128,116.69l26.34-26.35a8,8,0,0,1,11.32,11.32ZM232,128A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128Z"/></svg>
+          </button>
+        </div>
+        <div class="chat-history" raa-core:ref="chatHistory">
+          <div raa-flow:show="chatEmpty" class="chat-empty">
+            <svg width="40" height="40" fill="var(--text-muted)" viewBox="0 0 256 256" style="margin-bottom: 12px; opacity: 0.5;"><path d="M132,24A100.11,100.11,0,0,0,32,124v84a16,16,0,0,0,16,16h84a100,100,0,0,0,0-200Zm0,184H48V124a84,84,0,1,1,84,84Zm12-80a12,12,0,1,1-12-12A12,12,0,0,1,144,128Zm-44,0a12,12,0,1,1-12-12A12,12,0,0,1,100,128Zm88,0a12,12,0,1,1-12-12A12,12,0,0,1,188,128Z"/></svg>
+            <div>Belum ada percakapan.</div>
+            <div style="font-size: 0.75rem; margin-top: 4px;">Atur API Key di pengaturan.</div>
+          </div>
+          <div raa-flow:show="!chatEmpty" class="flex-col" style="gap: 12px;">
+            <template raa-flow:for="msg in aiMessages" raa-key="msg.id">
+              <div class="chat-msg" raa-bind:class="{ 'user': msg.sender === 'user', 'model': msg.sender === 'model' }">
+                <div class="chat-msg-meta" raa-bind:text="msg.sender === 'user' ? 'Anda' : 'Asisten AI'"></div>
+                <div class="chat-msg-text" raa-bind:text="msg.text"></div>
+              </div>
+            </template>
+          </div>
         </div>
 
-        <!-- ═════════ SETTINGS MODAL ═════════ -->
-        <div class="modal-overlay" raa-flow:show="showSettings">
-            <div class="modal-card" style="max-width: 460px;">
-                <div class="modal-header">
-                    <h3 class="modal-title">Pengaturan</h3>
-                    <button raa-on:click="toggleSettings()" class="btn-icon">
-                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 256 256"><path d="M165.66,101.66,139.31,128l26.35,26.34a8,8,0,0,1-11.32,11.32L128,139.31l-26.34,26.35a8,8,0,0,1-11.32-11.32L116.69,128,90.34,101.66a8,8,0,0,1,11.32-11.32L128,116.69l26.34-26.35a8,8,0,0,1,11.32,11.32ZM232,128A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128Z"/></svg>
-                    </button>
-                </div>
-                <div class="form-group">
-                    <label>Gemini API Key</label>
-                    <input type="password" raa-bind:model="aiKeyInput" class="form-control" placeholder="AIzaSy...">
-                    <div style="display: flex; gap: 6px; margin-top: 8px;">
-                        <button raa-on:click="saveApiKey()" class="btn btn-primary">Simpan Key</button>
-                        <button raa-on:click="resetApiKey()" class="btn btn-danger">Hapus Key</button>
-                    </div>
-                </div>
-                <hr>
-                <div class="form-group">
-                    <label>Aksi Pembersihan</label>
-                    <div style="display: flex; gap: 8px;">
-                        <button raa-on:click="resetProject()" class="btn btn-danger flex-1">Reset Proyek</button>
-                        <button raa-on:click="factoryReset()" class="btn flex-1" style="background: var(--accent-rose); border: none; color: white;">Factory Reset</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <div class="chat-input-area">
+          <button class="btn btn-sm" raa-on:click="toggleAiContextPicker()" style="margin-bottom:8px;">
+            Pilih File Context (<span raa-bind:text="aiContextFiles.length"></span>)
+          </button>
 
-        <!-- ═════════ TOAST ═════════ -->
-        <div class="toast" raa-flow:show="toastVisible" raa-bind:class="{ 'success': toastType === 'success', 'error': toastType === 'error', 'warning': toastType === 'warning' }">
-            <span raa-bind:text="toastMessage"></span>
+          <div raa-flow:show="showAiContextPicker" style="max-height:150px; overflow:auto; background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 8px; margin-bottom: 8px;">
+            <template raa-flow:for="file in files" raa-key="file.path">
+              <label style="display:flex; align-items:center; gap:6px; font-size:0.85rem; margin-bottom:4px; color: var(--text-primary); cursor:pointer;">
+                <input type="checkbox"
+                       raa-bind:checked="aiContextFiles.includes(file.path)"
+                       raa-on:change="toggleContextFile(file.path, $event)" />
+                <span raa-bind:text="file.name"></span>
+              </label>
+            </template>
+            <button class="btn btn-sm btn-primary" raa-on:click="toggleAiContextPicker()" style="width:100%;">Tutup</button>
+          </div>
+
+          <textarea raa-bind:model="chatInput"
+                    raa-ux:disable="aiLoading"
+                    placeholder="Tanya tentang RaaJS..."
+                    class="chat-textarea"
+                    raa-on:keydown="handleChatKeydown($event)"></textarea>
+          <button raa-on:click="sendMessage()"
+                  raa-ux:disable="aiLoading || !chatInput"
+                  class="btn-icon"
+                  style="height: 44px; width: 44px; border-radius: var(--radius-md); flex-shrink: 0;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="#000000" viewBox="0 0 256 256"><path d="M227.32,28.68a16,16,0,0,0-15.66-4.08l-.15,0L19.57,82.84a16,16,0,0,0-2.49,29.8L102,154l41.3,84.87A15.86,15.86,0,0,0,157.74,248q.69,0,1.38-.06a15.88,15.88,0,0,0,14-11.51l58.2-191.94c0-.05,0-.1,0-.15A16,16,0,0,0,227.32,28.68ZM157.83,231.85l-.05.14,0-.07-40.06-82.3,48-48a8,8,0,0,0-11.31-11.31l-48,48L24.08,98.25l-.07,0,.14,0L216,40Z"></path></svg>
+          </button>
         </div>
+      </aside>
 
     </div>
 
-    <script>
-// ═══════════════════════════════════════════════════════════════
-// RaaJS Studio v3.1.0 — Refactored, Best Practice, Premium
-// ═══════════════════════════════════════════════════════════════
+    <!-- ═════════ NEW FILE MODAL ═════════ -->
+    <div class="modal-overlay" raa-flow:show="showNewFileModal">
+      <div class="modal-card" style="max-width: 400px;">
+        <div class="modal-header">
+          <h3 class="modal-title">Berkas Baru</h3>
+          <button raa-on:click="closeNewFileModal()" class="btn-icon">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 256 256"><path d="M165.66,101.66,139.31,128l26.35,26.34a8,8,0,0,1-11.32,11.32L128,139.31l-26.34,26.35a8,8,0,0,1-11.32-11.32L116.69,128,90.34,101.66a8,8,0,0,1,11.32-11.32L128,116.69l26.34-26.35a8,8,0,0,1,11.32,11.32ZM232,128A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128Z"/></svg>
+          </button>
+        </div>
+        <div class="form-group">
+          <label>Nama Berkas</label>
+          <input type="text"
+                 raa-bind:model="newFileName"
+                 class="form-control"
+                 placeholder="contoh: halaman.html"
+                 raa-validate:required
+                 raa-on:keydown="handleNewFileKeydown($event)">
+        </div>
+        <div class="flex gap-2 mt-3">
+          <button raa-on:click="createNewFile()" class="btn btn-primary flex-1" raa-ux:disable="!newFileName">Buat Berkas</button>
+          <button raa-on:click="closeNewFileModal()" class="btn flex-1">Batal</button>
+        </div>
+      </div>
+    </div>
 
-RaaJS.define('studio', () => {
+    <!-- ═════════ GITHUB MODAL ═════════ -->
+    <div class="modal-overlay" raa-flow:show="showGitHubModal">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3 class="modal-title">
+            <svg width="20" height="20" fill="currentColor" viewBox="0 0 256 256"><path d="M128,24A104,104,0,0,0,95.2,202.13c5.2.93,7.11-2.27,7.11-5,0-2.47-.09-9-.13-17.65-28.94,6.29-35-13.93-35-13.93-4.73-12-11.58-15.22-11.58-15.22-9.47-6.48.72-6.35.72-6.35,10.49.74,16,10.77,16,10.77,9.32,15.94,24.45,11.33,30.38,8.66a21.14,21.14,0,0,1,6.29-13.28c-22.94-2.61-47.06-11.47-47.06-51a39.89,39.89,0,0,1,10.64-27.6c-1.07-2.61-4.62-13.14,1-27.4,0,0,8.7-2.79,28.48,10.6a98.33,98.33,0,0,1,51.84,0c19.76-13.4,28.45-10.6,28.45-10.6,5.63,14.26,2.09,24.79,1,27.4A39.84,39.84,0,0,1,193.6,120c0,39.63-24.17,48.37-47.17,50.93a24.68,24.68,0,0,1,7,19.14c0,13.82-.13,24.94-.13,28.33,0,2.75,1.86,5.94,7.14,4.94A104,104,0,0,0,128,24Z"/></svg>
+            GitHub Connector
+          </h3>
+          <button raa-on:click="closeGitHubModal()" class="btn-icon">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 256 256"><path d="M165.66,101.66,139.31,128l26.35,26.34a8,8,0,0,1-11.32,11.32L128,139.31l-26.34,26.35a8,8,0,0,1-11.32-11.32L116.69,128,90.34,101.66a8,8,0,0,1,11.32-11.32L128,116.69l26.34-26.35a8,8,0,0,1,11.32,11.32ZM232,128A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128Z"/></svg>
+          </button>
+        </div>
+
+        <div class="modal-tabs">
+          <button class="modal-tab" raa-bind:class="{ 'active': ghTab === 'sync' }" raa-on:click="setGhTab('sync')">
+            <span class="tab-dot sync"></span> Sync
+          </button>
+          <button class="modal-tab" raa-bind:class="{ 'active': ghTab === 'manage' }" raa-on:click="setGhTab('manage')">
+            <span class="tab-dot manage"></span> Manage
+          </button>
+          <button class="modal-tab" raa-bind:class="{ 'active': ghTab === 'config' }" raa-on:click="setGhTab('config')">
+            <span class="tab-dot config"></span> Config
+          </button>
+        </div>
+
+        <!-- SYNC TAB -->
+        <div raa-flow:show="ghTab === 'sync'">
+          <div class="form-group">
+            <label>Repository Target</label>
+            <input type="text" raa-bind:model="ghRepoInput" class="form-control" placeholder="username/repository">
+            <div class="form-hint">Contoh: dazep01/gaskuy-adventure</div>
+          </div>
+          <div class="form-group">
+            <label>Branch</label>
+            <input type="text" raa-bind:model="ghBranch" class="form-control">
+          </div>
+          <div class="form-group">
+            <label>Root Path</label>
+            <input type="text" raa-bind:model="ghRootPath" class="form-control" placeholder="kosongkan untuk root">
+            <div class="form-hint">File disimpan di: <code>/{root}/{nama_file}</code></div>
+          </div>
+          <button raa-on:click="checkGitHubSync()" class="btn btn-primary w-full mt-2" raa-ux:disable="ghSyncLoading || !ghRepoInput">
+            <span raa-flow:show="!ghSyncLoading">Deteksi Perubahan</span>
+            <span raa-flow:show="ghSyncLoading">Memindai...</span>
+          </button>
+          <div raa-flow:show="ghSyncResults.length > 0" class="mt-4">
+            <div class="checkbox-list">
+              <template raa-flow:for="item in ghSyncResults" raa-key="item.path">
+                <label class="checkbox-item">
+                  <input type="checkbox" raa-bind:model="item.selected">
+                  <span class="file-path" raa-bind:text="item.path"></span>
+                  <span class="file-badge"
+                        raa-bind:class="{ 'pending': item.status === 'pending', 'synced': item.status === 'synced' }"
+                        raa-bind:text="item.status === 'pending' ? 'Perlu Push' : 'Synced'"></span>
+                </label>
+              </template>
+            </div>
+            <div class="progress-box" raa-flow:show="ghUploadProgress > 0">
+              <div class="progress-track">
+                <div class="progress-fill" raa-bind:style="{ width: ghUploadProgress + '%' }"></div>
+              </div>
+              <div class="progress-text" raa-bind:text="ghUploadProgress + '% selesai'"></div>
+            </div>
+            <div class="flex gap-2 mt-3">
+              <button raa-on:click="executeGitHubUpload()" class="btn btn-primary flex-1" raa-ux:disable="ghUploadLoading">
+                <span raa-flow:show="!ghUploadLoading">Upload Terpilih (<span raa-bind:text="selectedSyncCount"></span>)</span>
+                <span raa-flow:show="ghUploadLoading">Mengupload...</span>
+              </button>
+              <button raa-on:click="selectAllSync(true)" class="btn btn-sm">Semua</button>
+              <button raa-on:click="selectAllSync(false)" class="btn btn-sm">Batal</button>
+            </div>
+          </div>
+          <div raa-flow:show="ghSyncResults.length === 0 && ghChecked" class="text-center p-4 text-muted">
+            Semua file sudah tersinkron!
+          </div>
+        </div>
+
+        <!-- MANAGE TAB -->
+        <div raa-flow:show="ghTab === 'manage'">
+          <div raa-flow:show="!ghConnected" class="text-center p-4 text-muted">
+            Konfigurasikan GitHub di tab <strong>Config</strong> terlebih dahulu.
+          </div>
+          <div raa-flow:show="ghConnected">
+            <div class="form-group">
+              <label>Pilih File</label>
+              <div class="checkbox-list">
+                <template raa-flow:for="file in files" raa-key="file.path">
+                  <label class="checkbox-item">
+                    <input type="checkbox" raa-bind:model="ghManageSel[file.path]">
+                    <span class="file-path" raa-bind:text="file.path"></span>
+                    <span class="file-badge local">Lokal</span>
+                  </label>
+                </template>
+              </div>
+            </div>
+            <div class="flex gap-2 mt-3">
+              <button raa-on:click="executeGitHubUpload(true)" class="btn btn-primary flex-1" raa-ux:disable="ghUploadLoading">Upload ke GitHub</button>
+              <button raa-on:click="executeGitHubDelete()" class="btn btn-danger flex-1" raa-ux:disable="ghUploadLoading">Hapus dari GitHub</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- CONFIG TAB -->
+        <div raa-flow:show="ghTab === 'config'">
+          <div class="form-group">
+            <label>GitHub Personal Access Token</label>
+            <input type="password" raa-bind:model="ghTokenInput" class="form-control" placeholder="ghp_xxxxxxxxxxxx">
+            <div class="form-hint">Token disimpan lokal. <a href="https://github.com/settings/tokens" target="_blank">Buat token</a> dengan scope <code>repo</code>.</div>
+          </div>
+          <div class="form-group">
+            <label>Default Repository</label>
+            <input type="text" raa-bind:model="ghRepoInput" class="form-control" placeholder="username/repository">
+          </div>
+          <div class="form-group">
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; font-weight: 500; text-transform: none; letter-spacing: 0; cursor: pointer;">
+              <input type="checkbox" raa-bind:model="ghAutoSync" style="width: 16px; height: 16px; accent-color: var(--accent-orange);">
+              Auto-sync saat file disimpan
+            </label>
+          </div>
+          <div class="flex gap-2 mt-3">
+            <button raa-on:click="saveGitHubConfig()" class="btn btn-primary flex-1">Simpan</button>
+            <button raa-on:click="testGitHubConnection()" class="btn flex-1" raa-ux:disable="!ghTokenInput">Uji Koneksi</button>
+          </div>
+          <div raa-flow:show="ghTestResult" class="conn-status" raa-bind:class="{ 'ok': !ghTestError, 'fail': ghTestError }">
+            <strong raa-bind:text="ghTestError ? 'Gagal:' : 'Berhasil:'"></strong>
+            <span raa-bind:text="ghTestResult"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═════════ SETTINGS MODAL ═════════ -->
+    <div class="modal-overlay" raa-flow:show="showSettings">
+      <div class="modal-card" style="max-width: 460px;">
+        <div class="modal-header">
+          <h3 class="modal-title">Pengaturan</h3>
+          <button raa-on:click="toggleSettings()" class="btn-icon">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 256 256"><path d="M165.66,101.66,139.31,128l26.35,26.34a8,8,0,0,1-11.32,11.32L128,139.31l-26.34,26.35a8,8,0,0,1-11.32-11.32L116.69,128,90.34,101.66a8,8,0,0,1,11.32-11.32L128,116.69l26.34-26.35a8,8,0,0,1,11.32,11.32ZM232,128A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128Z"/></svg>
+          </button>
+        </div>
+        <div class="form-group">
+          <label>Gemini API Key</label>
+          <input type="password" raa-bind:model="aiKeyInput" class="form-control" placeholder="AIzaSy...">
+          <div style="display: flex; gap: 6px; margin-top: 8px;">
+            <button raa-on:click="saveApiKey()" class="btn btn-primary">Simpan Key</button>
+            <button raa-on:click="resetApiKey()" class="btn btn-danger">Hapus Key</button>
+          </div>
+        </div>
+        <hr>
+        <div class="form-group">
+          <label>Aksi Pembersihan</label>
+          <div style="display: flex; gap: 8px;">
+            <button raa-on:click="resetProject()" class="btn btn-danger flex-1">Reset Proyek</button>
+            <button raa-on:click="factoryReset()" class="btn flex-1" style="background: var(--accent-rose); border: none; color: white;">Factory Reset</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═════════ TOAST ═════════ -->
+    <div class="toast"
+         raa-flow:show="toastVisible"
+         raa-bind:class="{ 'success': toastType === 'success', 'error': toastType === 'error', 'warning': toastType === 'warning' }">
+      <span raa-bind:text="toastMessage"></span>
+    </div>
+
+  </div>
+
+  <!-- ═════════ SCRIPT ═════════ -->
+  <script>
+    // ═══════════════════════════════════════════════════════════════
+    // RaaJS Studio v3.1.0 — Refactored, Best Practice, Premium
+    // ═══════════════════════════════════════════════════════════════
+
+    RaaJS.define('studio', () => {
       const DB_NAME = 'RaaJS_Studio_DB';
       const DB_VERSION = 1;
-      const DEFAULT_FILES = [{
+
+      const DEFAULT_FILES = [
+        {
           path: 'index.html',
           name: 'index.html',
           content: `<!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Proyek RaaJS</title>
-    <script src="../engine/raa.js"><\/script>
-    <style>
-        body { font-family: system-ui, sans-serif; padding: 40px; background: #f8f9fa; color: #333; }
-        h1 { color: #FF8C5F; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Proyek RaaJS</title>
+  <script src="raa.js"><\/script>
+  <style>
+    body { font-family: system-ui, sans-serif; padding: 40px; background: #f8f9fa; color: #333; }
+    h1 { color: #FF8C5F; }
+  </style>
 </head>
 <body>
-    <h1>Selamat Datang di RaaJS v3.1.0!</h1>
-    <p>Mulai kreasimu di sini. Data 100% lokal.</p>
-    <div raa-core:app="demo">
-        <p raa-bind:text="message"></p>
-        <button raa-on:click="update()">Klik Saya</button>
-    </div>
-    <script>
-        RaaJS.define('demo', () => ({
-            state: { message: 'Halo dari RaaJS!' },
-            methods: {
-                update() { this.message = 'State bereaksi secara otomatis!'; }
-            }
-        }));
-    <\/script>
+  <h1>Selamat Datang di RaaJS v3.1.0!</h1>
+  <p>Mulai kreasimu di sini. Data 100% lokal.</p>
+  <div raa-core:app="demo">
+    <p raa-bind:text="message"></p>
+    <button raa-on:click="update()">Klik Saya</button>
+  </div>
+  <script>
+    RaaJS.define('demo', () => ({
+      state: { message: 'Halo dari RaaJS!' },
+      methods: { update() { this.message = 'State bereaksi secara otomatis!'; } }
+    }));
+  <\/script>
 </body>
 </html>`
         },
@@ -820,8 +854,7 @@ Workspace ini menggunakan RaaJS v3.1.0 — framework reaktif zero-dependency.
 - IndexedDB storage (data lokal)
 
 ## Prinsip
-> State adalah sumber kebenaran. Template adalah cermin pasif.
-`
+> State adalah sumber kebenaran. Template adalah cermin pasif.`
         }
       ];
 
@@ -886,52 +919,28 @@ Workspace ini menggunakan RaaJS v3.1.0 — framework reaktif zero-dependency.
           // Toast
           toastVisible: false,
           toastMessage: '',
-          toastType: 'success'
+          toastType: 'success',
+
+          // ✅ State eksplisit (bukan computed) untuk reaktivitas stabil
+          activeFileName: 'Pilih Berkas',
+          isPreviewable: false
         },
 
         computed: {
-          activeFileName() {
-            return this.activeFilePath || 'Pilih Berkas';
-          },
-          treeEmpty() {
-            return this.files.length === 0;
-          },
-          chatEmpty() {
-            return this.aiMessages.length === 0;
-          },
-          isPreviewable() {
-            return this.files.some(function (f) {
-              return f.path === 'index.html';
-            });
-          },
+          treeEmpty() { return this.files.length === 0; },
+          chatEmpty() { return this.aiMessages.length === 0; },
           githubStatusLabel() {
             if (!this.ghConnected) return 'GitHub: Terputus';
-            var vals = Object.values(this.ghFileStatus);
-            var pending = vals.some(function (s) {
-              return s === 'pending';
-            });
-            return pending ? 'GitHub: Pending' : 'GitHub: Synced';
+            const vals = Object.values(this.ghFileStatus);
+            return vals.some(s => s === 'pending') ? 'GitHub: Pending' : 'GitHub: Synced';
           },
           githubDotClass() {
             if (!this.ghConnected) return 'error';
-            var vals = Object.values(this.ghFileStatus);
-            var pending = vals.some(function (s) {
-              return s === 'pending';
-            });
-            return pending ? 'pending' : 'synced';
+            const vals = Object.values(this.ghFileStatus);
+            return vals.some(s => s === 'pending') ? 'pending' : 'synced';
           },
-          pendingSyncCount() {
-            return this.ghSyncResults.filter(function (r) {
-                return r.status === 'pending';
-              })
-              .length;
-          },
-          selectedSyncCount() {
-            return this.ghSyncResults.filter(function (r) {
-                return r.selected;
-              })
-              .length;
-          }
+          pendingSyncCount() { return this.ghSyncResults.filter(r => r.status === 'pending').length; },
+          selectedSyncCount() { return this.ghSyncResults.filter(r => r.selected).length; }
         },
 
         init() {
@@ -939,15 +948,11 @@ Workspace ini menggunakan RaaJS v3.1.0 — framework reaktif zero-dependency.
           this._checkApiKey();
           this._loadGitHubConfig();
           this._initDB()
-            .then(function () {
-              return this._loadFiles();
-            }.bind(this))
-            .then(function () {
+            .then(() => this._loadFiles())
+            .then(() => {
               this.loadingFiles = false;
               if (!this.treeEmpty) {
-                var idx = this.files.find(function (f) {
-                  return f.path === 'index.html';
-                });
+                const idx = this.files.find(f => f.path === 'index.html');
                 if (idx) {
                   this.activeFilePath = idx.path;
                   this.activeFileContent = idx.content;
@@ -959,936 +964,436 @@ Workspace ini menggunakan RaaJS v3.1.0 — framework reaktif zero-dependency.
               this._initGhStatus();
               if (this.ghConnected) this._updateGitHubStatus();
               if (this.showPreview) this.runPreview();
-            }.bind(this))
-            .catch(function (err) {
+            })
+            .catch(err => {
               console.error('DB init failed:', err);
               this.loadingFiles = false;
               this.showToast('Gagal memuat database', 'error');
-            }.bind(this));
+            });
         },
 
         methods: {
-          // ✅ FIX: Method baru untuk toggle context picker (ganti assignment =)
-          toggleAiContextPicker: function() {
+          // ✅ FIX: Toggle context picker (ganti assignment =)
+          toggleAiContextPicker() {
             this.showAiContextPicker = !this.showAiContextPicker;
           },
 
-          // ✅ FIX: Method baru untuk checkbox array binding
-          toggleContextFile: function(path, event) {
+          // ✅ FIX: Checkbox array binding
+          toggleContextFile(path, event) {
             if (event.target.checked) {
-              if (!this.aiContextFiles.includes(path)) {
-                this.aiContextFiles.push(path);
-              }
+              if (!this.aiContextFiles.includes(path)) this.aiContextFiles.push(path);
             } else {
-              // Re-assign array untuk trigger reactivity
-              this.aiContextFiles = this.aiContextFiles.filter(function(p) {
-                return p !== path;
-              });
+              this.aiContextFiles = this.aiContextFiles.filter(p => p !== path);
             }
           },
 
-          // ======== UI Toggles ========
-          toggleTree: function () {
-            this.showTree = !this.showTree;
-            this._saveUIPersist();
+          // ✅ FIX: Handle snippet select dari dropdown
+          handleSnippetSelect(event) {
+            const snippet = event.target.value;
+            if (!snippet) return;
+            const text = snippet
+              .replace(/&quot;/g, '"')
+              .replace(/&amp;/g, '&')
+              .replace(/&lt;/g, '<')
+              .replace(/&gt;/g, '>')
+              .replace(/-&gt;/g, '->');
+            this.insertText(text);
+            event.target.selectedIndex = 0;
           },
-          togglePreview: function () {
+
+          // UI Toggles
+          toggleTree() { this.showTree = !this.showTree; this._saveUIPersist(); },
+          togglePreview() {
             this.showPreview = !this.showPreview;
             this._saveUIPersist();
-            if (this.showPreview) {
-              requestAnimationFrame(function () {
-                this.runPreview();
-              }.bind(this));
-            }
+            if (this.showPreview) requestAnimationFrame(() => this.runPreview());
           },
-          toggleChat: function () {
-            this.showChat = !this.showChat;
-            this._saveUIPersist();
-          },
-          toggleSettings: function () {
-            this.showSettings = !this.showSettings;
-          },
-          openGitHubModal: function () {
+          toggleChat() { this.showChat = !this.showChat; this._saveUIPersist(); },
+          toggleSettings() { this.showSettings = !this.showSettings; },
+          openGitHubModal() {
             this.showGitHubModal = true;
-            if (this.ghConnected && !this.ghChecked) {
-              setTimeout(function () {
-                this.checkGitHubSync();
-              }.bind(this), 300);
-            }
+            if (this.ghConnected && !this.ghChecked) setTimeout(() => this.checkGitHubSync(), 300);
           },
-          closeGitHubModal: function () {
-            this.showGitHubModal = false;
-            this.ghUploadProgress = 0;
-          },
-          openNewFileModal: function () {
-            this.showNewFileModal = true;
-          },
-          closeNewFileModal: function () {
-            this.showNewFileModal = false;
-            this.newFileName = '';
-          },
-          setGhTab: function (t) {
-            this.ghTab = t;
-          },
+          closeGitHubModal() { this.showGitHubModal = false; this.ghUploadProgress = 0; },
+          openNewFileModal() { this.showNewFileModal = true; },
+          closeNewFileModal() { this.showNewFileModal = false; this.newFileName = ''; },
+          setGhTab(t) { this.ghTab = t; },
 
-          // ======== File Management ========
-          selectFile: function (path) {
-            var f = this.files.find(function (x) {
-              return x.path === path;
-            });
+          // File Management
+          selectFile(path) {
+            const f = this.files.find(x => x.path === path);
             if (f) {
               this.activeFilePath = f.path;
               this.activeFileContent = f.content;
+              this.activeFileName = f.name; // ✅ Update state eksplisit
               this.unsavedChanges = false;
             }
           },
 
-          handleEditorInput: function () {
+          handleEditorInput() {
             this.unsavedChanges = true;
             if (_saveTimer) clearTimeout(_saveTimer);
-            var self = this;
-            _saveTimer = setTimeout(function () {
-              self.saveActiveFile();
-            }, 600);
+            _saveTimer = setTimeout(() => this.saveActiveFile(), 600);
           },
 
-          saveActiveFile: function () {
-            var f = this.files.find(function (x) {
-              return x.path === this.activeFilePath;
-            }.bind(this));
+          saveActiveFile() {
+            const f = this.files.find(x => x.path === this.activeFilePath);
             if (f) {
               f.content = this.activeFileContent;
               this._saveFile(f);
               this.unsavedChanges = false;
-              this.lastSaved = new Date()
-                .toLocaleTimeString('id-ID', {
-                  hour: '2-digit',
-                  minute: '2-digit'
-                });
+              this.lastSaved = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
               if (this.ghConnected && this.ghAutoSync) {
                 this._markGhPending(this.activeFilePath);
-                setTimeout(function () {
-                  this.checkGitHubSync();
-                }.bind(this), 800);
+                setTimeout(() => this.checkGitHubSync(), 800);
               }
-              if (this.activeFilePath === 'index.html' && this.showPreview) {
-                this.runPreview();
-              }
+              if (this.activeFilePath === 'index.html' && this.showPreview) this.runPreview();
             }
           },
 
-          handleEditorKeydown: function (e) {
+          handleEditorKeydown(e) {
             if ((e.ctrlKey || e.metaKey) && e.key === 's') {
               e.preventDefault();
               this.saveActiveFile();
               this.showToast('File disimpan', 'success');
             }
           },
-         
- insertSnippet: function(snippet) {
-    if (!snippet) return;
-    // Unescape HTML entities yang mungkin ada dari <option>
-    var text = snippet
-      .replace(/&quot;/g, '"')
-      .replace(/&amp;/g, '&')
-      .replace(/&lt;/g, '<')
-      .replace(/&gt;/g, '>')
-      .replace(/-&gt;/g, '->');
-    this.insertText(text);
-  },
 
-          insertText: function (ch) {
-            var ta = this.$refs.editorTextarea;
+          insertText(ch) {
+            const ta = this.$refs.editorTextarea;
             if (!ta) return;
-            var s = ta.selectionStart,
-              e = ta.selectionEnd;
-            var before = this.activeFileContent.substring(0, s);
-            var after = this.activeFileContent.substring(e);
+            const s = ta.selectionStart, e = ta.selectionEnd;
+            const before = this.activeFileContent.substring(0, s);
+            const after = this.activeFileContent.substring(e);
             this.activeFileContent = before + ch + after;
             this.unsavedChanges = true;
-            setTimeout(function () {
+            setTimeout(() => {
               ta.focus();
-              var pos = s + ch.length;
+              const pos = s + ch.length;
               ta.setSelectionRange(pos, pos);
             }, 50);
             this.handleEditorInput();
           },
 
-          createNewFile: function () {
-            var name = (this.newFileName || '')
-              .trim();
+          createNewFile() {
+            const name = (this.newFileName || '').trim();
             if (!name) return;
-            if (this.files.some(function (f) {
-                return f.path === name;
-              })) {
+            if (this.files.some(f => f.path === name)) {
               this.showToast('Berkas sudah ada!', 'warning');
               return;
             }
-            var nf = {
-              path: name,
-              name: name,
-              content: ''
-            };
+            const nf = { path: name, name, content: '' };
             this._saveFile(nf);
             this.files.push(nf);
-            var batch = {};
-            batch[name] = 'pending';
-            Object.assign(this.ghFileStatus, batch);
+            Object.assign(this.ghFileStatus, { [name]: 'pending' });
             this.activeFilePath = nf.path;
             this.activeFileContent = nf.content;
+            this.activeFileName = nf.name; // ✅ Update state eksplisit
             this.unsavedChanges = false;
             this.closeNewFileModal();
             this.showToast('Berkas "' + name + '" dibuat', 'success');
           },
 
-          handleNewFileKeydown: function (e) {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              this.createNewFile();
-            }
+          handleNewFileKeydown(e) {
+            if (e.key === 'Enter') { e.preventDefault(); this.createNewFile(); }
           },
 
-          deleteFile: async function (path) {
+          async deleteFile(path) {
             if (!confirm('Hapus "' + path + '"?')) return;
             await this._deleteFile(path);
-            this.files = this.files.filter(function (f) {
-              return f.path !== path;
-            });
+            this.files = this.files.filter(f => f.path !== path);
             if (this.activeFilePath === path) {
               if (this.files.length > 0) {
-                this.activeFilePath = this.files[0].path;
-                this.activeFileContent = this.files[0].content;
+                this.selectFile(this.files[0].path);
               } else {
                 this.activeFilePath = '';
                 this.activeFileContent = '';
+                this.activeFileName = 'Pilih Berkas';
               }
-              this.unsavedChanges = false;
             }
-            if (this.ghFileStatus[path]) {
-              var rem = {};
-              rem[path] = undefined;
-              Object.assign(this.ghFileStatus, rem);
-              delete this.ghFileStatus[path];
-            }
+            if (this.ghFileStatus[path]) delete this.ghFileStatus[path];
+            this.isPreviewable = this.files.some(f => f.path === 'index.html'); // ✅ Update state eksplisit
             this.showToast('Berkas dihapus', 'success');
           },
 
-          // ======== Preview ========
-          runPreview: function () {
-            var frame = this.$refs.previewFrame;
+          // Preview
+          runPreview() {
+            const frame = this.$refs.previewFrame;
             if (!frame) return;
             this.previewLoading = true;
-            var idx = this.files.find(function (f) {
-              return f.path === 'index.html';
-            });
-            var doc = frame.contentDocument || frame.contentWindow.document;
-            if (!idx) {
-              doc.open();
-              doc.write('');
-              doc.close();
-              this.previewLoading = false;
-              return;
-            }
-            var html = idx.content;
-            var otherFiles = this.files.filter(function (f) {
-              return f.path !== 'index.html';
-            });
+            const idx = this.files.find(f => f.path === 'index.html');
+            if (!idx) { frame.srcdoc = ''; this.previewLoading = false; return; }
+
+            let html = idx.content;
+            const otherFiles = this.files.filter(f => f.path !== 'index.html');
             if (otherFiles.length > 0) {
-              var injected = '<!-- Injected by RaaJS Studio -->\n';
-              otherFiles.forEach(function (f) {
-                if (f.path.endsWith('.css')) {
-                  injected += '<style data-file="' + f.path + '">\n' + f.content + '\n</style>\n';
-                } else if (f.path.endsWith('.js')) {
-                  injected += '<script data-file="' + f.path + '">\n' + f.content + '\n<\/script>\n';
-                }
+              let injected = '<!-- Injected by RaaJS Studio -->\n';
+              otherFiles.forEach(f => {
+                if (f.path.endsWith('.css')) injected += `<style data-file="${f.path}">\n${f.content}\n</style>\n`;
+                else if (f.path.endsWith('.js')) injected += `<script data-file="${f.path}">\n${f.content}\n<\/script>\n`;
               });
-              var insertPos = html.indexOf('</head>');
-              if (insertPos > -1) {
-                html = html.substring(0, insertPos) + injected + html.substring(insertPos);
-              } else {
-                html = injected + html;
-              }
+              const pos = html.indexOf('</head>');
+              html = pos > -1 ? html.substring(0, pos) + injected + html.substring(pos) : injected + html;
             }
-            doc.open();
-            doc.write(html);
-            doc.close();
-            setTimeout(function () {
-              this.previewLoading = false;
-            }.bind(this), 300);
+
+            // ✅ srcdoc + <base> untuk path relatif akurat
+            const baseHref = window.location.href.replace(/\/[^/]*$/, '/');
+            const previewContent = html.replace(/<head([^>]*)>/i, `<head$1><base href="${baseHref}">`);
+            frame.srcdoc = previewContent;
+            setTimeout(() => { this.previewLoading = false; }, 250);
           },
 
-          // ======== Resizable Panels ========
-          startResizeTree: function (e) {
-            this._startResize(e, 'tree', '.panel-tree', 200, 360);
-          },
-          startResizePreview: function (e) {
-            this._startResize(e, 'preview', '.panel-preview', 320, 600);
-          },
-          _startResize: function (e, name, selector, min, max) {
+          // Resizable Panels
+          startResizeTree(e) { this._startResize(e, 'tree', '.panel-tree', 200, 360); },
+          startResizePreview(e) { this._startResize(e, 'preview', '.panel-preview', 320, 600); },
+          _startResize(e, name, selector, min, max) {
             e.preventDefault();
-            var panel = document.querySelector(selector);
+            const panel = document.querySelector(selector);
             if (!panel) return;
-            var startX = e.clientX;
-            var startW = panel.offsetWidth;
-            var handle = e.target;
+            const startX = e.clientX, startW = panel.offsetWidth;
+            const handle = e.target;
             handle.classList.add('dragging');
-            var self = this;
-
-            function onMove(ev) {
-              var delta = name === 'tree' ? (ev.clientX - startX) : (startX - ev.clientX);
-              var newW = startW + delta;
-              newW = Math.max(min, Math.min(max, newW));
-              panel.style.width = newW + 'px';
-            }
-
-            function onUp() {
+            const onMove = ev => {
+              const delta = name === 'tree' ? (ev.clientX - startX) : (startX - ev.clientX);
+              panel.style.width = Math.max(min, Math.min(max, startW + delta)) + 'px';
+            };
+            const onUp = () => {
               document.removeEventListener('mousemove', onMove);
               document.removeEventListener('mouseup', onUp);
               handle.classList.remove('dragging');
-            }
+            };
             document.addEventListener('mousemove', onMove);
             document.addEventListener('mouseup', onUp);
           },
 
-          // ======== API Key ========
-          saveApiKey: function () {
-            var key = (this.aiKeyInput || '')
-              .trim();
+          // API Key
+          saveApiKey() {
+            const key = (this.aiKeyInput || '').trim();
             if (!key) return;
-            var data = {
-              key: key,
-              expiry: Date.now() + 86400000
-            };
-            localStorage.setItem('RaaJS_Gemini_Session', JSON.stringify(data));
-            this.aiKey = key;
-            this.aiHasKey = true;
-            this.showSettings = false;
+            localStorage.setItem('RaaJS_Gemini_Session', JSON.stringify({ key, expiry: Date.now() + 86400000 }));
+            this.aiKey = key; this.aiHasKey = true; this.showSettings = false;
             this.showToast('API Key disimpan', 'success');
           },
-          _checkApiKey: function () {
-            var raw = localStorage.getItem('RaaJS_Gemini_Session');
+          _checkApiKey() {
+            const raw = localStorage.getItem('RaaJS_Gemini_Session');
             if (raw) {
               try {
-                var s = JSON.parse(raw);
-                if (Date.now() < s.expiry) {
-                  this.aiKey = s.key;
-                  this.aiKeyInput = s.key;
-                  this.aiHasKey = true;
-                  return;
-                }
+                const s = JSON.parse(raw);
+                if (Date.now() < s.expiry) { this.aiKey = s.key; this.aiKeyInput = s.key; this.aiHasKey = true; return; }
               } catch (e) {}
               localStorage.removeItem('RaaJS_Gemini_Session');
             }
             this.aiHasKey = false;
           },
-          resetApiKey: function () {
+          resetApiKey() {
             localStorage.removeItem('RaaJS_Gemini_Session');
-            this.aiKey = '';
-            this.aiKeyInput = '';
-            this.aiHasKey = false;
+            this.aiKey = ''; this.aiKeyInput = ''; this.aiHasKey = false;
             this.showToast('API Key dihapus', 'warning');
           },
 
-          // ======== AI Chat ========
-          handleChatKeydown: function (e) {
-            if (e.key === 'Enter' && !e.shiftKey) {
-              e.preventDefault();
-              this.sendMessage();
-            }
-          },
-          sendMessage: async function () {
-            var text = (this.chatInput || '')
-              .trim();
-            if (!text || this.aiLoading) return;
-            if (!this.aiKey) {
-              this.showToast('API Key belum diset!', 'error');
-              return;
-            }
+          // AI Chat
+          handleChatKeydown(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); this.sendMessage(); } },
+          async sendMessage() {
+            const text = (this.chatInput || '').trim();
+            if (!text || this.aiLoading || !this.aiKey) return;
             _msgId++;
-            this.aiMessages.push({
-              id: 'msg-' + _msgId,
-              sender: 'user',
-              text: text
-            });
-            this.chatInput = '';
-            this._scrollChat();
-            this.aiLoading = true;
+            this.aiMessages.push({ id: 'msg-' + _msgId, sender: 'user', text });
+            this.chatInput = ''; this._scrollChat(); this.aiLoading = true;
 
-            // Ambil isi file yg dipilih untuk context
-            var contextFiles = this.aiContextFiles.length ?
-              this.files.filter(f => this.aiContextFiles.includes(f.path)) : [];
+            const contextFiles = this.aiContextFiles.length
+              ? this.files.filter(f => this.aiContextFiles.includes(f.path)) : [];
+            const history = this.aiMessages.map(m => ({
+              role: m.sender === 'user' ? 'user' : 'model',
+              parts: [{ text: m.text }]
+            }));
+            const contextText = contextFiles.map(f => `File "${f.name}":\n${f.content}`).join('\n\n');
+            if (contextText) history.unshift({ role: 'system', parts: [{ text: `Context file terkait:\n${contextText}` }] });
 
-            // Gabungkan text pesan user + file content yg dipakai sebagai context
-            var history = this.aiMessages.map(m => {
-              return {
-                role: m.sender === 'user' ? 'user' : 'model',
-                parts: [{
-                  text: m.text
-                }]
-              };
-            });
-
-            // Tambahkan konten file context sebagai systemInstruction tambahan
-            var contextText = contextFiles.map(f => `File "${f.name}":\n${f.content}`)
-              .join('\n\n');
-            if (contextText) {
-              history.unshift({
-                role: 'system',
-                parts: [{
-                  text: `Context file terkait:\n${contextText}`
-                }]
-              });
-            }
-
-            var url = 'https://generativelanguage.googleapis.com/v1beta/models/' + this.aiModel + ':generateContent?key=' + this.aiKey;
-            var response = '',
-              success = false,
-              backoff = 1000;
-            for (var i = 0; i < 5; i++) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/${this.aiModel}:generateContent?key=${this.aiKey}`;
+            let response = '', success = false, backoff = 1000;
+            for (let i = 0; i < 5; i++) {
               try {
-                var res = await fetch(url, {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json'
-                  },
-
-                  body: JSON.stringify({
-                    contents: history,
-                    systemInstruction: {
-                      parts: [{
-                        text: 'Anda adalah asisten ahli RaaJS v3.1.0...'
-                      }]
-                    }
-                  })
+                const res = await fetch(url, {
+                  method: 'POST', headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ contents: history, systemInstruction: { parts: [{ text: 'Anda adalah asisten ahli RaaJS v3.1.0...' }] } })
                 });
                 if (res.ok) {
-                  var d = await res.json();
-                  response = d.candidates && d.candidates[0] && d.candidates[0].content && d.candidates[0].content.parts && d.candidates[0].content.parts[0] ? d.candidates[0].content.parts[0].text : 'Respon kosong.';
-                  success = true;
-                  break;
-                } else if (res.status === 429) {
-                  response = 'Limit API tercapai. Tunggu sebentar.';
-                  success = true;
-                  break;
-                }
-              } catch (err) {
-                console.warn('Fetch error:', err);
-              }
-              await new Promise(r => setTimeout(r, backoff));
-              backoff *= 2;
+                  const d = await res.json();
+                  response = d.candidates?.[0]?.content?.parts?.[0]?.text || 'Respon kosong.';
+                  success = true; break;
+                } else if (res.status === 429) { response = 'Limit API tercapai. Tunggu sebentar.'; success = true; break; }
+              } catch (err) { console.warn('Fetch error:', err); }
+              await new Promise(r => setTimeout(r, backoff)); backoff *= 2;
             }
             if (!success) response = 'Gagal terhubung ke AI setelah 5 percobaan. Periksa API Key atau koneksi.';
             _msgId++;
-            this.aiMessages.push({
-              id: 'msg-' + _msgId,
-              sender: 'model',
-              text: response
-            });
-            this.aiLoading = false;
-            this._scrollChat();
+            this.aiMessages.push({ id: 'msg-' + _msgId, sender: 'model', text: response });
+            this.aiLoading = false; this._scrollChat();
           },
-          _scrollChat: function () {
-            setTimeout(function () {
-              var el = this.$refs.chatHistory;
-              if (el) el.scrollTop = el.scrollHeight;
-            }.bind(this), 100);
-          },
+          _scrollChat() { setTimeout(() => { const el = this.$refs.chatHistory; if (el) el.scrollTop = el.scrollHeight; }, 100); },
 
-          // ======== GitHub ========
-          _loadGitHubConfig: function () {
-            var raw = localStorage.getItem('RaaJS_GitHub_Config');
+          // GitHub
+          _loadGitHubConfig() {
+            const raw = localStorage.getItem('RaaJS_GitHub_Config');
             if (raw) {
               try {
-                var c = JSON.parse(raw);
-                this.ghToken = c.token || '';
-                this.ghRepo = c.repo || '';
-                this.ghBranch = c.branch || 'main';
-                this.ghRootPath = c.rootPath || '';
-                this.ghAutoSync = c.autoSync || false;
-                if (this.ghToken && this.ghRepo) {
-                  this._initOctokit();
-                  this.ghConnected = true;
-                }
+                const c = JSON.parse(raw);
+                this.ghToken = c.token || ''; this.ghRepo = c.repo || ''; this.ghBranch = c.branch || 'main';
+                this.ghRootPath = c.rootPath || ''; this.ghAutoSync = c.autoSync || false;
+                if (this.ghToken && this.ghRepo) { this._initOctokit(); this.ghConnected = true; }
               } catch (e) {}
             }
           },
-          saveGitHubConfig: function () {
-            var token = (this.ghTokenInput || '')
-              .trim();
-            var repo = (this.ghRepoInput || '')
-              .trim();
-            if (!token || !repo) {
-              this.showToast('Token dan Repository wajib diisi', 'error');
-              return;
-            }
-            var cfg = {
-              token: token,
-              repo: repo,
-              branch: this.ghBranch,
-              rootPath: this.ghRootPath,
-              autoSync: this.ghAutoSync
-            };
-            localStorage.setItem('RaaJS_GitHub_Config', JSON.stringify(cfg));
-            this.ghToken = token;
-            this.ghRepo = repo;
-            this.ghTokenInput = '';
-            this._initOctokit();
-            this.ghConnected = true;
+          saveGitHubConfig() {
+            const token = (this.ghTokenInput || '').trim(), repo = (this.ghRepoInput || '').trim();
+            if (!token || !repo) { this.showToast('Token dan Repository wajib diisi', 'error'); return; }
+            localStorage.setItem('RaaJS_GitHub_Config', JSON.stringify({ token, repo, branch: this.ghBranch, rootPath: this.ghRootPath, autoSync: this.ghAutoSync }));
+            this.ghToken = token; this.ghRepo = repo; this.ghTokenInput = '';
+            this._initOctokit(); this.ghConnected = true;
             this.showToast('Konfigurasi GitHub disimpan', 'success');
-            setTimeout(function () {
-              this.checkGitHubSync();
-            }.bind(this), 400);
+            setTimeout(() => this.checkGitHubSync(), 400);
           },
-          _initOctokit: function () {
-            if (typeof Octokit !== 'undefined' && this.ghToken) {
-              _octokit = new Octokit({
-                auth: this.ghToken
-              });
-            }
-          },
-          testGitHubConnection: async function () {
-            var token = (this.ghTokenInput || '')
-              .trim() || this.ghToken;
-            if (!token) {
-              this.ghTestResult = 'Token diperlukan';
-              this.ghTestError = true;
-              return;
-            }
-            this.ghTestResult = 'Menghubungkan...';
-            this.ghTestError = false;
+          _initOctokit() { if (typeof Octokit !== 'undefined' && this.ghToken) _octokit = new Octokit({ auth: this.ghToken }); },
+          async testGitHubConnection() {
+            const token = (this.ghTokenInput || '').trim() || this.ghToken;
+            if (!token) { this.ghTestResult = 'Token diperlukan'; this.ghTestError = true; return; }
+            this.ghTestResult = 'Menghubungkan...'; this.ghTestError = false;
             try {
-              var client = new Octokit({
-                auth: token
-              });
-              var r = await client.rest.users.getAuthenticated();
-              this.ghTestResult = 'Terhubung sebagai @' + r.data.login;
-              this.ghTestError = false;
-              this.showToast('Koneksi berhasil!', 'success');
-            } catch (e) {
-              this.ghTestResult = e.message || 'Gagal terhubung';
-              this.ghTestError = true;
-              this.showToast('Gagal: ' + e.message, 'error');
-            }
+              const r = await new Octokit({ auth: token }).rest.users.getAuthenticated();
+              this.ghTestResult = 'Terhubung sebagai @' + r.data.login; this.showToast('Koneksi berhasil!', 'success');
+            } catch (e) { this.ghTestResult = e.message || 'Gagal terhubung'; this.ghTestError = true; this.showToast('Gagal: ' + e.message, 'error'); }
           },
-          checkGitHubSync: async function () {
-            if (!this.ghConnected || !_octokit) {
-              this.showToast('Konfigurasi GitHub belum lengkap', 'warning');
-              return;
-            }
-            this.ghSyncLoading = true;
-            this.ghSyncResults = [];
-            this.ghChecked = true;
+          async checkGitHubSync() {
+            if (!this.ghConnected || !_octokit) { this.showToast('Konfigurasi GitHub belum lengkap', 'warning'); return; }
+            this.ghSyncLoading = true; this.ghSyncResults = []; this.ghChecked = true;
             try {
-              var parts = this.ghRepo.split('/');
-              var owner = parts[0],
-                repo = parts[1];
+              const [owner, repo] = this.ghRepo.split('/');
               if (!owner || !repo) throw new Error('Format: username/repo');
-              var path = this.ghRootPath || '';
-              var ghFiles = [];
+              const path = this.ghRootPath || '';
+              let ghFiles = [];
               try {
-                var dir = await _octokit.rest.repos.getContent({
-                  owner: owner,
-                  repo: repo,
-                  path: path,
-                  ref: this.ghBranch
-                });
+                const dir = await _octokit.rest.repos.getContent({ owner, repo, path, ref: this.ghBranch });
                 ghFiles = Array.isArray(dir.data) ? dir.data : [dir.data];
-              } catch (e) {
-                if (e.status !== 404) throw e;
-              }
-              var ghMap = {};
-              ghFiles.forEach(function (f) {
-                if (f.type === 'file') {
-                  var rp = f.path.replace(path + (path ? '/' : ''), '');
-                  ghMap[rp] = {
-                    sha: f.sha
-                  };
-                }
-              });
-              var self = this;
-              var results = await Promise.all(this.files.map(async function (lf) {
-                var status = 'pending';
+              } catch (e) { if (e.status !== 404) throw e; }
+              const ghMap = {};
+              ghFiles.forEach(f => { if (f.type === 'file') ghMap[f.path.replace(path + (path ? '/' : ''), '')] = { sha: f.sha }; });
+              const results = await Promise.all(this.files.map(async lf => {
+                let status = 'pending';
                 if (ghMap[lf.path]) {
                   try {
-                    var gp = path ? (path + '/' + lf.path) : lf.path;
-                    var resp = await _octokit.rest.repos.getContent({
-                      owner: owner,
-                      repo: repo,
-                      path: gp,
-                      ref: self.ghBranch
-                    });
-                    var remote = self._b64Decode(resp.data.content);
-                    status = (remote === lf.content) ? 'synced' : 'pending';
-                  } catch (e) {
-                    status = 'pending';
-                  }
+                    const gp = path ? `${path}/${lf.path}` : lf.path;
+                    const resp = await _octokit.rest.repos.getContent({ owner, repo, path: gp, ref: this.ghBranch });
+                    status = (this._b64Decode(resp.data.content) === lf.content) ? 'synced' : 'pending';
+                  } catch (e) { status = 'pending'; }
                 }
-                return {
-                  path: lf.path,
-                  status: status,
-                  selected: status === 'pending'
-                };
+                return { path: lf.path, status, selected: status === 'pending' };
               }));
               this.ghSyncResults = results;
-              var batch = {};
-              results.forEach(function (r) {
-                batch[r.path] = r.status;
-              });
+              const batch = {}; results.forEach(r => batch[r.path] = r.status);
               Object.assign(this.ghFileStatus, batch);
-              var pending = results.filter(function (r) {
-                  return r.status === 'pending';
-                })
-                .length;
+              const pending = results.filter(r => r.status === 'pending').length;
               this.showToast(pending === 0 ? 'Semua file tersinkron!' : pending + ' file perlu diupload', pending === 0 ? 'success' : 'warning');
-            } catch (e) {
-              console.error('Sync check failed:', e);
-              this.showToast('Gagal memeriksa sync: ' + e.message, 'error');
-            }
+            } catch (e) { console.error('Sync check failed:', e); this.showToast('Gagal memeriksa sync: ' + e.message, 'error'); }
             this.ghSyncLoading = false;
           },
-          _initGhStatus: function () {
-            var batch = {};
-            this.files.forEach(function (f) {
-              batch[f.path] = 'pending';
-            });
-            Object.assign(this.ghFileStatus, batch);
-          },
-          _markGhPending: function (p) {
-            var batch = {};
-            batch[p] = 'pending';
-            Object.assign(this.ghFileStatus, batch);
-          },
-          _updateGitHubStatus: function () {},
-          selectAllSync: function (s) {
-            this.ghSyncResults = this.ghSyncResults.map(function (r) {
-              return r.status === 'pending' ? Object.assign({}, r, {
-                selected: s
-              }) : r;
-            });
-          },
-
-          _b64Encode: function (str) {
-            try {
-              const bytes = new TextEncoder()
-                .encode(str);
-              let binary = '';
-              const chunkSize = 0x8000; // 32768
-              for (let i = 0; i < bytes.length; i += chunkSize) {
-                const chunk = bytes.subarray(i, i + chunkSize);
-                binary += String.fromCharCode.apply(null, chunk);
-              }
-              return btoa(binary);
-            } catch (e) {
-              // fallback legacy jika error
-              return btoa(unescape(encodeURIComponent(str)));
-            }
-          },
-
-          _b64Decode: function (str) {
-            try {
-              const binary = atob(str.replace(/\s/g, ''));
-              const bytes = new Uint8Array(binary.length);
-              for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-              return new TextDecoder()
-                .decode(bytes);
-            } catch (e) {
-              return decodeURIComponent(escape(atob(str)));
-            }
-          },
-
-          executeGitHubUpload: async function (fromManage) {
+          _initGhStatus() { const batch = {}; this.files.forEach(f => batch[f.path] = 'pending'); Object.assign(this.ghFileStatus, batch); },
+          _markGhPending(p) { Object.assign(this.ghFileStatus, { [p]: 'pending' }); },
+          _updateGitHubStatus() {},
+          selectAllSync(s) { this.ghSyncResults = this.ghSyncResults.map(r => r.status === 'pending' ? { ...r, selected: s } : r); },
+          _b64Encode(str) { try { const bytes = new TextEncoder().encode(str); let binary = ''; for (let i = 0; i < bytes.length; i += 0x8000) binary += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000)); return btoa(binary); } catch (e) { return btoa(unescape(encodeURIComponent(str))); } },
+          _b64Decode(str) { try { const binary = atob(str.replace(/\s/g, '')); const bytes = new Uint8Array(binary.length); for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i); return new TextDecoder().decode(bytes); } catch (e) { return decodeURIComponent(escape(atob(str))); } },
+          async executeGitHubUpload(fromManage) {
             fromManage = fromManage || false;
-            if (!this.ghConnected || !_octokit) {
-              this.showToast('GitHub belum terkoneksi', 'error');
-              return;
-            }
-            var files;
-            if (fromManage) {
-              files = this.files.filter(function (f) {
-                return this.ghManageSel[f.path];
-              }.bind(this));
-            } else {
-              files = this.ghSyncResults.filter(function (r) {
-                  return r.selected && r.status === 'pending';
-                })
-                .map(function (r) {
-                  return this.files.find(function (f) {
-                    return f.path === r.path;
-                  });
-                }.bind(this))
-                .filter(Boolean);
-            }
-            if (!files.length) {
-              this.showToast('Pilih file untuk diupload', 'warning');
-              return;
-            }
-            this.ghUploadLoading = true;
-            this.ghUploadProgress = 0;
-            var parts = this.ghRepo.split('/');
-            var owner = parts[0],
-              repo = parts[1];
-            var bp = this.ghRootPath ? this.ghRootPath.replace(/\/$/, '') : '';
-            var done = 0;
-            var self = this;
+            if (!this.ghConnected || !_octokit) { this.showToast('GitHub belum terkoneksi', 'error'); return; }
+            const files = fromManage
+              ? this.files.filter(f => this.ghManageSel[f.path])
+              : this.ghSyncResults.filter(r => r.selected && r.status === 'pending').map(r => this.files.find(f => f.path === r.path)).filter(Boolean);
+            if (!files.length) { this.showToast('Pilih file untuk diupload', 'warning'); return; }
+            this.ghUploadLoading = true; this.ghUploadProgress = 0;
+            const [owner, repo] = this.ghRepo.split('/');
+            const bp = this.ghRootPath ? this.ghRootPath.replace(/\/$/, '') : '';
+            let done = 0;
             try {
-              await Promise.all(files.map(async function (file) {
-                var gp = bp ? (bp + '/' + file.path) : file.path;
+              await Promise.all(files.map(async file => {
+                const gp = bp ? `${bp}/${file.path}` : file.path;
                 try {
-                  var sha = null;
-                  try {
-                    var shaR = await _octokit.rest.repos.getContent({
-                      owner: owner,
-                      repo: repo,
-                      path: gp,
-                      ref: self.ghBranch
-                    });
-                    sha = shaR.data.sha;
-                  } catch (e) {
-                    if (e.status !== 404) throw e;
-                  }
-                  await _octokit.rest.repos.createOrUpdateFileContents({
-                    owner: owner,
-                    repo: repo,
-                    path: gp,
-                    message: 'Update via RaaJS Studio: ' + file.name,
-                    content: self._b64Encode(file.content),
-                    branch: self.ghBranch,
-                    sha: sha || undefined
-                  });
-                  var ok = {};
-                  ok[file.path] = 'synced';
-                  Object.assign(self.ghFileStatus, ok);
-                  var sr = self.ghSyncResults.find(function (x) {
-                    return x.path === file.path;
-                  });
-                  if (sr) sr.status = 'synced';
-                } catch (e) {
-                  console.error('Upload fail', file.path, e);
-                  var er = {};
-                  er[file.path] = 'error';
-                  Object.assign(self.ghFileStatus, er);
-                  self.showToast('Gagal upload ' + file.path, 'error');
-                } finally {
-                  done++;
-                  self.ghUploadProgress = Math.round((done / files.length) * 100);
-                }
+                  let sha = null;
+                  try { sha = (await _octokit.rest.repos.getContent({ owner, repo, path: gp, ref: this.ghBranch })).data.sha; } catch (e) { if (e.status !== 404) throw e; }
+                  await _octokit.rest.repos.createOrUpdateFileContents({ owner, repo, path: gp, message: 'Update via RaaJS Studio: ' + file.name, content: this._b64Encode(file.content), branch: this.ghBranch, sha: sha || undefined });
+                  Object.assign(this.ghFileStatus, { [file.path]: 'synced' });
+                  const sr = this.ghSyncResults.find(x => x.path === file.path); if (sr) sr.status = 'synced';
+                } catch (e) { console.error('Upload fail', file.path, e); Object.assign(this.ghFileStatus, { [file.path]: 'error' }); this.showToast('Gagal upload ' + file.path, 'error'); }
+                finally { done++; this.ghUploadProgress = Math.round((done / files.length) * 100); }
               }));
               this.showToast(done + ' file berhasil diupload!', 'success');
-            } catch (e) {
-              console.error('Batch upload failed:', e);
-              this.showToast('Error: ' + e.message, 'error');
-            }
-            this.ghUploadLoading = false;
-            setTimeout(function () {
-              self.ghUploadProgress = 0;
-            }, 1200);
+            } catch (e) { console.error('Batch upload failed:', e); this.showToast('Error: ' + e.message, 'error'); }
+            this.ghUploadLoading = false; setTimeout(() => this.ghUploadProgress = 0, 1200);
           },
-          executeGitHubDelete: async function () {
-            if (!this.ghConnected || !_octokit) {
-              this.showToast('GitHub belum terkoneksi', 'error');
-              return;
-            }
-            var sel = this.files.filter(function (f) {
-              return this.ghManageSel[f.path];
-            }.bind(this));
-            if (!sel.length) {
-              this.showToast('Pilih file untuk dihapus', 'warning');
-              return;
-            }
-            if (!confirm(`Hapus ${sel.length} file dari GitHub?
-            File lokal TIDAK terhapus.
-            `)) return;
-                this.ghUploadLoading = true;
-                var parts = this.ghRepo.split('/');
-                var owner = parts[0], repo = parts[1];
-                var bp = this.ghRootPath ? this.ghRootPath.replace(/\/$/, '') : '';
-                var self = this;
+          async executeGitHubDelete() {
+            if (!this.ghConnected || !_octokit) { this.showToast('GitHub belum terkoneksi', 'error'); return; }
+            const sel = this.files.filter(f => this.ghManageSel[f.path]);
+            if (!sel.length) { this.showToast('Pilih file untuk dihapus', 'warning'); return; }
+            if (!confirm(`Hapus ${sel.length} file dari GitHub?\nFile lokal TIDAK terhapus.`)) return;
+            this.ghUploadLoading = true;
+            const [owner, repo] = this.ghRepo.split('/');
+            const bp = this.ghRootPath ? this.ghRootPath.replace(/\/$/, '') : '';
+            try {
+              await Promise.all(sel.map(async file => {
+                const gp = bp ? `${bp}/${file.path}` : file.path;
                 try {
-                  await Promise.all(sel.map(async function (file) {
-                    var gp = bp ? (bp + '/' + file.path) : file.path;
-                    try {
-                      var dr = await _octokit.rest.repos.getContent({
-                        owner: owner,
-                        repo: repo,
-                        path: gp,
-                        ref: self.ghBranch
-                      });
-                      await _octokit.rest.repos.deleteFile({
-                        owner: owner,
-                        repo: repo,
-                        path: gp,
-                        message: 'Hapus via RaaJS: ' + file.name,
-                        sha: dr.data.sha,
-                        branch: self.ghBranch
-                      });
-                      var pd = {};
-                      pd[file.path] = 'pending';
-                      Object.assign(self.ghFileStatus, pd);
-                    } catch (e) {
-                      if (e.status === 404) {
-                        var pd2 = {};
-                        pd2[file.path] = 'pending';
-                        Object.assign(self.ghFileStatus, pd2);
-                      } else {
-                        self.showToast('Gagal hapus ' + file.path, 'error');
-                      }
-                    }
-                  }));
-                  this.showToast(sel.length + ' file dihapus dari GitHub', 'success');
-                } catch (e) {
-                  this.showToast('Error: ' + e.message, 'error');
-                }
-                this.ghUploadLoading = false;
-              },
+                  const dr = await _octokit.rest.repos.getContent({ owner, repo, path: gp, ref: this.ghBranch });
+                  await _octokit.rest.repos.deleteFile({ owner, repo, path: gp, message: 'Hapus via RaaJS: ' + file.name, sha: dr.data.sha, branch: this.ghBranch });
+                  Object.assign(this.ghFileStatus, { [file.path]: 'pending' });
+                } catch (e) { if (e.status !== 404) this.showToast('Gagal hapus ' + file.path, 'error'); }
+              }));
+              this.showToast(sel.length + ' file dihapus dari GitHub', 'success');
+            } catch (e) { this.showToast('Error: ' + e.message, 'error'); }
+            this.ghUploadLoading = false;
+          },
 
-              // ======== Reset ========
-              resetProject: async function () {
-                  if (!confirm('Reset ke file bawaan?')) return;
-                  this.loadingFiles = true;
-                  var tx = _db.transaction('files', 'readwrite');
-                  tx.objectStore('files')
-                    .clear();
-                  await new Promise(function (r) {
-                    tx.oncomplete = r;
-                  });
-                  var defs = DEFAULT_FILES.map(function (f) {
-                    return {
-                      path: f.path,
-                      name: f.name,
-                      content: f.content
-                    };
-                  });
-                  for (var i = 0; i < defs.length; i++) {
-                    await this._saveFile(defs[i]);
-                  }
-                  this.files = defs;
-                  this.activeFilePath = defs[0].path;
-                  this.activeFileContent = defs[0].content;
-                  this.unsavedChanges = false;
-                  this._initGhStatus();
-                  this.loadingFiles = false;
-                  this.showToast('Proyek direset', 'success');
-                },
-                factoryReset: async function () {
-                    if (!confirm('Hapus SEMUA data lokal?')) return;
-                    localStorage.removeItem('RaaJS_Gemini_Session');
-                    localStorage.removeItem('RaaJS_GitHub_Config');
-                    localStorage.removeItem('RaaJS_UI_Persist');
-                    var tx = _db.transaction('files', 'readwrite');
-                    tx.objectStore('files')
-                      .clear();
-                    await new Promise(function (r) {
-                      tx.oncomplete = r;
-                    });
-                    location.reload();
-                  },
+          // Reset
+          async resetProject() {
+            if (!confirm('Reset ke file bawaan?')) return;
+            this.loadingFiles = true;
+            const tx = _db.transaction('files', 'readwrite');
+            tx.objectStore('files').clear();
+            await new Promise(r => tx.oncomplete = r);
+            const defs = DEFAULT_FILES.map(f => ({ path: f.path, name: f.name, content: f.content }));
+            for (const d of defs) await this._saveFile(d);
+            this.files = defs; this.activeFilePath = defs[0].path; this.activeFileContent = defs[0].content;
+            this.activeFileName = defs[0].name; this.unsavedChanges = false; this._initGhStatus();
+            this.loadingFiles = false; this.showToast('Proyek direset', 'success');
+          },
+          async factoryReset() {
+            if (!confirm('Hapus SEMUA data lokal?')) return;
+            localStorage.removeItem('RaaJS_Gemini_Session'); localStorage.removeItem('RaaJS_GitHub_Config'); localStorage.removeItem('RaaJS_UI_Persist');
+            const tx = _db.transaction('files', 'readwrite'); tx.objectStore('files').clear();
+            await new Promise(r => tx.oncomplete = r); location.reload();
+          },
 
-                  // ======== Toast ========
-                  showToast: function (msg, type) {
-                    type = type || 'success';
-                    this.toastMessage = msg;
-                    this.toastType = type;
-                    this.toastVisible = true;
-                    setTimeout(function () {
-                      this.toastVisible = false;
-                    }.bind(this), 3500);
-                  },
+          // Toast
+          showToast(msg, type = 'success') {
+            this.toastMessage = msg; this.toastType = type; this.toastVisible = true;
+            setTimeout(() => this.toastVisible = false, 3500);
+          },
 
-                  // ======== Persist ========
-                  _saveUIPersist: function () {
-                    try {
-                      var data = {
-                        showTree: this.showTree,
-                        showPreview: this.showPreview,
-                        showChat: this.showChat
-                      };
-                      localStorage.setItem('RaaJS_UI_Persist', JSON.stringify(data));
-                    } catch (e) {}
-                  },
-                  _loadUIPersist: function () {
-                    try {
-                      var raw = localStorage.getItem('RaaJS_UI_Persist');
-                      if (raw) {
-                        var s = JSON.parse(raw);
-                        if (typeof s.showTree === 'boolean') this.showTree = s.showTree;
-                        if (typeof s.showPreview === 'boolean') this.showPreview = s.showPreview;
-                        if (typeof s.showChat === 'boolean') this.showChat = s.showChat;
-                      }
-                    } catch (e) {}
-                  },
+          // Persist
+          _saveUIPersist() { try { localStorage.setItem('RaaJS_UI_Persist', JSON.stringify({ showTree: this.showTree, showPreview: this.showPreview, showChat: this.showChat })); } catch (e) {} },
+          _loadUIPersist() { try { const raw = localStorage.getItem('RaaJS_UI_Persist'); if (raw) { const s = JSON.parse(raw); if (typeof s.showTree === 'boolean') this.showTree = s.showTree; if (typeof s.showPreview === 'boolean') this.showPreview = s.showPreview; if (typeof s.showChat === 'boolean') this.showChat = s.showChat; } } catch (e) {} },
 
-                  // ======== IndexedDB ========
-                  _initDB: async function () {
-                      return new Promise(function (resolve, reject) {
-                        var req = indexedDB.open(DB_NAME, DB_VERSION);
-                        req.onupgradeneeded = function (e) {
-                          var db = e.target.result;
-                          if (!db.objectStoreNames.contains('files')) {
-                            db.createObjectStore('files', {
-                              keyPath: 'path'
-                            });
-                          }
-                        };
-                        req.onsuccess = function (e) {
-                          _db = e.target.result;
-                          resolve();
-                        };
-                        req.onerror = function (e) {
-                          reject(e.target.error);
-                        };
-                      });
-                    },
-                    _loadFiles: async function () {
-                        var tx = _db.transaction('files', 'readonly');
-                        var items = await new Promise(function (r) {
-                          var req = tx.objectStore('files')
-                            .getAll();
-                          req.onsuccess = function () {
-                            r(req.result);
-                          };
-                          req.onerror = function () {
-                            r([]);
-                          };
-                        });
-                        if (!items.length) {
-                          var defs = DEFAULT_FILES.map(function (f) {
-                            return {
-                              path: f.path,
-                              name: f.name,
-                              content: f.content
-                            };
-                          });
-                          for (var i = 0; i < defs.length; i++) {
-                            await this._saveFile(defs[i]);
-                          }
-                          this.files = defs;
-                        } else {
-                          this.files = items;
-                        }
-                      },
-                      _saveFile: async function (f) {
-                          var tx = _db.transaction('files', 'readwrite');
-                          tx.objectStore('files')
-                            .put({
-                              path: f.path,
-                              name: f.name,
-                              content: f.content
-                            });
-                          return new Promise(function (r) {
-                            tx.oncomplete = r;
-                          });
-                        },
-                        _deleteFile: async function (p) {
-                          var tx = _db.transaction('files', 'readwrite');
-                          tx.objectStore('files')
-                            .delete(p);
-                          return new Promise(function (r) {
-                            tx.oncomplete = r;
-                          });
-                        }
-            }
-          };
-        });
-    </script>
+          // IndexedDB
+          _initDB() { return new Promise((resolve, reject) => { const req = indexedDB.open(DB_NAME, DB_VERSION); req.onupgradeneeded = e => { const db = e.target.result; if (!db.objectStoreNames.contains('files')) db.createObjectStore('files', { keyPath: 'path' }); }; req.onsuccess = e => { _db = e.target.result; resolve(); }; req.onerror = e => reject(e.target.error); }); },
+          async _loadFiles() {
+            const tx = _db.transaction('files', 'readonly');
+            const items = await new Promise(r => { const req = tx.objectStore('files').getAll(); req.onsuccess = () => r(req.result); req.onerror = () => r([]); });
+            if (!items.length) { const defs = DEFAULT_FILES.map(f => ({ path: f.path, name: f.name, content: f.content })); for (const d of defs) await this._saveFile(d); this.files = defs; } else { this.files = items; }
+            this.isPreviewable = this.files.some(f => f.path === 'index.html'); // ✅ Update state eksplisit
+          },
+          _saveFile(f) { const tx = _db.transaction('files', 'readwrite'); tx.objectStore('files').put({ path: f.path, name: f.name, content: f.content }); return new Promise(r => tx.oncomplete = r); },
+          _deleteFile(p) { const tx = _db.transaction('files', 'readwrite'); tx.objectStore('files').delete(p); return new Promise(r => tx.oncomplete = r); }
+        }
+      };
+    });
+  </script>
 </body>
 </html>
