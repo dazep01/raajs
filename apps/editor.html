@@ -18,7 +18,6 @@
     <script src="../engine/extensions/raa-i18n.js"></script>
     <script src="../engine/extensions/raa-eventbus.js"></script>
     <script src="../engine/extensions/raa-template.js"></script>
-    <script src="../engine/extensions/raa-devtools.js"></script>
     <style>
 :root { --bg-base: #0F0E13; --bg-surface: #16151D; --bg-elevated: #1C1B24; --bg-hover: #242330; --bg-active: #2A2938; --bg-code: #13121A; --border-subtle: rgba(255,255,255,0.06); --border-light: rgba(255,255,255,0.10); --border-medium: rgba(255,255,255,0.14); --text-primary: #F0F0F5; --text-secondary: #A0A0B0; --text-muted: #6E6E80; --text-inverse: #0F0E13; --accent-orange: #FF8C5F; --accent-rose: #E87DA8; --accent-purple: #B06DD4; --accent-sky: #7EB8D9; --accent-mint: #6DC9A0; --accent-amber: #F0C06E; --gradient-brand: linear-gradient(135deg, #FF8C5F 0%, #E87DA8 50%, #B06DD4 100%); --gradient-brand-soft: linear-gradient(135deg, rgba(255,140,95,0.15) 0%, rgba(176,109,212,0.15) 100%); --shadow-xs: 0 1px 2px rgba(0,0,0,0.3); --shadow-soft: 0 4px 12px rgba(0,0,0,0.4); --shadow-md: 0 8px 24px rgba(0,0,0,0.5); --shadow-lg: 0 16px 48px rgba(0,0,0,0.6); --shadow-glow-orange: 0 0 20px rgba(255,140,95,0.25); --shadow-glow-purple: 0 0 20px rgba(176,109,212,0.25); --radius-xs: 4px; --radius-sm: 8px; --radius-md: 12px; --radius-lg: 16px; --radius-xl: 20px; --radius-full: 9999px; --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1); --transition-smooth: 0.25s cubic-bezier(0.4, 0, 0.2, 1); --transition-bounce: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) }
 
@@ -370,13 +369,19 @@
           <span raa-bind:text="githubStatusLabel"></span>
         </button>
         <button raa-on:click="toggleSettings()" class="btn-icon" title="Pengaturan">
-          <svg width="18" height="18" fill="currentColor" viewBox="0 0 256 256"><path d="M128,80a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,80a32,32,0,1,1,32-32A32,32,0,0,1,128,160Zm88-29.84q.06-2.16,0-4.32l14.92-18.64a8,8,0,0,0,1.48-7.06,107.21,107.21,0,0,0-10.88-26.25,8,8,0,0,0-6-3.93l-23.72-2.64q-1.48-1.56-3-3L186,40.54a8,8,0,0,0-3.94-6,107.71,107.71,0,0,0-26.25-10.87,8,8,0,0,0-7.06,1.49L130.16,40Q128,40,125.84,40L107.2,25.11a8,8,0,0,0-7.06-1.48A107.6,107.6,0,0,0,73.89,34.51a8,8,0,0,0-3.93,6L67.32,64.27q-1.56,1.49-3,3L40.54,70a8,8,0,0,0-6,3.94,107.71,107.71,0,0,0-10.87,26.25,8,8,0,0,0,1.49,7.06L40,125.84Q40,128,40,130.16L25.11,148.8a8,8,0,0,0-1.48,7.06,107.21,107.21,0,0,0,10.88,26.25,8,8,0,0,0,6,3.93l23.72,2.64q1.49,1.56,3,3L70,215.46a8,8,0,0,0,3.94,6,107.71,107.71,0,0,0,26.25,10.87,8,8,0,0,0,7.06-1.49L125.84,216q2.16.06,4.32,0l18.64,14.92a8,8,0,0,0,7.06,1.48,107.21,107.21,0,0,0,26.25-10.88,8,8,0,0,0,3.93-6l2.64-23.72q1.56-1.48,3-3L215.46,186a8,8,0,0,0,6-3.94,107.71,107.71,0,0,0,10.87-26.25,8,8,0,0,0-1.49-7.06Zm-16.1-6.5a73.93,73.93,0,0,1,0,8.68,8,8,0,0,0,1.74,5.48l14.19,17.73a91.57,91.57,0,0,1-6.23,15L187,173.11a8,8,0,0,0-5.1,2.64,74.11,74.11,0,0,1-6.14,6.14,8,8,0,0,0-2.64,5.1l-2.51,22.58a91.32,91.32,0,0,1-15,6.23l-17.74-14.19a8,8,0,0,0-5-1.75h-.48a73.93,73.93,0,0,1-8.68,0,8,8,0,0,0-5.48,1.74L100.45,215.8a91.57,91.57,0,0,1-15-6.23L82.89,187a8,8,0,0,0-2.64-5.1,74.11,74.11,0,0,1-6.14-6.14,8,8,0,0,0-5.1-2.64L46.43,170.6a91.32,91.32,0,0,1-6.23-15l14.19-17.74a8,8,0,0,0,1.74-5.48,73.93,73.93,0,0,1,0-8.68,8,8,0,0,0-1.74-5.48L40.2,100.45a91.57,91.57,0,0,1,6.23-15L69,82.89a8,8,0,0,0,5.1-2.64,74.11,74.11,0,0,1,6.14-6.14A8,8,0,0,0,82.89,69L85.4,46.43a91.32,91.32,0,0,1,15-6.23l17.74,14.19a8,8,0,0,0,5.48,1.74,73.93,73.93,0,0,1,8.68,0,8,8,0,0,0,5.48-1.74L155.55,40.2a91.57,91.57,0,0,1,15,6.23L173.11,69a8,8,0,0,0,2.64,5.1,74.11,74.11,0,0,1,6.14,6.14,8,8,0,0,0,5.1,2.64l22.58,2.51a91.32,91.32,0,0,1,6.23,15l-14.19,17.74A8,8,0,0,0,199.87,123.66Z"/></svg>
+          <svg width="18" height="18" fill="currentColor" viewBox="0 0 256 256">
+            <path d="M128,80a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,80a32,32,0,1,1,32-32A32,32,0,0,1,128,160Zm88-29.84q.06-2.16,0-4.32l14.92-18.64a8,8,0,0,0,1.48-7.06,107.21,107.21,0,0,0-10.88-26.25,8,8,0,0,0-6-3.93l-23.72-2.64q-1.48-1.56-3-3L186,40.54a8,8,0,0,0-3.94-6,107.71,107.71,0,0,0-26.25-10.87,8,8,0,0,0-7.06,1.49L130.16,40Q128,40,125.84,40L107.2,25.11a8,8,0,0,0-7.06-1.48A107.6,107.6,0,0,0,73.89,34.51a8,8,0,0,0-3.93,6L67.32,64.27q-1.56,1.49-3,3L40.54,70a8,8,0,0,0-6,3.94,107.71,107.71,0,0,0-10.87,26.25,8,8,0,0,0,1.49,7.06L40,125.84Q40,128,40,130.16L25.11,148.8a8,8,0,0,0-1.48,7.06,107.21,107.21,0,0,0,10.88,26.25,8,8,0,0,0,6,3.93l23.72,2.64q1.49,1.56,3,3L70,215.46a8,8,0,0,0,3.94,6,107.71,107.71,0,0,0,26.25,10.87,8,8,0,0,0,7.06-1.49L125.84,216q2.16.06,4.32,0l18.64,14.92a8,8,0,0,0,7.06,1.48,107.21,107.21,0,0,0,26.25-10.88,8,8,0,0,0,3.93-6l2.64-23.72q1.56-1.48,3-3L215.46,186a8,8,0,0,0,6-3.94,107.71,107.71,0,0,0,10.87-26.25,8,8,0,0,0-1.49-7.06Zm-16.1-6.5a73.93,73.93,0,0,1,0,8.68,8,8,0,0,0,1.74,5.48l14.19,17.73a91.57,91.57,0,0,1-6.23,15L187,173.11a8,8,0,0,0-5.1,2.64,74.11,74.11,0,0,1-6.14,6.14,8,8,0,0,0-2.64,5.1l-2.51,22.58a91.32,91.32,0,0,1-15,6.23l-17.74-14.19a8,8,0,0,0-5-1.75h-.48a73.93,73.93,0,0,1-8.68,0,8,8,0,0,0-5.48,1.74L100.45,215.8a91.57,91.57,0,0,1-15-6.23L82.89,187a8,8,0,0,0-2.64-5.1,74.11,74.11,0,0,1-6.14-6.14,8,8,0,0,0-5.1-2.64L46.43,170.6a91.32,91.32,0,0,1-6.23-15l14.19-17.74a8,8,0,0,0,1.74-5.48,73.93,73.93,0,0,1,0-8.68,8,8,0,0,0-1.74-5.48L40.2,100.45a91.57,91.57,0,0,1,6.23-15L69,82.89a8,8,0,0,0,5.1-2.64,74.11,74.11,0,0,1,6.14-6.14A8,8,0,0,0,82.89,69L85.4,46.43a91.32,91.32,0,0,1,15-6.23l17.74,14.19a8,8,0,0,0,5.48,1.74,73.93,73.93,0,0,1,8.68,0,8,8,0,0,0,5.48-1.74L155.55,40.2a91.57,91.57,0,0,1,15,6.23L173.11,69a8,8,0,0,0,2.64,5.1,74.11,74.11,0,0,1,6.14,6.14,8,8,0,0,0,5.1,2.64l22.58,2.51a91.32,91.32,0,0,1,6.23,15l-14.19,17.74A8,8,0,0,0,199.87,123.66Z" />
+          </svg>
         </button>
         <button raa-on:click="toggleChat()" class="btn-icon" title="Tanya AI">
-          <svg width="18" height="18" fill="currentColor" viewBox="0 0 256 256"><path d="M132,24A100.11,100.11,0,0,0,32,124v84a16,16,0,0,0,16,16h84a100,100,0,0,0,0-200Zm0,184H48V124a84,84,0,1,1,84,84Zm12-80a12,12,0,1,1-12-12A12,12,0,0,1,144,128Zm-44,0a12,12,0,1,1-12-12A12,12,0,0,1,100,128Zm88,0a12,12,0,1,1-12-12A12,12,0,0,1,188,128Z"/></svg>
+          <svg width="18" height="18" fill="currentColor" viewBox="0 0 256 256">
+            <path d="M132,24A100.11,100.11,0,0,0,32,124v84a16,16,0,0,0,16,16h84a100,100,0,0,0,0-200Zm0,184H48V124a84,84,0,1,1,84,84Zm12-80a12,12,0,1,1-12-12A12,12,0,0,1,144,128Zm-44,0a12,12,0,1,1-12-12A12,12,0,0,1,100,128Zm88,0a12,12,0,1,1-12-12A12,12,0,0,1,188,128Z" />
+          </svg>
         </button>
         <button raa-on:click="openGitHubModal()" class="btn btn-primary btn-sm" title="GitHub Connector">
-          <svg width="15" height="15" fill="currentColor" viewBox="0 0 256 256"><path d="M128,24A104,104,0,0,0,95.2,202.13c5.2.93,7.11-2.27,7.11-5,0-2.47-.09-9-.13-17.65-28.94,6.29-35-13.93-35-13.93-4.73-12-11.58-15.22-11.58-15.22-9.47-6.48.72-6.35.72-6.35,10.49.74,16,10.77,16,10.77,9.32,15.94,24.45,11.33,30.38,8.66a21.14,21.14,0,0,1,6.29-13.28c-22.94-2.61-47.06-11.47-47.06-51a39.89,39.89,0,0,1,10.64-27.6c-1.07-2.61-4.62-13.14,1-27.4,0,0,8.7-2.79,28.48,10.6a98.33,98.33,0,0,1,51.84,0c19.76-13.4,28.45-10.6,28.45-10.6,5.63,14.26,2.09,24.79,1,27.4A39.84,39.84,0,0,1,193.6,120c0,39.63-24.17,48.37-47.17,50.93a24.68,24.68,0,0,1,7,19.14c0,13.82-.13,24.94-.13,28.33,0,2.75,1.86,5.94,7.14,4.94A104,104,0,0,0,128,24Z"/></svg>
+          <svg width="15" height="15" fill="currentColor" viewBox="0 0 256 256">
+            <path d="M128,24A104,104,0,0,0,95.2,202.13c5.2.93,7.11-2.27,7.11-5,0-2.47-.09-9-.13-17.65-28.94,6.29-35-13.93-35-13.93-4.73-12-11.58-15.22-11.58-15.22-9.47-6.48.72-6.35.72-6.35,10.49.74,16,10.77,16,10.77,9.32,15.94,24.45,11.33,30.38,8.66a21.14,21.14,0,0,1,6.29-13.28c-22.94-2.61-47.06-11.47-47.06-51a39.89,39.89,0,0,1,10.64-27.6c-1.07-2.61-4.62-13.14,1-27.4,0,0,8.7-2.79,28.48,10.6a98.33,98.33,0,0,1,51.84,0c19.76-13.4,28.45-10.6,28.45-10.6,5.63,14.26,2.09,24.79,1,27.4A39.84,39.84,0,0,1,193.6,120c0,39.63-24.17,48.37-47.17,50.93a24.68,24.68,0,0,1,7,19.14c0,13.82-.13,24.94-.13,28.33,0,2.75,1.86,5.94,7.14,4.94A104,104,0,0,0,128,24Z" />
+          </svg>
           GitHub
         </button>
       </div>
@@ -385,7 +390,7 @@
     <!-- ═════════ WORKSPACE ═════════ -->
     <div class="workspace">
 
-      <!-- TREE PANEL -->
+      <!-- TREE PANEL - UPDATED FOR FOLDERS -->
       <section class="panel panel-tree" raa-flow:show="showTree">
         <div class="panel-header">
           <span>Struktur Proyek</span>
@@ -395,16 +400,25 @@
           <div raa-flow:show="loadingFiles" class="tree-loading">Memuat data proyek...</div>
           <div raa-flow:show="!loadingFiles && treeEmpty" class="tree-empty">Proyek kosong. Buat berkas pertama.</div>
           <div raa-flow:show="!loadingFiles && !treeEmpty" class="flex-col">
-            <template raa-flow:for="item in files" raa-key="item.path">
-              <div class="tree-item"
-                   raa-bind:class="{ 'active': activeFilePath === item.path, 'pending': ghFileStatus[item.path] === 'pending', 'synced': ghFileStatus[item.path] === 'synced' }"
-                   raa-on:click="selectFile(item.path)">
+            <template raa-flow:for="item in sortedTreeItems" raa-key="item.key">
+              <div raa-flow:show="item.isFolder" class="tree-item tree-folder" style="padding-left: calc(10px + (item.depth * 15)px);" raa-on:click="toggleFolder(item.path)">
+                <div class="tree-item-left">
+                  <svg width="14" height="14" fill="var(--text-muted)" viewBox="0 0 256 256" style="margin-right:6px;">
+                    <path d="M216,96H136l-18.3-36.6A16,16,0,0,0,103.4,51.2L96,48H40A16,16,0,0,0,24,64V192a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V112A16,16,0,0,0,216,96Z" />
+                  </svg>
+                  <span raa-bind:text="item.name"></span>
+                </div>
+                <span raa-bind:text="expandedFolders[item.path] ? '▼' : '▶'" style="font-size:10px;"></span>
+              </div>
+              <div raa-flow:show="!item.isFolder" class="tree-item" raa-bind:class="{ 'active': activeFilePath === item.path, 'pending': ghFileStatus[item.path] === 'pending', 'synced': ghFileStatus[item.path] === 'synced' }" raa-on:click="selectFile(item.path)" style="padding-left: calc(10px + (item.depth * 15)px);">
                 <div class="tree-item-left">
                   <span class="tree-item-status" raa-bind:class="ghFileStatus[item.path] || 'none'" raa-flow:show="ghConnected"></span>
                   <span class="tree-item-name" raa-bind:text="item.name"></span>
                 </div>
                 <button raa-on:click.stop="deleteFile(item.path)" class="tree-delete" title="Hapus">
-                  <svg width="14" height="14" fill="currentColor" viewBox="0 0 256 256"><path d="M216,40H68.53a16.08,16.08,0,0,0-13.72,7.77L9.14,123.88a8,8,0,0,0,0,8.24l45.67,76.11A16.08,16.08,0,0,0,68.53,216H216a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40ZM61.67,204.12,68.53,200h0ZM216,200H68.53l-43.2-72,43.2-72H216ZM106.34,146.34,124.69,128l-18.35-18.34a8,8,0,0,1,11.32-11.32L136,116.69l18.34-18.35a8,8,0,0,1,11.32,11.32L147.31,128l18.35,18.34a8,8,0,0,1-11.32,11.32L136,139.31l-18.34,18.35a8,8,0,0,1-11.32-11.32Z"/></svg>
+                  <svg width="14" height="14" fill="currentColor" viewBox="0 0 256 256">
+                    <path d="M216,40H68.53a16.08,16.08,0,0,0-13.72,7.77L9.14,123.88a8,8,0,0,0,0,8.24l45.67,76.11A16.08,16.08,0,0,0,68.53,216H216a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40ZM61.67,204.12,68.53,200h0ZM216,200H68.53l-43.2-72,43.2-72H216ZM106.34,146.34,124.69,128l-18.35-18.34a8,8,0,0,1,11.32-11.32L136,116.69l18.34-18.35a8,8,0,0,1,11.32,11.32L147.31,128l18.35,18.34a8,8,0,0,1-11.32,11.32L136,139.31l-18.34,18.35a8,8,0,0,1-11.32-11.32Z" />
+                  </svg>
                 </button>
               </div>
             </template>
@@ -417,30 +431,28 @@
       <section class="panel panel-editor">
         <div class="editor-tabs">
           <div class="editor-tab-active">
-            <svg width="12" height="12" fill="var(--accent-orange)" viewBox="0 0 256 256"><path d="M213.66,82.34l-56-56A8,8,0,0,0,152,24H56A16,16,0,0,0,40,40V216a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V88A8,8,0,0,0,213.66,82.34ZM160,51.31,188.69,80H160ZM200,216H56V40H88V88a8,8,0,0,0,8,8h48a8,8,0,0,0,0-16H104V40h56V88a8,8,0,0,0,8,8h40V216Z"/></svg>
+            <svg width="12" height="12" fill="var(--accent-orange)" viewBox="0 0 256 256">
+              <path d="M213.66,82.34l-56-56A8,8,0,0,0,152,24H56A16,16,0,0,0,40,40V216a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V88A8,8,0,0,0,213.66,82.34ZM160,51.31,188.69,80H160ZM200,216H56V40H88V88a8,8,0,0,0,8,8h48a8,8,0,0,0,0-16H104V40h56V88a8,8,0,0,0,8,8h40V216Z" />
+            </svg>
             <span raa-bind:text="activeFileName"></span>
           </div>
-          <div class="editor-tab-status"
-               raa-bind:class="{ 'unsaved': unsavedChanges }"
-               raa-bind:text="unsavedChanges ? '● Modified' : (lastSaved ? 'Saved ' + lastSaved : 'Ready')">
-          </div>
+          <div class="editor-tab-status" raa-bind:class="{ 'unsaved': unsavedChanges }" raa-bind:text="unsavedChanges ? '● Modified' : (lastSaved ? 'Saved ' + lastSaved : 'Ready')"></div>
           <div style="display: flex; gap: 4px; margin-left: auto;">
             <button raa-on:click="toggleTree()" class="btn-icon" title="Toggle Tree">
-              <svg width="16" height="16" fill="var(--accent-purple)" viewBox="0 0 256 256"><path d="M160,112h48a16,16,0,0,0,16-16V48a16,16,0,0,0-16-16H160a16,16,0,0,0-16,16V64H128a24,24,0,0,0-24,24v32H72v-8A16,16,0,0,0,56,96H24A16,16,0,0,0,8,112v32a16,16,0,0,0,16,16H56a16,16,0,0,0,16-16v-8h32v32a24,24,0,0,0,24,24h16v16a16,16,0,0,0,16,16h48a16,16,0,0,0,16-16V160a16,16,0,0,0-16-16H160a16,16,0,0,0-16,16v16H128a8,8,0,0,1-8-8V88a8,8,0,0,1,8-8h16V96A16,16,0,0,0,160,112ZM56,144H24V112H56v32Zm104,16h48v48H160Zm0-112h48V96H160Z"/></svg>
+              <svg width="16" height="16" fill="var(--accent-purple)" viewBox="0 0 256 256">
+                <path d="M160,112h48a16,16,0,0,0,16-16V48a16,16,0,0,0-16-16H160a16,16,0,0,0-16,16V64H128a24,24,0,0,0-24,24v32H72v-8A16,16,0,0,0,56,96H24A16,16,0,0,0,8,112v32a16,16,0,0,0,16,16H56a16,16,0,0,0,16-16v-8h32v32a24,24,0,0,0,24,24h16v16a16,16,0,0,0,16,16h48a16,16,0,0,0,16-16V160a16,16,0,0,0-16-16H160a16,16,0,0,0-16,16v16H128a8,8,0,0,1-8-8V88a8,8,0,0,1,8-8h16V96A16,16,0,0,0,160,112ZM56,144H24V112H56v32Zm104,16h48v48H160Zm0-112h48V96H160Z" />
+              </svg>
             </button>
             <button raa-on:click="togglePreview()" class="btn-icon" title="Toggle Preview">
-              <svg width="16" height="16" fill="var(--accent-mint)" viewBox="0 0 256 256"><path d="M208,40H48A24,24,0,0,0,24,64V176a24,24,0,0,0,24,24H208a24,24,0,0,0,24-24V64A24,24,0,0,0,208,40Zm8,136a8,8,0,0,1-8,8H48a8,8,0,0,1-8-8V64a8,8,0,0,1,8-8H208a8,8,0,0,1,8,8Zm-48,48a8,8,0,0,1-8,8H96a8,8,0,0,1,0-16h64A8,8,0,0,1,168,224Zm-3.56-110.66-48-32A8,8,0,0,0,104,88v64a8,8,0,0,0,12.44,6.66l48-32a8,8,0,0,0,0-13.32ZM120,137.05V103l25.58,17Z"/></svg>
+              <svg width="16" height="16" fill="var(--accent-mint)" viewBox="0 0 256 256">
+                <path d="M208,40H48A24,24,0,0,0,24,64V176a24,24,0,0,0,24,24H208a24,24,0,0,0,24-24V64A24,24,0,0,0,208,40Zm8,136a8,8,0,0,1-8,8H48a8,8,0,0,1-8-8V64a8,8,0,0,1,8-8H208a8,8,0,0,1,8,8Zm-48,48a8,8,0,0,1-8,8H96a8,8,0,0,1,0-16h64A8,8,0,0,1,168,224Zm-3.56-110.66-48-32A8,8,0,0,0,104,88v64a8,8,0,0,0,12.44,6.66l48-32a8,8,0,0,0,0-13.32ZM120,137.05V103l25.58,17Z" />
+              </svg>
             </button>
           </div>
         </div>
 
         <div class="editor-body">
-          <textarea raa-core:ref="editorTextarea"
-                    raa-bind:model="activeFileContent"
-                    raa-on:input="handleEditorInput()"
-                    placeholder="/* Pilih berkas atau mulai menulis kode RaaJS Anda */"
-                    class="editor-textarea"
-                    raa-on:keydown="handleEditorKeydown($event)"></textarea>
+          <textarea raa-core:ref="editorTextarea" raa-bind:model="activeFileContent" raa-on:input="handleEditorInput()" placeholder="/* Pilih berkas atau mulai menulis kode RaaJS Anda */" class="editor-textarea" raa-on:keydown="handleEditorKeydown($event)"></textarea>
 
           <div class="editor-toolbar">
             <select class="toolbar-select" raa-on:change="handleSnippetSelect($event)">
@@ -486,12 +498,11 @@
           </div>
 
           <div class="editor-toolbar">
-            <button raa-on:click="insertText('	')" class="toolbar-btn" title="Tab">Tab</button>
+            <button raa-on:click="insertText('  ')" class="toolbar-btn" title="Tab">Tab</button>
             <button raa-on:click="insertText('{')" class="toolbar-btn" title="{ }">{ }</button>
             <button raa-on:click="insertText('[')" class="toolbar-btn" title="[ ]">[ ]</button>
             <button raa-on:click="insertText('()')" class="toolbar-btn" title="( )">( )</button>
             <button raa-on:click="insertText(';')" class="toolbar-btn" title=";">;</button>
-
             <button raa-on:click="insertText('raa-bind:')" class="toolbar-btn brand" title="raa-bind:*">b:</button>
             <button raa-on:click="insertText('raa-flow:')" class="toolbar-btn brand" title="raa-flow:*">f:</button>
             <button raa-on:click="insertText('raa-on:')" class="toolbar-btn brand" title="raa-on:*">@:</button>
@@ -499,12 +510,10 @@
             <button raa-on:click="insertText('raa-eco:')" class="toolbar-btn brand" title="raa-eco:*">e:</button>
             <button raa-on:click="insertText('raa-net:')" class="toolbar-btn brand" title="raa-net:*">n:</button>
             <button raa-on:click="insertText('raa-ux:')" class="toolbar-btn brand" title="raa-ux:*">x:</button>
-
-            <button raa-on:click="saveActiveFile()"
-                    class="toolbar-btn"
-                    style="margin-left: auto; border-color: rgba(255,140,95,0.3); color: var(--accent-orange);"
-                    title="Save (Ctrl+S)">
-              <svg width="12" height="12" fill="currentColor" viewBox="0 0 256 256" style="vertical-align: middle; margin-right: 4px;"><path d="M216,40H68.53a16.08,16.08,0,0,0-13.72,7.77L9.14,123.88a8,8,0,0,0,0,8.24l45.67,76.11A16.08,16.08,0,0,0,68.53,216H216a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40ZM61.67,204.12,68.53,200h0ZM216,200H68.53l-43.2-72,43.2-72H216Z"/></svg>
+            <button raa-on:click="saveActiveFile()" class="toolbar-btn" style="margin-left: auto; border-color: rgba(255,140,95,0.3); color: var(--accent-orange);" title="Save (Ctrl+S)">
+              <svg width="12" height="12" fill="currentColor" viewBox="0 0 256 256" style="vertical-align: middle; margin-right: 4px;">
+                <path d="M216,40H68.53a16.08,16.08,0,0,0-13.72,7.77L9.14,123.88a8,8,0,0,0,0,8.24l45.67,76.11A16.08,16.08,0,0,0,68.53,216H216a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40ZM61.67,204.12,68.53,200h0ZM216,200H68.53l-43.2-72,43.2-72H216Z" />
+              </svg>
               Save
             </button>
           </div>
@@ -522,17 +531,19 @@
         <div class="panel-header">
           <span>Live Preview</span>
           <button raa-on:click="runPreview()" class="btn btn-sm btn-primary" raa-ux:loading="previewLoading">
-            <svg width="12" height="12" fill="currentColor" viewBox="0 0 256 256"><path d="M236.6,144.5l-96-64a8,8,0,0,0-12.4,6.6v42.4L44.6,80.5a8,8,0,0,0-12.4,6.6v82.8a8,8,0,0,0,12.4,6.6l83.6-48.6V192a8,8,0,0,0,12.4,6.6l96-64a8,8,0,0,0,0-13.2ZM40,156.4V99.6L104,128Zm112,35.6V64l72,48Z"/></svg>
+            <svg width="12" height="12" fill="currentColor" viewBox="0 0 256 256">
+              <path d="M236.6,144.5l-96-64a8,8,0,0,0-12.4,6.6v42.4L44.6,80.5a8,8,0,0,0-12.4,6.6v82.8a8,8,0,0,0,12.4,6.6l83.6-48.6V192a8,8,0,0,0,12.4,6.6l96-64a8,8,0,0,0,0-13.2ZM40,156.4V99.6L104,128Zm112,35.6V64l72,48Z" />
+            </svg>
             Run
           </button>
         </div>
         <div class="preview-frame-wrap" raa-core:ref="previewWrap">
           <div class="preview-boundary"></div>
-          <iframe raa-core:ref="previewFrame"
-                  title="Preview"
-                  sandbox="allow-scripts allow-modals allow-forms allow-popups allow-same-origin"></iframe>
+          <iframe raa-core:ref="previewFrame" title="Preview" sandbox="allow-scripts allow-modals allow-forms allow-popups allow-same-origin"></iframe>
           <div class="preview-placeholder" raa-flow:show="!isPreviewable">
-            <svg width="48" height="48" fill="var(--accent-orange)" viewBox="0 0 256 256" opacity="0.3"><path d="M208,40H48A24,24,0,0,0,24,64V176a24,24,0,0,0,24,24H208a24,24,0,0,0,24-24V64A24,24,0,0,0,208,40Zm8,136a8,8,0,0,1-8,8H48a8,8,0,0,1-8-8V64a8,8,0,0,1,8-8H208a8,8,0,0,1,8,8Zm-48,48a8,8,0,0,1-8,8H96a8,8,0,0,1,0-16h64A8,8,0,0,1,168,224Zm-3.56-110.66-48-32A8,8,0,0,0,104,88v64a8,8,0,0,0,12.44,6.66l48-32a8,8,0,0,0,0-13.32ZM120,137.05V103l25.58,17Z"/></svg>
+            <svg width="48" height="48" fill="var(--accent-orange)" viewBox="0 0 256 256" opacity="0.3">
+              <path d="M208,40H48A24,24,0,0,0,24,64V176a24,24,0,0,0,24,24H208a24,24,0,0,0,24-24V64A24,24,0,0,0,208,40Zm8,136a8,8,0,0,1-8,8H48a8,8,0,0,1-8-8V64a8,8,0,0,1,8-8H208a8,8,0,0,1,8,8Zm-48,48a8,8,0,0,1-8,8H96a8,8,0,0,1,0-16h64A8,8,0,0,1,168,224Zm-3.56-110.66-48-32A8,8,0,0,0,104,88v64a8,8,0,0,0,12.44,6.66l48-32a8,8,0,0,0,0-13.32ZM120,137.05V103l25.58,17Z" />
+            </svg>
             <h3>index.html tidak ditemukan</h3>
             <p>Buat file index.html untuk melihat preview.</p>
           </div>
@@ -552,12 +563,16 @@
             </select>
           </div>
           <button raa-on:click="toggleChat()" class="btn-icon">
-            <svg width="16" height="16" fill="currentColor" viewBox="0 0 256 256"><path d="M165.66,101.66,139.31,128l26.35,26.34a8,8,0,0,1-11.32,11.32L128,139.31l-26.34,26.35a8,8,0,0,1-11.32-11.32L116.69,128,90.34,101.66a8,8,0,0,1,11.32-11.32L128,116.69l26.34-26.35a8,8,0,0,1,11.32,11.32ZM232,128A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128Z"/></svg>
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 256 256">
+              <path d="M165.66,101.66,139.31,128l26.35,26.34a8,8,0,0,1-11.32,11.32L128,139.31l-26.34,26.35a8,8,0,0,1-11.32-11.32L116.69,128,90.34,101.66a8,8,0,0,1,11.32-11.32L128,116.69l26.34-26.35a8,8,0,0,1,11.32,11.32ZM232,128A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128Z" />
+            </svg>
           </button>
         </div>
         <div class="chat-history" raa-core:ref="chatHistory">
           <div raa-flow:show="chatEmpty" class="chat-empty">
-            <svg width="40" height="40" fill="var(--text-muted)" viewBox="0 0 256 256" style="margin-bottom: 12px; opacity: 0.5;"><path d="M132,24A100.11,100.11,0,0,0,32,124v84a16,16,0,0,0,16,16h84a100,100,0,0,0,0-200Zm0,184H48V124a84,84,0,1,1,84,84Zm12-80a12,12,0,1,1-12-12A12,12,0,0,1,144,128Zm-44,0a12,12,0,1,1-12-12A12,12,0,0,1,100,128Zm88,0a12,12,0,1,1-12-12A12,12,0,0,1,188,128Z"/></svg>
+            <svg width="40" height="40" fill="var(--text-muted)" viewBox="0 0 256 256" style="margin-bottom: 12px; opacity: 0.5;">
+              <path d="M132,24A100.11,100.11,0,0,0,32,124v84a16,16,0,0,0,16,16h84a100,100,0,0,0,0-200Zm0,184H48V124a84,84,0,1,1,84,84Zm12-80a12,12,0,1,1-12-12A12,12,0,0,1,144,128Zm-44,0a12,12,0,1,1-12-12A12,12,0,0,1,100,128Zm88,0a12,12,0,1,1-12-12A12,12,0,0,1,188,128Z" />
+            </svg>
             <div>Belum ada percakapan.</div>
             <div style="font-size: 0.75rem; margin-top: 4px;">Atur API Key di pengaturan.</div>
           </div>
@@ -579,25 +594,18 @@
           <div raa-flow:show="showAiContextPicker" style="max-height:150px; overflow:auto; background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 8px; margin-bottom: 8px;">
             <template raa-flow:for="file in files" raa-key="file.path">
               <label style="display:flex; align-items:center; gap:6px; font-size:0.85rem; margin-bottom:4px; color: var(--text-primary); cursor:pointer;">
-                <input type="checkbox"
-                       raa-bind:checked="aiContextFiles.includes(file.path)"
-                       raa-on:change="toggleContextFile(file.path, $event)" />
+                <input type="checkbox" raa-bind:checked="aiContextFiles.includes(file.path)" raa-on:change="toggleContextFile(file.path, $event)" />
                 <span raa-bind:text="file.name"></span>
               </label>
             </template>
             <button class="btn btn-sm btn-primary" raa-on:click="toggleAiContextPicker()" style="width:100%;">Tutup</button>
           </div>
 
-          <textarea raa-bind:model="chatInput"
-                    raa-ux:disable="aiLoading"
-                    placeholder="Tanya tentang RaaJS..."
-                    class="chat-textarea"
-                    raa-on:keydown="handleChatKeydown($event)"></textarea>
-          <button raa-on:click="sendMessage()"
-                  raa-ux:disable="aiLoading || !chatInput"
-                  class="btn-icon"
-                  style="height: 44px; width: 44px; border-radius: var(--radius-md); flex-shrink: 0;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="#000000" viewBox="0 0 256 256"><path d="M227.32,28.68a16,16,0,0,0-15.66-4.08l-.15,0L19.57,82.84a16,16,0,0,0-2.49,29.8L102,154l41.3,84.87A15.86,15.86,0,0,0,157.74,248q.69,0,1.38-.06a15.88,15.88,0,0,0,14-11.51l58.2-191.94c0-.05,0-.1,0-.15A16,16,0,0,0,227.32,28.68ZM157.83,231.85l-.05.14,0-.07-40.06-82.3,48-48a8,8,0,0,0-11.31-11.31l-48,48L24.08,98.25l-.07,0,.14,0L216,40Z"></path></svg>
+          <textarea raa-bind:model="chatInput" raa-ux:disable="aiLoading" placeholder="Tanya tentang RaaJS..." class="chat-textarea" raa-on:keydown="handleChatKeydown($event)"></textarea>
+          <button raa-on:click="sendMessage()" raa-ux:disable="aiLoading || !chatInput" class="btn-icon" style="height: 44px; width: 44px; border-radius: var(--radius-md); flex-shrink: 0;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="#000000" viewBox="0 0 256 256">
+              <path d="M227.32,28.68a16,16,0,0,0-15.66-4.08l-.15,0L19.57,82.84a16,16,0,0,0-2.49,29.8L102,154l41.3,84.87A15.86,15.86,0,0,0,157.74,248q.69,0,1.38-.06a15.88,15.88,0,0,0,14-11.51l58.2-191.94c0-.05,0-.1,0-.15A16,16,0,0,0,227.32,28.68ZM157.83,231.85l-.05.14,0-.07-40.06-82.3,48-48a8,8,0,0,0-11.31-11.31l-48,48L24.08,98.25l-.07,0,.14,0L216,40Z"></path>
+            </svg>
           </button>
         </div>
       </aside>
@@ -610,17 +618,14 @@
         <div class="modal-header">
           <h3 class="modal-title">Berkas Baru</h3>
           <button raa-on:click="closeNewFileModal()" class="btn-icon">
-            <svg width="16" height="16" fill="currentColor" viewBox="0 0 256 256"><path d="M165.66,101.66,139.31,128l26.35,26.34a8,8,0,0,1-11.32,11.32L128,139.31l-26.34,26.35a8,8,0,0,1-11.32-11.32L116.69,128,90.34,101.66a8,8,0,0,1,11.32-11.32L128,116.69l26.34-26.35a8,8,0,0,1,11.32,11.32ZM232,128A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128Z"/></svg>
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 256 256">
+              <path d="M165.66,101.66,139.31,128l26.35,26.34a8,8,0,0,1-11.32,11.32L128,139.31l-26.34,26.35a8,8,0,0,1-11.32-11.32L116.69,128,90.34,101.66a8,8,0,0,1,11.32-11.32L128,116.69l26.34-26.35a8,8,0,0,1,11.32,11.32ZM232,128A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128Z" />
+            </svg>
           </button>
         </div>
         <div class="form-group">
           <label>Nama Berkas</label>
-          <input type="text"
-                 raa-bind:model="newFileName"
-                 class="form-control"
-                 placeholder="contoh: halaman.html"
-                 raa-validate:required
-                 raa-on:keydown="handleNewFileKeydown($event)">
+          <input type="text" raa-bind:model="newFileName" class="form-control" placeholder="contoh: src/pages/index.html" raa-validate:required raa-on:keydown="handleNewFileKeydown($event)">
         </div>
         <div class="flex gap-2 mt-3">
           <button raa-on:click="createNewFile()" class="btn btn-primary flex-1" raa-ux:disable="!newFileName">Buat Berkas</button>
@@ -634,11 +639,15 @@
       <div class="modal-card">
         <div class="modal-header">
           <h3 class="modal-title">
-            <svg width="20" height="20" fill="currentColor" viewBox="0 0 256 256"><path d="M128,24A104,104,0,0,0,95.2,202.13c5.2.93,7.11-2.27,7.11-5,0-2.47-.09-9-.13-17.65-28.94,6.29-35-13.93-35-13.93-4.73-12-11.58-15.22-11.58-15.22-9.47-6.48.72-6.35.72-6.35,10.49.74,16,10.77,16,10.77,9.32,15.94,24.45,11.33,30.38,8.66a21.14,21.14,0,0,1,6.29-13.28c-22.94-2.61-47.06-11.47-47.06-51a39.89,39.89,0,0,1,10.64-27.6c-1.07-2.61-4.62-13.14,1-27.4,0,0,8.7-2.79,28.48,10.6a98.33,98.33,0,0,1,51.84,0c19.76-13.4,28.45-10.6,28.45-10.6,5.63,14.26,2.09,24.79,1,27.4A39.84,39.84,0,0,1,193.6,120c0,39.63-24.17,48.37-47.17,50.93a24.68,24.68,0,0,1,7,19.14c0,13.82-.13,24.94-.13,28.33,0,2.75,1.86,5.94,7.14,4.94A104,104,0,0,0,128,24Z"/></svg>
+            <svg width="20" height="20" fill="currentColor" viewBox="0 0 256 256">
+              <path d="M128,24A104,104,0,0,0,95.2,202.13c5.2.93,7.11-2.27,7.11-5,0-2.47-.09-9-.13-17.65-28.94,6.29-35-13.93-35-13.93-4.73-12-11.58-15.22-11.58-15.22-9.47-6.48.72-6.35.72-6.35,10.49.74,16,10.77,16,10.77,9.32,15.94,24.45,11.33,30.38,8.66a21.14,21.14,0,0,1,6.29-13.28c-22.94-2.61-47.06-11.47-47.06-51a39.89,39.89,0,0,1,10.64-27.6c-1.07-2.61-4.62-13.14,1-27.4,0,0,8.7-2.79,28.48,10.6a98.33,98.33,0,0,1,51.84,0c19.76-13.4,28.45-10.6,28.45-10.6,5.63,14.26,2.09,24.79,1,27.4A39.84,39.84,0,0,1,193.6,120c0,39.63-24.17,48.37-47.17,50.93a24.68,24.68,0,0,1,7,19.14c0,13.82-.13,24.94-.13,28.33,0,2.75,1.86,5.94,7.14,4.94A104,104,0,0,0,128,24Z" />
+            </svg>
             GitHub Connector
           </h3>
           <button raa-on:click="closeGitHubModal()" class="btn-icon">
-            <svg width="16" height="16" fill="currentColor" viewBox="0 0 256 256"><path d="M165.66,101.66,139.31,128l26.35,26.34a8,8,0,0,1-11.32,11.32L128,139.31l-26.34,26.35a8,8,0,0,1-11.32-11.32L116.69,128,90.34,101.66a8,8,0,0,1,11.32-11.32L128,116.69l26.34-26.35a8,8,0,0,1,11.32,11.32ZM232,128A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128Z"/></svg>
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 256 256">
+              <path d="M165.66,101.66,139.31,128l26.35,26.34a8,8,0,0,1-11.32,11.32L128,139.31l-26.34,26.35a8,8,0,0,1-11.32-11.32L116.69,128,90.34,101.66a8,8,0,0,1,11.32-11.32L128,116.69l26.34-26.35a8,8,0,0,1,11.32,11.32ZM232,128A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128Z" />
+            </svg>
           </button>
         </div>
 
@@ -666,9 +675,9 @@
             <input type="text" raa-bind:model="ghBranch" class="form-control">
           </div>
           <div class="form-group">
-            <label>Root Path</label>
-            <input type="text" raa-bind:model="ghRootPath" class="form-control" placeholder="kosongkan untuk root">
-            <div class="form-hint">File disimpan di: <code>/{root}/{nama_file}</code></div>
+            <label>Root Path (Folder Target di GitHub)</label>
+            <input type="text" raa-bind:model="ghRootPath" class="form-control" placeholder="dist">
+            <div class="form-hint">File disimpan di: <code>/{root}/{path_file}</code></div>
           </div>
           <button raa-on:click="checkGitHubSync()" class="btn btn-primary w-full mt-2" raa-ux:disable="ghSyncLoading || !ghRepoInput">
             <span raa-flow:show="!ghSyncLoading">Deteksi Perubahan</span>
@@ -680,9 +689,7 @@
                 <label class="checkbox-item">
                   <input type="checkbox" raa-bind:model="item.selected">
                   <span class="file-path" raa-bind:text="item.path"></span>
-                  <span class="file-badge"
-                        raa-bind:class="{ 'pending': item.status === 'pending', 'synced': item.status === 'synced' }"
-                        raa-bind:text="item.status === 'pending' ? 'Perlu Push' : 'Synced'"></span>
+                  <span class="file-badge" raa-bind:class="{ 'pending': item.status === 'pending', 'synced': item.status === 'synced' }" raa-bind:text="item.status === 'pending' ? 'Perlu Push' : (item.status === 'remote-only' ? 'Remote Only' : 'Synced')"></span>
                 </label>
               </template>
             </div>
@@ -706,27 +713,43 @@
           </div>
         </div>
 
-        <!-- MANAGE TAB -->
+        <!-- MANAGE TAB - UPDATED -->
         <div raa-flow:show="ghTab === 'manage'">
           <div raa-flow:show="!ghConnected" class="text-center p-4 text-muted">
             Konfigurasikan GitHub di tab <strong>Config</strong> terlebih dahulu.
           </div>
           <div raa-flow:show="ghConnected">
+            <div class="warn-box" raa-flow:show="remoteOnlyFiles.length > 0" style="background: rgba(255,140,95,0.1); border:1px solid var(--accent-orange); padding:8px; border-radius:6px; margin-bottom:12px; font-size:0.8rem;">
+              ⚠️ Ditemukan <span raa-bind:text="remoteOnlyFiles.length"></span> file di GitHub yang tidak ada di lokal.
+            </div>
             <div class="form-group">
-              <label>Pilih File</label>
-              <div class="checkbox-list">
-                <template raa-flow:for="file in files" raa-key="file.path">
+              <label>Hapus File dari GitHub (Remote Only)</label>
+              <div raa-flow:show="remoteOnlyFiles.length > 0" class="checkbox-list" style="max-height: 200px;">
+                <template raa-flow:for="file in remoteOnlyFiles" raa-key="file.path">
                   <label class="checkbox-item">
                     <input type="checkbox" raa-bind:model="ghManageSel[file.path]">
                     <span class="file-path" raa-bind:text="file.path"></span>
-                    <span class="file-badge local">Lokal</span>
+                    <span class="file-badge" style="background: rgba(232,125,168,0.15); color: var(--accent-rose);">Remote Only</span>
                   </label>
                 </template>
               </div>
+              <div raa-flow:show="files.length > 0" style="margin-top: 12px;">
+                <label style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-secondary); margin-bottom: 8px; display:block;">Atau Hapus File Lokal dari GitHub</label>
+                <div class="checkbox-list" style="max-height: 200px;">
+                  <template raa-flow:for="file in files" raa-key="file.path">
+                    <label class="checkbox-item">
+                      <input type="checkbox" raa-bind:model="ghManageSel[file.path]">
+                      <span class="file-path" raa-bind:text="file.path"></span>
+                      <span class="file-badge local">Lokal</span>
+                    </label>
+                  </template>
+                </div>
+              </div>
             </div>
             <div class="flex gap-2 mt-3">
-              <button raa-on:click="executeGitHubUpload(true)" class="btn btn-primary flex-1" raa-ux:disable="ghUploadLoading">Upload ke GitHub</button>
-              <button raa-on:click="executeGitHubDelete()" class="btn btn-danger flex-1" raa-ux:disable="ghUploadLoading">Hapus dari GitHub</button>
+              <button raa-on:click="executeGitHubDelete()" class="btn btn-danger flex-1" raa-ux:disable="ghUploadLoading || !hasSelectedManageFiles">
+                Hapus Terpilih dari GitHub
+              </button>
             </div>
           </div>
         </div>
@@ -766,7 +789,9 @@
         <div class="modal-header">
           <h3 class="modal-title">Pengaturan</h3>
           <button raa-on:click="toggleSettings()" class="btn-icon">
-            <svg width="16" height="16" fill="currentColor" viewBox="0 0 256 256"><path d="M165.66,101.66,139.31,128l26.35,26.34a8,8,0,0,1-11.32,11.32L128,139.31l-26.34,26.35a8,8,0,0,1-11.32-11.32L116.69,128,90.34,101.66a8,8,0,0,1,11.32-11.32L128,116.69l26.34-26.35a8,8,0,0,1,11.32,11.32ZM232,128A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128Z"/></svg>
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 256 256">
+              <path d="M165.66,101.66,139.31,128l26.35,26.34a8,8,0,0,1-11.32,11.32L128,139.31l-26.34,26.35a8,8,0,0,1-11.32-11.32L116.69,128,90.34,101.66a8,8,0,0,1,11.32-11.32L128,116.69l26.34-26.35a8,8,0,0,1,11.32,11.32ZM232,128A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128Z" />
+            </svg>
           </button>
         </div>
         <div class="form-group">
@@ -789,16 +814,14 @@
     </div>
 
     <!-- ═════════ TOAST ═════════ -->
-    <div class="toast"
-         raa-flow:show="toastVisible"
-         raa-bind:class="{ 'success': toastType === 'success', 'error': toastType === 'error', 'warning': toastType === 'warning' }">
+    <div class="toast" raa-flow:show="toastVisible" raa-bind:class="{ 'success': toastType === 'success', 'error': toastType === 'error', 'warning': toastType === 'warning' }">
       <span raa-bind:text="toastMessage"></span>
     </div>
 
   </div>
 
   <!-- ═════════ SCRIPT ═════════ -->
-  <script>
+<script>
 // ✅ Zero-Dependency GitHub Wrapper (Native fetch)
 class GitHubAPI {
   constructor(token) {
@@ -892,7 +915,7 @@ RaaJS.define('studio', () => {
       ghRepo: '',
       ghRepoInput: '',
       ghBranch: 'main',
-      ghRootPath: '',
+      ghRootPath: 'dist',
       ghConnected: false,
       ghAutoSync: false,
       ghTab: 'sync',
@@ -919,7 +942,8 @@ RaaJS.define('studio', () => {
       toastMessage: '',
       toastType: 'success',
       activeFileName: 'Pilih Berkas',
-      isPreviewable: false
+      isPreviewable: false,
+      expandedFolders: {}
     },
     computed: {
       treeEmpty() {
@@ -945,6 +969,77 @@ RaaJS.define('studio', () => {
       selectedSyncCount() {
         return this.ghSyncResults.filter(r => r.selected)
           .length;
+      },
+      remoteOnlyFiles() {
+        if (!this.ghConnected || !this.ghSyncResults.length) return [];
+        const localPaths = this.files.map(f => f.path);
+        return this.ghSyncResults.filter(r => !localPaths.includes(r.path))
+          .map(r => ({
+            path: r.path,
+            sha: r.sha
+          }));
+      },
+      hasSelectedManageFiles() {
+        return Object.values(this.ghManageSel)
+          .some(selected => selected);
+      },
+      sortedTreeItems() {
+        const items = [];
+        const folders = new Set();
+        this.files.forEach(f => {
+          const parts = f.path.split('/');
+          let currentPath = '';
+          for (let i = 0; i < parts.length - 1; i++) {
+            currentPath = currentPath ? `${currentPath}/${parts[i]}` : parts[i];
+            folders.add(currentPath);
+          }
+        });
+        folders.forEach(fp => {
+          if (this.expandedFolders[fp] === undefined) this.expandedFolders[fp] = true;
+        });
+        folders.forEach(folderPath => {
+          const depth = folderPath.split('/')
+            .length - 1;
+          const name = folderPath.split('/')
+            .pop();
+          items.push({
+            key: `folder_${folderPath}`,
+            path: folderPath,
+            name: name,
+            isFolder: true,
+            depth: depth
+          });
+        });
+        this.files.forEach(f => {
+          const parts = f.path.split('/');
+          const parentDir = parts.length > 1 ? parts.slice(0, -1)
+            .join('/') : '';
+          let isVisible = true;
+          if (parentDir) {
+            const ancestors = parentDir.split('/');
+            let p = '';
+            for (const seg of ancestors) {
+              p = p ? `${p}/${seg}` : seg;
+              if (this.expandedFolders[p] === false) {
+                isVisible = false;
+                break;
+              }
+            }
+          }
+          if (isVisible) {
+            items.push({
+              key: `file_${f.path}`,
+              path: f.path,
+              name: f.name,
+              isFolder: false,
+              depth: parts.length - 1
+            });
+          }
+        });
+        return items.sort((a, b) => {
+          if (a.isFolder !== b.isFolder) return a.isFolder ? -1 : 1;
+          return a.path.localeCompare(b.path);
+        });
       }
     },
     init() {
@@ -976,6 +1071,18 @@ RaaJS.define('studio', () => {
         });
     },
     methods: {
+      getPathParts(path) {
+        const parts = path.split('/');
+        return {
+          dir: parts.length > 1 ? parts.slice(0, -1)
+            .join('/') : '',
+          name: parts[parts.length - 1],
+          isFolder: false
+        };
+      },
+      toggleFolder(dirPath) {
+        this.expandedFolders[dirPath] = !this.expandedFolders[dirPath];
+      },
       toggleAiContextPicker() {
         this.showAiContextPicker = !this.showAiContextPicker;
       },
@@ -1030,7 +1137,6 @@ RaaJS.define('studio', () => {
       setGhTab(t) {
         this.ghTab = t;
       },
-
       selectFile(path) {
         const f = this.files.find(x => x.path === path);
         if (f) {
@@ -1085,8 +1191,9 @@ RaaJS.define('studio', () => {
         this.handleEditorInput();
       },
       createNewFile() {
-        const name = (this.newFileName || '')
-          .trim();
+        let name = (this.newFileName || '')
+          .trim()
+          .replace(/\\/g, '/');
         if (!name) return;
         if (this.files.some(f => f.path === name)) {
           this.showToast('Berkas sudah ada!', 'warning');
@@ -1094,11 +1201,20 @@ RaaJS.define('studio', () => {
         }
         const nf = {
           path: name,
-          name,
+          name: name.split('/')
+            .pop(),
           content: ''
         };
         this._saveFile(nf);
         this.files.push(nf);
+        const parts = name.split('/');
+        if (parts.length > 1) {
+          let parent = '';
+          for (let i = 0; i < parts.length - 1; i++) {
+            parent = parent ? `${parent}/${parts[i]}` : parts[i];
+            this.expandedFolders[parent] = true;
+          }
+        }
         Object.assign(this.ghFileStatus, {
           [name]: 'pending'
         });
@@ -1116,7 +1232,7 @@ RaaJS.define('studio', () => {
         }
       },
       async deleteFile(path) {
-        if (!confirm('Hapus "' + path + '"?')) return;
+        if (!confirm(`Hapus "${path}"?`)) return;
         await this._deleteFile(path);
         this.files = this.files.filter(f => f.path !== path);
         if (this.activeFilePath === path) {
@@ -1131,7 +1247,6 @@ RaaJS.define('studio', () => {
         this.isPreviewable = this.files.some(f => f.path === 'index.html');
         this.showToast('Berkas dihapus', 'success');
       },
-
       runPreview() {
         const frame = this.$refs.previewFrame;
         if (!frame) return;
@@ -1158,7 +1273,6 @@ RaaJS.define('studio', () => {
           this.previewLoading = false;
         }, 250);
       },
-
       startResizeTree(e) {
         this._startResize(e, 'tree', '.panel-tree', 200, 360);
       },
@@ -1185,7 +1299,6 @@ RaaJS.define('studio', () => {
         document.addEventListener('mousemove', onMove);
         document.addEventListener('mouseup', onUp);
       },
-
       saveApiKey() {
         const key = (this.aiKeyInput || '')
           .trim();
@@ -1222,7 +1335,6 @@ RaaJS.define('studio', () => {
         this.aiHasKey = false;
         this.showToast('API Key dihapus', 'warning');
       },
-
       handleChatKeydown(e) {
         if (e.key === 'Enter' && !e.shiftKey) {
           e.preventDefault();
@@ -1309,7 +1421,6 @@ RaaJS.define('studio', () => {
           if (el) el.scrollTop = el.scrollHeight;
         }, 100);
       },
-
       _loadGitHubConfig() {
         const raw = localStorage.getItem('RaaJS_GitHub_Config');
         if (raw) {
@@ -1318,7 +1429,7 @@ RaaJS.define('studio', () => {
             this.ghToken = c.token || '';
             this.ghRepo = c.repo || '';
             this.ghBranch = c.branch || 'main';
-            this.ghRootPath = c.rootPath || '';
+            this.ghRootPath = c.rootPath || 'dist';
             this.ghAutoSync = c.autoSync || false;
             if (this.ghToken && this.ghRepo) {
               this._initGitHubClient();
@@ -1393,26 +1504,39 @@ RaaJS.define('studio', () => {
         try {
           const [owner, repo] = this.ghRepo.split('/');
           if (!owner || !repo) throw new Error('Format: username/repo');
-          const path = this.ghRootPath || '';
-          let ghFiles = [];
-          try {
-            ghFiles = await _gh.getContents(owner, repo, path, this.ghBranch);
-          } catch (e) {
-            if (!e.message.includes('404')) throw e;
-          }
-          if (!Array.isArray(ghFiles)) ghFiles = ghFiles ? [ghFiles] : [];
+          const basePath = this.ghRootPath || '';
+          const allGhFiles = [];
+          const walk = async (currentPath) => {
+            let contents;
+            try {
+              contents = await _gh.getContents(owner, repo, currentPath, this.ghBranch);
+            } catch (e) {
+              if (e.message.includes('404')) return;
+              throw e;
+            }
+            if (!Array.isArray(contents)) contents = [contents];
+            for (const item of contents) {
+              if (item.type === 'file') allGhFiles.push(item);
+              else if (item.type === 'dir') await walk(item.path);
+            }
+          };
+          await walk(basePath);
           const ghMap = {};
-          ghFiles.forEach(f => {
-            if (f.type === 'file') ghMap[f.path.replace(path + (path ? '/' : ''), '')] = {
-              sha: f.sha
+          allGhFiles.forEach(f => {
+            const relativePath = basePath ? f.path.replace(new RegExp(`^${basePath}/`), '') : f.path;
+            ghMap[relativePath] = {
+              sha: f.sha,
+              fullPath: f.path
             };
           });
+          const localPaths = this.files.map(f => f.path);
           const results = await Promise.all(this.files.map(async lf => {
             let status = 'pending';
+            let sha = null;
             if (ghMap[lf.path]) {
+              sha = ghMap[lf.path].sha;
               try {
-                const gp = path ? `${path}/${lf.path}` : lf.path;
-                const resp = await _gh.getContents(owner, repo, gp, this.ghBranch);
+                const resp = await _gh.getContents(owner, repo, ghMap[lf.path].fullPath, this.ghBranch);
                 status = (this._b64Decode(resp.content) === lf.content) ? 'synced' : 'pending';
               } catch (e) {
                 status = 'pending';
@@ -1421,16 +1545,32 @@ RaaJS.define('studio', () => {
             return {
               path: lf.path,
               status,
-              selected: status === 'pending'
+              selected: status === 'pending',
+              sha
             };
           }));
+          Object.keys(ghMap)
+            .forEach(relPath => {
+              if (!localPaths.includes(relPath)) {
+                results.push({
+                  path: relPath,
+                  status: 'remote-only',
+                  selected: false,
+                  sha: ghMap[relPath].sha
+                });
+              }
+            });
           this.ghSyncResults = results;
           const batch = {};
-          results.forEach(r => batch[r.path] = r.status);
+          results.forEach(r => {
+            if (r.status !== 'remote-only') batch[r.path] = r.status;
+          });
           Object.assign(this.ghFileStatus, batch);
           const pending = results.filter(r => r.status === 'pending')
             .length;
-          this.showToast(pending === 0 ? 'Semua file tersinkron!' : pending + ' file perlu diupload', pending === 0 ? 'success' : 'warning');
+          const remoteOnly = results.filter(r => r.status === 'remote-only')
+            .length;
+          this.showToast(pending === 0 && remoteOnly === 0 ? 'Semua file tersinkron!' : `${pending} perlu upload, ${remoteOnly} remote-only`, pending === 0 && remoteOnly === 0 ? 'success' : 'warning');
         } catch (e) {
           console.error(e);
           this.showToast(`Gagal memeriksa sync: ${e.message}`, 'error');
@@ -1454,7 +1594,6 @@ RaaJS.define('studio', () => {
           selected: s
         } : r);
       },
-
       _b64Encode(str) {
         try {
           const b = new TextEncoder()
@@ -1477,9 +1616,7 @@ RaaJS.define('studio', () => {
           return decodeURIComponent(escape(atob(str)));
         }
       },
-
-      async executeGitHubUpload(fromManage) {
-        fromManage = fromManage || false;
+      async executeGitHubUpload(fromManage = false) {
         if (!this.ghConnected || !_gh) {
           this.showToast('GitHub belum terkoneksi', 'error');
           return;
@@ -1494,25 +1631,28 @@ RaaJS.define('studio', () => {
         this.ghUploadLoading = true;
         this.ghUploadProgress = 0;
         const [owner, repo] = this.ghRepo.split('/');
-        const bp = this.ghRootPath ? this.ghRootPath.replace(/\/$/, '') : '';
+        const basePath = this.ghRootPath ? this.ghRootPath.replace(/\/$/, '') : '';
         let done = 0;
         try {
           await Promise.all(files.map(async file => {
-            const gp = bp ? `${bp}/${file.path}` : file.path;
+            const githubPath = basePath ? `${basePath}/${file.path}` : file.path;
             try {
               let sha = null;
               try {
-                sha = (await _gh.getContents(owner, repo, gp, this.ghBranch))
+                sha = (await _gh.getContents(owner, repo, githubPath, this.ghBranch))
                   .sha;
               } catch (e) {
                 if (!e.message.includes('404')) throw e;
               }
-              await _gh.putFile(owner, repo, gp, `Update via RaaJS Studio: ${file.name}`, this._b64Encode(file.content), this.ghBranch, sha);
+              await _gh.putFile(owner, repo, githubPath, `Update via RaaJS Studio: ${file.path}`, this._b64Encode(file.content), this.ghBranch, sha);
               Object.assign(this.ghFileStatus, {
                 [file.path]: 'synced'
               });
               const sr = this.ghSyncResults.find(x => x.path === file.path);
-              if (sr) sr.status = 'synced';
+              if (sr) {
+                sr.status = 'synced';
+                sr.sha = sha;
+              }
             } catch (e) {
               console.error(e);
               Object.assign(this.ghFileStatus, {
@@ -1537,35 +1677,44 @@ RaaJS.define('studio', () => {
           this.showToast('GitHub belum terkoneksi', 'error');
           return;
         }
-        const sel = this.files.filter(f => this.ghManageSel[f.path]);
-        if (!sel.length) {
+        const selectedPaths = Object.keys(this.ghManageSel)
+          .filter(path => this.ghManageSel[path]);
+        if (!selectedPaths.length) {
           this.showToast('Pilih file untuk dihapus', 'warning');
           return;
         }
-        if (!confirm(`Hapus ${sel.length} file dari GitHub?\nFile lokal TIDAK terhapus.`)) return;
+        if (!confirm(`Hapus ${selectedPaths.length} file dari GitHub?\n\nFile yang dipilih akan PERMANEN dihapus dari repository.`)) return;
         this.ghUploadLoading = true;
         const [owner, repo] = this.ghRepo.split('/');
-        const bp = this.ghRootPath ? this.ghRootPath.replace(/\/$/, '') : '';
+        const basePath = this.ghRootPath ? this.ghRootPath.replace(/\/$/, '') : '';
         try {
-          await Promise.all(sel.map(async file => {
-            const gp = bp ? `${bp}/${file.path}` : file.path;
+          await Promise.all(selectedPaths.map(async path => {
+            const githubPath = basePath ? `${basePath}/${path}` : path;
             try {
-              const dr = await _gh.getContents(owner, repo, gp, this.ghBranch);
-              await _gh.deleteFile(owner, repo, gp, `Hapus via RaaJS: ${file.name}`, this.ghBranch, dr.sha);
-              Object.assign(this.ghFileStatus, {
-                [file.path]: 'pending'
-              });
+              let sha;
+              try {
+                const remoteData = await _gh.getContents(owner, repo, githubPath, this.ghBranch);
+                sha = remoteData.sha;
+              } catch (e) {
+                if (e.message.includes('404')) return;
+                throw e;
+              }
+              await _gh.deleteFile(owner, repo, githubPath, `Hapus via RaaJS Studio: ${path}`, this.ghBranch, sha);
+              if (this.ghFileStatus[path]) delete this.ghFileStatus[path];
+              this.ghSyncResults = this.ghSyncResults.filter(r => r.path !== path);
             } catch (e) {
-              if (!e.message.includes('404')) this.showToast(`Gagal hapus ${file.path}`, 'error');
+              console.error(`Gagal hapus ${path}:`, e);
+              this.showToast(`Gagal hapus ${path}: ${e.message}`, 'error');
             }
           }));
-          this.showToast(`${sel.length} file dihapus dari GitHub`, 'success');
+          this.showToast(`${selectedPaths.length} file berhasil dihapus dari GitHub`, 'success');
+          selectedPaths.forEach(p => delete this.ghManageSel[p]);
+          setTimeout(() => this.checkGitHubSync(), 1000);
         } catch (e) {
-          this.showToast(`Error: ${e.message}`, 'error');
+          this.showToast(`Error batch delete: ${e.message}`, 'error');
         }
         this.ghUploadLoading = false;
       },
-
       async resetProject() {
         if (!confirm('Reset ke file bawaan?')) return;
         this.loadingFiles = true;
@@ -1682,6 +1831,6 @@ RaaJS.define('studio', () => {
   };
 });
 
-  </script>
+</script>
 </body>
 </html>
