@@ -337,6 +337,14 @@
  @media (max-width: 768px) { .panel-chat { width: 100%; max-width: 400px } header { padding: 0 14px } }
 
  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important } }
+
+.toolbar-select { padding: 4px 8px; border-radius: var(--radius-xs); background: var(--bg-elevated); border: 1px solid var(--border-subtle); color: var(--accent-purple); font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; cursor: pointer; transition: all var(--transition-fast) }
+
+ .toolbar-select:hover { background: var(--bg-hover); border-color: rgba(176,109,212,0.3) }
+
+ .toolbar-select option { background: var(--bg-surface); color: var(--text-primary) }
+
+ .toolbar-select optgroup { background: var(--bg-base); color: var(--text-muted); font-weight: 600 }
     </style>
 <base target="_blank">
 </head>
@@ -418,35 +426,71 @@
                 </div>
                 <div class="editor-body">
                     <textarea raa-core:ref="editorTextarea" raa-bind:model="activeFileContent" raa-on:input="handleEditorInput()" placeholder="/* Pilih berkas atau mulai menulis kode RaaJS Anda */" class="editor-textarea" raa-on:keydown="handleEditorKeydown($event)"></textarea>
-                    <div class="editor-toolbar">
-                        <button raa-on:click="insertText('raa-bind:text=\"\"')" class="toolbar-btn brand">bind:text</button>
-                        <button raa-on:click="insertText('raa-bind:html=\"\"')" class="toolbar-btn brand">bind:html</button>
-                        <button raa-on:click="insertText('raa-bind:model=\"\"')" class="toolbar-btn brand">bind:model</button>
-                        <button raa-on:click="insertText('raa-bind:class=\"{ : }\"')" class="toolbar-btn brand">bind:class</button>
-                        <button raa-on:click="insertText('raa-bind:style=\"{ : }\"')" class="toolbar-btn brand">bind:style</button>
-                        <button raa-on:click="insertText('raa-flow:if=\"\"')" class="toolbar-btn brand">flow:if</button>
-                        <button raa-on:click="insertText('raa-flow:for=\"item in list\"')" class="toolbar-btn brand">flow:for</button>
-                        <button raa-on:click="insertText('raa-flow:show=\"\"')" class="toolbar-btn brand">flow:show</button>
-                        <button raa-on:click="insertText('raa-on:click=\"\"')" class="toolbar-btn brand">on:click</button>
-                        <button raa-on:click="insertText('raa-core:app=\"\"')" class="toolbar-btn brand">core:app</button>
-                        <button raa-on:click="insertText('raa-core:init=\"Object.assign($state, { }) \')" class="toolbar-btn brand">core:init</button>
-                        <button raa-on:click="insertText('raa-core:ref=\"\"')" class="toolbar-btn brand">core:ref</button>
-                        <button raa-on:click="insertText('raa-eco:island')" class="toolbar-btn brand">eco:island</button>
-                        <button raa-on:click="insertText('raa-eco:persist=\"\"')" class="toolbar-btn brand">eco:persist</button>
-                        <button raa-on:click="insertText('raa-eco:router')" class="toolbar-btn brand">eco:router</button>
-                        <button raa-on:click="insertText('raa-eco:route=\"\"')" class="toolbar-btn brand">eco:route</button>
-                        <button raa-on:click="insertText('raa-net:fetch=\"\'url\' -> data\"')" class="toolbar-btn brand">net:fetch</button>
-                        <button raa-on:click="insertText('raa-net:sync=\"\'ws://url\' -> data\"')" class="toolbar-btn brand">net:sync</button>
-                        <button raa-on:click="insertText('raa-ux:lazy')" class="toolbar-btn brand">ux:lazy</button>
-                        <button raa-on:click="insertText('raa-ux:focus')" class="toolbar-btn brand">ux:focus</button>
-                        <button raa-on:click="insertText('raa-ux:loading=\"\"')" class="toolbar-btn brand">ux:loading</button>
-                        <button raa-on:click="insertText('raa-ux:disable=\"\"')" class="toolbar-btn brand">ux:disable</button>
-                        <button raa-on:click="insertText('RaaJS.define(\'halo\', () => ({    state: {          },    methods: {          }}));')" class="toolbar-btn api">RaaJS.define</button>
-                        <button raa-on:click="saveActiveFile()" class="toolbar-btn" style="margin-left: auto; border-color: rgba(255,140,95,0.3); color: var(--accent-orange);">
-                            <svg width="12" height="12" fill="currentColor" viewBox="0 0 256 256" style="vertical-align: middle; margin-right: 4px;"><path d="M216,40H68.53a16.08,16.08,0,0,0-13.72,7.77L9.14,123.88a8,8,0,0,0,0,8.24l45.67,76.11A16.08,16.08,0,0,0,68.53,216H216a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40ZM61.67,204.12,68.53,200h0ZM216,200H68.53l-43.2-72,43.2-72H216Z"/></svg>
-                            Save
-                        </button>
-                    </div>
+<div class="editor-toolbar">
+    <!-- Basic chars -->
+    <button raa-on:click="insertText('	')" class="toolbar-btn" title="Tab">Tab</button>
+    <button raa-on:click="insertText('{')" class="toolbar-btn" title="{ }">{ }</button>
+    <button raa-on:click="insertText('[')" class="toolbar-btn" title="[ ]">[ ]</button>
+    <button raa-on:click="insertText('()')" class="toolbar-btn" title="( )">( )</button>
+    <button raa-on:click="insertText(';')" class="toolbar-btn" title=";">;</button>
+    
+    <!-- Snippet dropdown (kompak) -->
+    <select class="toolbar-select" raa-on:change="insertSnippet($event.target.value); $event.target.selectedIndex = 0;">
+        <option value="">⚡ Directive...</option>
+        <optgroup label="🔗 Bind">
+            <option value="raa-bind:text=&quot;&quot;">bind:text</option>
+            <option value="raa-bind:html=&quot;&quot;">bind:html</option>
+            <option value="raa-bind:model=&quot;&quot;">bind:model</option>
+            <option value="raa-bind:class=&quot;{ : }&quot;">bind:class</option>
+            <option value="raa-bind:style=&quot;{ : }&quot;">bind:style</option>
+        </optgroup>
+        <optgroup label="🔀 Flow">
+            <option value="raa-flow:if=&quot;&quot;">flow:if</option>
+            <option value="raa-flow:for=&quot;item in list&quot;">flow:for</option>
+            <option value="raa-flow:show=&quot;&quot;">flow:show</option>
+        </optgroup>
+        <optgroup label="🎯 Events">
+            <option value="raa-on:click=&quot;&quot;">on:click</option>
+            <option value="raa-on:submit.prevent=&quot;&quot;">on:submit.prevent</option>
+        </optgroup>
+        <optgroup label="⚙️ Core">
+            <option value="raa-core:app=&quot;&quot;">core:app</option>
+            <option value="raa-core:init=&quot;Object.assign($state, { })&quot;">core:init</option>
+            <option value="raa-core:ref=&quot;&quot;">core:ref</option>
+        </optgroup>
+        <optgroup label="🏝️ Eco">
+            <option value="raa-eco:island">eco:island</option>
+            <option value="raa-eco:persist=&quot;&quot;">eco:persist</option>
+            <option value="raa-eco:router">eco:router</option>
+            <option value="raa-eco:route=&quot;&quot;">eco:route</option>
+        </optgroup>
+        <optgroup label="🌐 Net">
+            <option value="raa-net:fetch=&quot;'url' -&gt; data&quot;">net:fetch</option>
+            <option value="raa-net:sync=&quot;'ws://url' -&gt; data&quot;">net:sync</option>
+        </optgroup>
+        <optgroup label="✨ UX">
+            <option value="raa-ux:lazy">ux:lazy</option>
+            <option value="raa-ux:focus">ux:focus</option>
+            <option value="raa-ux:loading=&quot;&quot;">ux:loading</option>
+            <option value="raa-ux:disable=&quot;&quot;">ux:disable</option>
+        </optgroup>
+    </select>
+
+    <!-- Tombol brand sering dipakai (label ultra-pendek) -->
+    <button raa-on:click="insertText('raa-bind:')" class="toolbar-btn brand" title="raa-bind:*">b:</button>
+    <button raa-on:click="insertText('raa-flow:')" class="toolbar-btn brand" title="raa-flow:*">f:</button>
+    <button raa-on:click="insertText('raa-on:')" class="toolbar-btn brand" title="raa-on:*">@:</button>
+    <button raa-on:click="insertText('raa-core:')" class="toolbar-btn brand" title="raa-core:*">c:</button>
+    <button raa-on:click="insertText('raa-eco:')" class="toolbar-btn brand" title="raa-eco:*">e:</button>
+    <button raa-on:click="insertText('raa-net:')" class="toolbar-btn brand" title="raa-net:*">n:</button>
+    <button raa-on:click="insertText('raa-ux:')" class="toolbar-btn brand" title="raa-ux:*">x:</button>
+
+    <!-- Save button -->
+    <button raa-on:click="saveActiveFile()" class="toolbar-btn" style="margin-left: auto; border-color: rgba(255,140,95,0.3); color: var(--accent-orange);" title="Save (Ctrl+S)">
+        <svg width="12" height="12" fill="currentColor" viewBox="0 0 256 256" style="vertical-align: middle; margin-right: 4px;"><path d="M216,40H68.53a16.08,16.08,0,0,0-13.72,7.77L9.14,123.88a8,8,0,0,0,0,8.24l45.67,76.11A16.08,16.08,0,0,0,68.53,216H216a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40ZM61.67,204.12,68.53,200h0ZM216,200H68.53l-43.2-72,43.2-72H216Z"/></svg>
+        Save
+    </button>
+</div>
                 </div>
                 <div class="editor-statusbar">
                     <div raa-bind:text="files.length + ' files' + (ghConnected ? ' | GitHub: ' + ghRepo : '')"></div>
@@ -1040,6 +1084,18 @@ Workspace ini menggunakan RaaJS v3.1.0 — framework reaktif zero-dependency.
               this.showToast('File disimpan', 'success');
             }
           },
+         
+ insertSnippet: function(snippet) {
+    if (!snippet) return;
+    // Unescape HTML entities yang mungkin ada dari <option>
+    var text = snippet
+      .replace(/&quot;/g, '"')
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/-&gt;/g, '->');
+    this.insertText(text);
+  },
 
           insertText: function (ch) {
             var ta = this.$refs.editorTextarea;
