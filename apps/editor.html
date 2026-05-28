@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
+    <!-- [FIX #11] Removed unused extensions: raa-http, raa-animation, raa-i18n, raa-eventbus, raa-template -->
     <script src="../engine/raa.js"></script>
     <script src="../engine/extensions/raa-computed-watch.js"></script>
     <script src="../engine/extensions/raa-validate.js"></script>
@@ -432,7 +433,7 @@
             <svg width="12" height="12" fill="var(--accent-orange)" viewBox="0 0 256 256">
               <path d="M213.66,82.34l-56-56A8,8,0,0,0,152,24H56A16,16,0,0,0,40,40V216a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V88A8,8,0,0,0,213.66,82.34ZM160,51.31,188.69,80H160ZM200,216H56V40H88V88a8,8,0,0,0,8,8h48a8,8,0,0,0,0-16H104V40h56V88a8,8,0,0,0,8,8h40V216Z" />
             </svg>
-            <span raa-bind:text="activeFileName"></span>
+            <span raa-bind:text="activeFileName || 'Pilih Berkas'"></span>
           </div>
           <div class="editor-tab-status" raa-bind:class="{ 'unsaved': unsavedChanges }" raa-bind:text="unsavedChanges ? '\u25CF Modified' : (lastSaved ? 'Saved ' + lastSaved : 'Ready')"></div>
           <div style="display: flex; gap: 4px; margin-left: auto;">
@@ -711,42 +712,69 @@
           </div>
         </div>
 
+        <!-- MANAGE TAB - FIXED -->
         <div raa-flow:show="ghTab === 'manage'">
           <div raa-flow:show="!ghConnected" class="text-center p-4 text-muted">
             Konfigurasikan GitHub di tab <strong>Config</strong> terlebih dahulu.
           </div>
           <div raa-flow:show="ghConnected">
-            <div class="warn-box" raa-flow:show="remoteOnlyFiles.length > 0" style="background: rgba(255,140,95,0.1); border:1px solid var(--accent-orange); padding:8px; border-radius:6px; margin-bottom:12px; font-size:0.8rem;">
-              Ditemukan <span raa-bind:text="remoteOnlyFiles.length"></span> file di GitHub yang tidak ada di lokal.
+            <!-- UI hint jika belum scan -->
+            <div raa-flow:show="!ghChecked" style="text-align:center; padding:20px; color:var(--text-muted); font-size:0.85rem; background:rgba(255,140,95,0.05); border:1px solid rgba(255,140,95,0.2); border-radius:6px; margin-bottom:16px;">
+              Klik <strong>"Deteksi Perubahan"</strong> di tab Sync terlebih dahulu, atau tunggu scan otomatis...
+              <button raa-on:click="checkGitHubSync()" class="btn btn-sm btn-primary" style="margin-top:10px;" raa-ux:disable="ghSyncLoading">
+                <span raa-flow:show="!ghSyncLoading">Scan Sekarang</span>
+                <span raa-flow:show="ghSyncLoading">Memindai...</span>
+              </button>
             </div>
-            <div class="form-group">
-              <label>Hapus File dari GitHub (Remote Only)</label>
-              <div raa-flow:show="remoteOnlyFiles.length > 0" class="checkbox-list" style="max-height: 200px;">
-                <template raa-flow:for="file in remoteOnlyFiles" raa-key="file.path">
-                  <label class="checkbox-item">
-                    <input type="checkbox" raa-on:change="toggleManageSel(file.path, $event)">
-                    <span class="file-path" raa-bind:text="file.path"></span>
-                    <span class="file-badge" style="background: rgba(232,125,168,0.15); color: var(--accent-rose);">Remote Only</span>
-                  </label>
-                </template>
+
+            <!-- Konten Manage tab (hanya tampil setelah scan) -->
+            <div raa-flow:show="ghChecked">
+              <div class="warn-box" raa-flow:show="remoteOnlyFiles.length > 0" style="background: rgba(255,140,95,0.1); border:1px solid var(--accent-orange); padding:8px; border-radius:6px; margin-bottom:12px; font-size:0.8rem;">
+                Ditemukan <span raa-bind:text="remoteOnlyFiles.length"></span> file di GitHub yang tidak ada di lokal.
               </div>
-              <div raa-flow:show="files.length > 0" style="margin-top: 12px;">
-                <label style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-secondary); margin-bottom: 8px; display:block;">Atau Hapus File Lokal dari GitHub</label>
-                <div class="checkbox-list" style="max-height: 200px;">
-                  <template raa-flow:for="file in files" raa-key="file.path">
+              <div class="form-group">
+                <label>Hapus File dari GitHub (Remote Only)</label>
+                <div raa-flow:show="remoteOnlyFiles.length > 0" class="checkbox-list" style="max-height: 200px;">
+                  <template raa-flow:for="file in remoteOnlyFiles" raa-key="file.path">
                     <label class="checkbox-item">
-                      <input type="checkbox" raa-on:change="toggleManageSel(file.path, $event)">
+                      <input type="checkbox" raa-bind:checked="ghManageSel[file.path]" raa-on:change="toggleManageSel(file.path, $event)">
                       <span class="file-path" raa-bind:text="file.path"></span>
-                      <span class="file-badge local">Lokal</span>
+                      <span class="file-badge" style="background: rgba(232,125,168,0.15); color: var(--accent-rose);">Remote Only</span>
                     </label>
                   </template>
                 </div>
+                <div raa-flow:show="files.length > 0" style="margin-top: 12px;">
+                  <label style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-secondary); margin-bottom: 8px; display:block;">Atau Hapus File Lokal dari GitHub</label>
+                  <div class="checkbox-list" style="max-height: 200px;">
+                    <template raa-flow:for="file in files" raa-key="file.path">
+                      <label class="checkbox-item">
+                        <input type="checkbox" raa-bind:checked="ghManageSel[file.path]" raa-on:change="toggleManageSel(file.path, $event)">
+                        <span class="file-path" raa-bind:text="file.path"></span>
+                        <span class="file-badge local">Lokal</span>
+                      </label>
+                    </template>
+                  </div>
+                </div>
               </div>
-            </div>
-            <div class="flex gap-2 mt-3">
-              <button raa-on:click="executeGitHubDelete()" class="btn btn-danger flex-1" raa-ux:disable="ghUploadLoading || !hasSelectedManageFiles">
-                Hapus Terpilih dari GitHub
-              </button>
+
+              <!-- Progress bar delete -->
+              <div class="progress-box" raa-flow:show="ghDeleteProgress > 0">
+                <div class="progress-track">
+                  <div class="progress-fill" raa-bind:style="{ width: ghDeleteProgress + '%' }"></div>
+                </div>
+                <div class="progress-text" raa-bind:text="ghDeleteProgress + '% menghapus...'"></div>
+              </div>
+
+              <!-- Tombol Semua/Batal + Hapus -->
+              <div class="flex gap-2" style="margin-bottom:8px;">
+                <button raa-on:click="selectAllManage(true)" class="btn btn-sm">Pilih Semua</button>
+                <button raa-on:click="selectAllManage(false)" class="btn btn-sm">Batal</button>
+              </div>
+              <div class="flex gap-2 mt-3">
+                <button raa-on:click="executeGitHubDelete()" class="btn btn-danger flex-1" raa-ux:disable="ghUploadLoading || !hasSelectedManageFiles">
+                  Hapus Terpilih dari GitHub
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -908,6 +936,7 @@ RaaJS.define('studio', () => {
       ghManageSel: {},
       ghUploadProgress: 0,
       ghUploadLoading: false,
+      ghDeleteProgress: 0,
       ghChecked: false,
       ghTestResult: '',
       ghTestError: false,
@@ -993,8 +1022,14 @@ RaaJS.define('studio', () => {
           for (const part of parts) {
             currentPath = currentPath ? currentPath + '/' + part : part;
             if (!node.folderMap[part]) {
-              node.folderMap[part] = { path: currentPath, name: part, children: [], folderMap: {} };
-              node.children.push({ type: 'folder', path: currentPath, name: part, node: node.folderMap[part] });
+              const newNode = { path: currentPath, name: part, children: [], folderMap: {} };
+              node.folderMap[part] = newNode;
+              node.children.push({ 
+                type: 'folder', 
+                path: currentPath, 
+                name: part, 
+                node: newNode
+              });
             }
             node = node.folderMap[part];
           }
@@ -1005,7 +1040,10 @@ RaaJS.define('studio', () => {
           const parts = f.path.split('/');
           let node = root;
           for (let i = 0; i < parts.length - 1; i++) {
-            node = node.folderMap[parts[i]];
+            const part = parts[i];
+            if (node.folderMap[part]) {
+              node = node.folderMap[part];
+            }
           }
           node.children.push({ type: 'file', path: f.path, name: f.name });
         });
@@ -1029,7 +1067,8 @@ RaaJS.define('studio', () => {
                 isFolder: true,
                 depth: depth
               });
-              if (this.expandedFolders[child.path] !== false) {
+              // ✅ FIX 1: Validasi node valid sebelum recursive
+              if (child.node && this.expandedFolders[child.path] !== false) {
                 flatten(child.node, depth + 1);
               }
             } else {
@@ -1049,6 +1088,8 @@ RaaJS.define('studio', () => {
       }
     },
     init() {
+      // ✅ FIX: Initialize expandedFolders
+      this.expandedFolders = {};
       this._loadUIPersist();
       this._checkApiKey();
       this._loadGitHubConfig();
@@ -1101,8 +1142,11 @@ RaaJS.define('studio', () => {
           this.aiContextFiles = this.aiContextFiles.filter(p => p !== path);
         }
       },
+      // ✅ FIX 2: toggleManageSel - Gunakan raa-bind:checked + raa-on:change
       toggleManageSel(path, event) {
-        this.ghManageSel = Object.assign({}, this.ghManageSel, { [path]: event.target.checked });
+        const sel = Object.assign({}, this.ghManageSel);
+        sel[path] = event.target.checked;
+        this.ghManageSel = sel;
       },
       handleSnippetSelect(event) {
         const s = event.target.value;
@@ -1134,6 +1178,7 @@ RaaJS.define('studio', () => {
       closeGitHubModal() {
         this.showGitHubModal = false;
         this.ghUploadProgress = 0;
+        this.ghDeleteProgress = 0;
       },
       openNewFileModal() {
         this.showNewFileModal = true;
@@ -1142,9 +1187,12 @@ RaaJS.define('studio', () => {
         this.showNewFileModal = false;
         this.newFileName = '';
       },
+      // ✅ FIX 5: setGhTab - Auto-scan saat buka Manage tab
       setGhTab(t) {
         this.ghTab = t;
-        if (t === 'manage') this.ghManageSel = {};
+        if (t === 'manage' && this.ghConnected && !this.ghChecked) {
+          setTimeout(() => this.checkGitHubSync(), 300);
+        }
       },
       selectFile(path) {
         const f = this.files.find(x => x.path === path);
@@ -1272,8 +1320,10 @@ RaaJS.define('studio', () => {
         this._startResize(e, 'tree', this.$refs.panelTree, 200, 360);
       },
       startResizePreview(e) {
-        this._startResize(e, 'preview', this.$refs.panelTree ? this.$refs.panelTree.parentElement.querySelector('.panel-preview') : null, 320, 600);
+        const previewPanel = this.$refs.resizePreview?.parentElement?.querySelector('.panel-preview');
+        this._startResize(e, 'preview', previewPanel, 320, 600);
       },
+      // ✅ FIX 8: _startResize - Gunakan $refs bukan querySelector
       _startResize(e, name, panelEl, min, max) {
         e.preventDefault();
         if (!panelEl) return;
@@ -1527,6 +1577,15 @@ RaaJS.define('studio', () => {
       selectAllSync(s) {
         this.ghSyncResults = this.ghSyncResults.map(r => r.status === 'pending' ? Object.assign({}, r, { selected: s }) : r);
       },
+      // ✅ FIX 6: selectAllManage - Tombol Pilih Semua/Batal di Manage tab
+      selectAllManage(val) {
+        const sel = {};
+        if (val) {
+          this.remoteOnlyFiles.forEach(f => { sel[f.path] = true; });
+          this.files.forEach(f => { sel[f.path] = true; });
+        }
+        this.ghManageSel = sel;
+      },
       _b64Encode(str) {
         try {
           const b = new TextEncoder().encode(str);
@@ -1599,6 +1658,7 @@ RaaJS.define('studio', () => {
         this.ghUploadLoading = false;
         setTimeout(() => { this.ghUploadProgress = 0; }, 1200);
       },
+      // ✅ FIX 3, 4, 7: executeGitHubDelete - Reactivity, SHA optimization, Progress bar
       async executeGitHubDelete() {
         if (!this.ghConnected || !_gh) {
           this.showToast('GitHub belum terkoneksi', 'error');
@@ -1611,42 +1671,60 @@ RaaJS.define('studio', () => {
         }
         if (!confirm('Hapus ' + selectedPaths.length + ' file dari GitHub?\n\nFile yang dipilih akan PERMANEN dihapus dari repository.')) return;
         this.ghUploadLoading = true;
+        this.ghDeleteProgress = 0;
         const repoStr = this.ghRepo;
         const parts = repoStr.split('/');
         const owner = parts[0];
         const repo = parts[1];
         const basePath = this.ghRootPath ? this.ghRootPath.replace(/\/$/, '') : '';
+        let deleteDone = 0;
         try {
           await Promise.all(selectedPaths.map(async path => {
-            const githubPath = basePath ? basePath + '/' + path : path;
+            const githubPath = basePath ? `${basePath}/${path}` : path;
             try {
-              let sha;
-              try {
-                const remoteData = await _gh.getContents(owner, repo, githubPath, this.ghBranch);
-                sha = remoteData.sha;
-              } catch (e) {
-                if (e.message.includes('404')) return;
-                throw e;
+              // ✅ FIX 4: Cek SHA dari remoteOnlyFiles dulu (sudah ada dari scan)
+              const remoteFile = this.remoteOnlyFiles.find(f => f.path === path);
+              let sha = remoteFile ? remoteFile.sha : null;
+              
+              if (!sha) {
+                // Fallback: fetch SHA dari GitHub
+                try {
+                  const remoteData = await _gh.getContents(owner, repo, githubPath, this.ghBranch);
+                  sha = remoteData.sha;
+                } catch (e) {
+                  if (e.message.includes('404')) return;
+                  throw e;
+                }
               }
-              await _gh.deleteFile(owner, repo, githubPath, 'Hapus via RaaJS Studio: ' + path, this.ghBranch, sha);
+              
+              await _gh.deleteFile(owner, repo, githubPath, `Hapus via RaaJS Studio: ${path}`, this.ghBranch, sha);
               if (this.ghFileStatus[path]) {
-                const rest = Object.assign({}, this.ghFileStatus);
-                delete rest[path];
-                this.ghFileStatus = rest;
+                // ✅ FIX 3: Gunakan reassignment bukan delete operator
+                const s = Object.assign({}, this.ghFileStatus);
+                delete s[path];
+                this.ghFileStatus = s;
               }
               this.ghSyncResults = this.ghSyncResults.filter(r => r.path !== path);
             } catch (e) {
-              console.error('Gagal hapus ' + path + ':', e);
-              this.showToast('Gagal hapus ' + path + ': ' + e.message, 'error');
+              console.error(`Gagal hapus ${path}:`, e);
+              this.showToast(`Gagal hapus ${path}: ${e.message}`, 'error');
+            } finally {
+              // ✅ FIX 7: Progress bar saat delete
+              deleteDone++;
+              this.ghDeleteProgress = Math.round((deleteDone / selectedPaths.length) * 100);
             }
           }));
           this.showToast(selectedPaths.length + ' file berhasil dihapus dari GitHub', 'success');
-          this.ghManageSel = {};
+          // ✅ FIX 3: Reset ghManageSel dengan reassignment
+          const clean = Object.assign({}, this.ghManageSel);
+          selectedPaths.forEach(p => { delete clean[p]; });
+          this.ghManageSel = clean;
           setTimeout(() => this.checkGitHubSync(), 1000);
         } catch (e) {
           this.showToast('Error batch delete: ' + e.message, 'error');
         }
         this.ghUploadLoading = false;
+        setTimeout(() => { this.ghDeleteProgress = 0; }, 1200);
       },
       async resetProject() {
         if (!confirm('Reset ke file bawaan?')) return;
