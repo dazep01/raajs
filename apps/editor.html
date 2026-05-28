@@ -8,17 +8,17 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/@octokit/rest@20.0.2/dist-bundle/index.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
     <script src="../engine/raa.js"></script>
-    <script src="../engine/raa-computed-watch.js"></script>
-    <script src="../engine/raa-http.js"></script>
-    <script src="../engine/raa-validate.js"></script>
-    <script src="../engine/raa-animation.js"></script>
-    <script src="../engine/raa-ui.js"></script>
-    <script src="../engine/raa-i18n.js"></script>
-    <script src="../engine/raa-eventbus.js"></script>
-    <script src="../engine/raa-template.js"></script>
+    <script src="../engine/extensions/raa-computed-watch.js"></script>
+    <script src="../engine/extensions/raa-http.js"></script>
+    <script src="../engine/extensions/raa-validate.js"></script>
+    <script src="../engine/extensions/raa-animation.js"></script>
+    <script src="../engine/extensions/raa-ui.js"></script>
+    <script src="../engine/extensions/raa-i18n.js"></script>
+    <script src="../engine/extensions/raa-eventbus.js"></script>
+    <script src="../engine/extensions/raa-template.js"></script>
+    <script src="../engine/extensions/raa-devtools.js"></script>
     <style>
 :root { --bg-base: #0F0E13; --bg-surface: #16151D; --bg-elevated: #1C1B24; --bg-hover: #242330; --bg-active: #2A2938; --bg-code: #13121A; --border-subtle: rgba(255,255,255,0.06); --border-light: rgba(255,255,255,0.10); --border-medium: rgba(255,255,255,0.14); --text-primary: #F0F0F5; --text-secondary: #A0A0B0; --text-muted: #6E6E80; --text-inverse: #0F0E13; --accent-orange: #FF8C5F; --accent-rose: #E87DA8; --accent-purple: #B06DD4; --accent-sky: #7EB8D9; --accent-mint: #6DC9A0; --accent-amber: #F0C06E; --gradient-brand: linear-gradient(135deg, #FF8C5F 0%, #E87DA8 50%, #B06DD4 100%); --gradient-brand-soft: linear-gradient(135deg, rgba(255,140,95,0.15) 0%, rgba(176,109,212,0.15) 100%); --shadow-xs: 0 1px 2px rgba(0,0,0,0.3); --shadow-soft: 0 4px 12px rgba(0,0,0,0.4); --shadow-md: 0 8px 24px rgba(0,0,0,0.5); --shadow-lg: 0 16px 48px rgba(0,0,0,0.6); --shadow-glow-orange: 0 0 20px rgba(255,140,95,0.25); --shadow-glow-purple: 0 0 20px rgba(176,109,212,0.25); --radius-xs: 4px; --radius-sm: 8px; --radius-md: 12px; --radius-lg: 16px; --radius-xl: 20px; --radius-full: 9999px; --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1); --transition-smooth: 0.25s cubic-bezier(0.4, 0, 0.2, 1); --transition-bounce: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) }
 
@@ -442,7 +442,6 @@
                     class="editor-textarea"
                     raa-on:keydown="handleEditorKeydown($event)"></textarea>
 
-          <!-- Toolbar: Snippet Dropdown -->
           <div class="editor-toolbar">
             <select class="toolbar-select" raa-on:change="handleSnippetSelect($event)">
               <option value="">⚡ Directive...</option>
@@ -486,7 +485,6 @@
             </select>
           </div>
 
-          <!-- Toolbar: Quick Buttons -->
           <div class="editor-toolbar">
             <button raa-on:click="insertText('	')" class="toolbar-btn" title="Tab">Tab</button>
             <button raa-on:click="insertText('{')" class="toolbar-btn" title="{ }">{ }</button>
@@ -494,7 +492,6 @@
             <button raa-on:click="insertText('()')" class="toolbar-btn" title="( )">( )</button>
             <button raa-on:click="insertText(';')" class="toolbar-btn" title=";">;</button>
 
-            <!-- Prefix shortcuts -->
             <button raa-on:click="insertText('raa-bind:')" class="toolbar-btn brand" title="raa-bind:*">b:</button>
             <button raa-on:click="insertText('raa-flow:')" class="toolbar-btn brand" title="raa-flow:*">f:</button>
             <button raa-on:click="insertText('raa-on:')" class="toolbar-btn brand" title="raa-on:*">@:</button>
@@ -503,7 +500,6 @@
             <button raa-on:click="insertText('raa-net:')" class="toolbar-btn brand" title="raa-net:*">n:</button>
             <button raa-on:click="insertText('raa-ux:')" class="toolbar-btn brand" title="raa-ux:*">x:</button>
 
-            <!-- Save -->
             <button raa-on:click="saveActiveFile()"
                     class="toolbar-btn"
                     style="margin-left: auto; border-color: rgba(255,140,95,0.3); color: var(--accent-orange);"
@@ -803,636 +799,889 @@
 
   <!-- ═════════ SCRIPT ═════════ -->
   <script>
-    // ═══════════════════════════════════════════════════════════════
-    // RaaJS Studio v3.1.0 — Refactored, Best Practice, Premium
-    // ═══════════════════════════════════════════════════════════════
+// ✅ Zero-Dependency GitHub Wrapper (Native fetch)
+class GitHubAPI {
+  constructor(token) {
+    this.base = 'https://api.github.com';
+    this.headers = {
+      'Accept': 'application/vnd.github+json',
+      'X-GitHub-Api-Version': '2022-11-28',
+      'Authorization': `Bearer ${token}`
+    };
+  }
+  async _req(method, path, body) {
+    const opts = {
+      method,
+      headers: {
+        ...this.headers
+      }
+    };
+    if (body) opts.body = JSON.stringify(body);
+    const res = await fetch(`${this.base}${path}`, opts);
+    if (!res.ok) {
+      const err = await res.json()
+        .catch(() => ({
+          message: res.statusText
+        }));
+      throw new Error(err.message || `HTTP ${res.status}`);
+    }
+    return res.status === 204 ? null : res.json();
+  }
+  async test() {
+    const u = await this._req('GET', '/user');
+    return u.login;
+  }
+  async getContents(owner, repo, path, ref) {
+    const q = ref ? `?ref=${encodeURIComponent(ref)}` : '';
+    return this._req('GET', `/repos/${owner}/${repo}/contents/${path}${q}`);
+  }
+  async putFile(owner, repo, path, msg, content, branch, sha = null) {
+    return this._req('PUT', `/repos/${owner}/${repo}/contents/${path}`, {
+      message: msg,
+      content,
+      branch,
+      sha
+    });
+  }
+  async deleteFile(owner, repo, path, msg, branch, sha) {
+    return this._req('DELETE', `/repos/${owner}/${repo}/contents/${path}`, {
+      message: msg,
+      branch,
+      sha
+    });
+  }
+}
 
-    RaaJS.define('studio', () => {
-      const DB_NAME = 'RaaJS_Studio_DB';
-      const DB_VERSION = 1;
+RaaJS.define('studio', () => {
+  const DB_NAME = 'RaaJS_Studio_DB';
+  const DB_VERSION = 1;
+  const DEFAULT_FILES = [{
+      path: 'index.html',
+      name: 'index.html',
+      content: `<!DOCTYPE html>\n<html lang="id">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  <title>Proyek RaaJS</title>\n  <script src="raa.js"><\/script>\n  <style>\n    body { font-family: system-ui, sans-serif; padding: 40px; background: #f8f9fa; color: #333; }\n    h1 { color: #FF8C5F; }\n  </style>\n</head>\n<body>\n  <h1>Selamat Datang di RaaJS v3.1.0!</h1>\n  <p>Mulai kreasimu di sini. Data 100% lokal.</p>\n  <div raa-core:app="demo">\n    <p raa-bind:text="message"></p>\n    <button raa-on:click="update()">Klik Saya</button>\n  </div>\n  <script>\n    RaaJS.define('demo', () => ({\n      state: { message: 'Halo dari RaaJS!' },\n      methods: { update() { this.message = 'State bereaksi secara otomatis!'; } }\n    }));\n  <\/script>\n</body>\n</html>`
+    },
+    {
+      path: 'README.md',
+      name: 'README.md',
+      content: `# Proyek RaaJS\n\nWorkspace ini menggunakan RaaJS v3.1.0.\n\n## Prinsip\n> State adalah sumber kebenaran. Template adalah cermin pasif.`
+    }
+  ];
 
-      const DEFAULT_FILES = [
-        {
-          path: 'index.html',
-          name: 'index.html',
-          content: `<!DOCTYPE html>
-<html lang="id">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Proyek RaaJS</title>
-  <script src="raa.js"><\/script>
-  <style>
-    body { font-family: system-ui, sans-serif; padding: 40px; background: #f8f9fa; color: #333; }
-    h1 { color: #FF8C5F; }
-  </style>
-</head>
-<body>
-  <h1>Selamat Datang di RaaJS v3.1.0!</h1>
-  <p>Mulai kreasimu di sini. Data 100% lokal.</p>
-  <div raa-core:app="demo">
-    <p raa-bind:text="message"></p>
-    <button raa-on:click="update()">Klik Saya</button>
-  </div>
-  <script>
-    RaaJS.define('demo', () => ({
-      state: { message: 'Halo dari RaaJS!' },
-      methods: { update() { this.message = 'State bereaksi secara otomatis!'; } }
-    }));
-  <\/script>
-</body>
-</html>`
-        },
-        {
-          path: 'README.md',
-          name: 'README.md',
-          content: `# Proyek RaaJS
+  let _db = null;
+  let _gh = null;
+  let _saveTimer = null;
+  let _msgId = 0;
 
-Workspace ini menggunakan RaaJS v3.1.0 — framework reaktif zero-dependency.
-
-## Fitur Utama
-- Editor kode real-time dengan auto-save
-- Live preview via isolated iframe
-- AI Assistant (Gemini API)
-- GitHub Sync (Octokit REST)
-- IndexedDB storage (data lokal)
-
-## Prinsip
-> State adalah sumber kebenaran. Template adalah cermin pasif.`
-        }
-      ];
-
-      let _db = null;
-      let _octokit = null;
-      let _saveTimer = null;
-      let _msgId = 0;
-
-      return {
-        state: {
-          // UI
-          showTree: true,
-          showPreview: true,
-          showChat: false,
-          showSettings: false,
-          showGitHubModal: false,
-          showNewFileModal: false,
-
-          // Editor
-          files: [],
-          loadingFiles: true,
-          activeFilePath: '',
-          activeFileContent: '',
-          lastSaved: '',
-          unsavedChanges: false,
-          previewLoading: false,
-
-          // GitHub
-          ghToken: '',
-          ghTokenInput: '',
-          ghRepo: '',
-          ghRepoInput: '',
-          ghBranch: 'main',
-          ghRootPath: '',
-          ghConnected: false,
-          ghAutoSync: false,
-          ghTab: 'sync',
-          ghSyncLoading: false,
-          ghSyncResults: [],
-          ghFileStatus: {},
-          ghManageSel: {},
-          ghUploadProgress: 0,
-          ghUploadLoading: false,
-          ghChecked: false,
-          ghTestResult: '',
-          ghTestError: false,
-
-          // AI
-          aiKey: '',
-          aiKeyInput: '',
-          aiModel: 'gemini-2.5-flash',
-          aiMessages: [],
-          aiContextFiles: [],
-          showAiContextPicker: false,
-          aiLoading: false,
-          aiHasKey: false,
-          chatInput: '',
-
-          // New file
-          newFileName: '',
-
-          // Toast
-          toastVisible: false,
-          toastMessage: '',
-          toastType: 'success',
-
-          // ✅ State eksplisit (bukan computed) untuk reaktivitas stabil
-          activeFileName: 'Pilih Berkas',
-          isPreviewable: false
-        },
-
-        computed: {
-          treeEmpty() { return this.files.length === 0; },
-          chatEmpty() { return this.aiMessages.length === 0; },
-          githubStatusLabel() {
-            if (!this.ghConnected) return 'GitHub: Terputus';
-            const vals = Object.values(this.ghFileStatus);
-            return vals.some(s => s === 'pending') ? 'GitHub: Pending' : 'GitHub: Synced';
-          },
-          githubDotClass() {
-            if (!this.ghConnected) return 'error';
-            const vals = Object.values(this.ghFileStatus);
-            return vals.some(s => s === 'pending') ? 'pending' : 'synced';
-          },
-          pendingSyncCount() { return this.ghSyncResults.filter(r => r.status === 'pending').length; },
-          selectedSyncCount() { return this.ghSyncResults.filter(r => r.selected).length; }
-        },
-
-        init() {
-          this._loadUIPersist();
-          this._checkApiKey();
-          this._loadGitHubConfig();
-          this._initDB()
-            .then(() => this._loadFiles())
-            .then(() => {
-              this.loadingFiles = false;
-              if (!this.treeEmpty) {
-                const idx = this.files.find(f => f.path === 'index.html');
-                if (idx) {
-                  this.activeFilePath = idx.path;
-                  this.activeFileContent = idx.content;
-                } else {
-                  this.activeFilePath = this.files[0].path;
-                  this.activeFileContent = this.files[0].content;
-                }
-              }
-              this._initGhStatus();
-              if (this.ghConnected) this._updateGitHubStatus();
-              if (this.showPreview) this.runPreview();
-            })
-            .catch(err => {
-              console.error('DB init failed:', err);
-              this.loadingFiles = false;
-              this.showToast('Gagal memuat database', 'error');
-            });
-        },
-
-        methods: {
-          // ✅ FIX: Toggle context picker (ganti assignment =)
-          toggleAiContextPicker() {
-            this.showAiContextPicker = !this.showAiContextPicker;
-          },
-
-          // ✅ FIX: Checkbox array binding
-          toggleContextFile(path, event) {
-            if (event.target.checked) {
-              if (!this.aiContextFiles.includes(path)) this.aiContextFiles.push(path);
+  return {
+    state: {
+      showTree: true,
+      showPreview: true,
+      showChat: false,
+      showSettings: false,
+      showGitHubModal: false,
+      showNewFileModal: false,
+      files: [],
+      loadingFiles: true,
+      activeFilePath: '',
+      activeFileContent: '',
+      lastSaved: '',
+      unsavedChanges: false,
+      previewLoading: false,
+      ghToken: '',
+      ghTokenInput: '',
+      ghRepo: '',
+      ghRepoInput: '',
+      ghBranch: 'main',
+      ghRootPath: '',
+      ghConnected: false,
+      ghAutoSync: false,
+      ghTab: 'sync',
+      ghSyncLoading: false,
+      ghSyncResults: [],
+      ghFileStatus: {},
+      ghManageSel: {},
+      ghUploadProgress: 0,
+      ghUploadLoading: false,
+      ghChecked: false,
+      ghTestResult: '',
+      ghTestError: false,
+      aiKey: '',
+      aiKeyInput: '',
+      aiModel: 'gemini-2.5-flash',
+      aiMessages: [],
+      aiContextFiles: [],
+      showAiContextPicker: false,
+      aiLoading: false,
+      aiHasKey: false,
+      chatInput: '',
+      newFileName: '',
+      toastVisible: false,
+      toastMessage: '',
+      toastType: 'success',
+      activeFileName: 'Pilih Berkas',
+      isPreviewable: false
+    },
+    computed: {
+      treeEmpty() {
+        return this.files.length === 0;
+      },
+      chatEmpty() {
+        return this.aiMessages.length === 0;
+      },
+      githubStatusLabel() {
+        if (!this.ghConnected) return 'GitHub: Terputus';
+        const vals = Object.values(this.ghFileStatus);
+        return vals.some(s => s === 'pending') ? 'GitHub: Pending' : 'GitHub: Synced';
+      },
+      githubDotClass() {
+        if (!this.ghConnected) return 'error';
+        const vals = Object.values(this.ghFileStatus);
+        return vals.some(s => s === 'pending') ? 'pending' : 'synced';
+      },
+      pendingSyncCount() {
+        return this.ghSyncResults.filter(r => r.status === 'pending')
+          .length;
+      },
+      selectedSyncCount() {
+        return this.ghSyncResults.filter(r => r.selected)
+          .length;
+      }
+    },
+    init() {
+      this._loadUIPersist();
+      this._checkApiKey();
+      this._loadGitHubConfig();
+      this._initDB()
+        .then(() => this._loadFiles())
+        .then(() => {
+          this.loadingFiles = false;
+          if (!this.treeEmpty) {
+            const idx = this.files.find(f => f.path === 'index.html');
+            if (idx) {
+              this.activeFilePath = idx.path;
+              this.activeFileContent = idx.content;
             } else {
-              this.aiContextFiles = this.aiContextFiles.filter(p => p !== path);
+              this.activeFilePath = this.files[0].path;
+              this.activeFileContent = this.files[0].content;
             }
-          },
+          }
+          this._initGhStatus();
+          if (this.ghConnected) this._updateGitHubStatus();
+          if (this.showPreview) this.runPreview();
+        })
+        .catch(err => {
+          console.error('DB init failed:', err);
+          this.loadingFiles = false;
+          this.showToast('Gagal memuat database', 'error');
+        });
+    },
+    methods: {
+      toggleAiContextPicker() {
+        this.showAiContextPicker = !this.showAiContextPicker;
+      },
+      toggleContextFile(path, event) {
+        if (event.target.checked) {
+          if (!this.aiContextFiles.includes(path)) this.aiContextFiles.push(path);
+        } else {
+          this.aiContextFiles = this.aiContextFiles.filter(p => p !== path);
+        }
+      },
+      handleSnippetSelect(event) {
+        const s = event.target.value;
+        if (!s) return;
+        this.insertText(s.replace(/&quot;/g, '"')
+          .replace(/&amp;/g, '&')
+          .replace(/&lt;/g, '<')
+          .replace(/&gt;/g, '>')
+          .replace(/-&gt;/g, '->'));
+        event.target.selectedIndex = 0;
+      },
+      toggleTree() {
+        this.showTree = !this.showTree;
+        this._saveUIPersist();
+      },
+      togglePreview() {
+        this.showPreview = !this.showPreview;
+        this._saveUIPersist();
+        if (this.showPreview) requestAnimationFrame(() => this.runPreview());
+      },
+      toggleChat() {
+        this.showChat = !this.showChat;
+        this._saveUIPersist();
+      },
+      toggleSettings() {
+        this.showSettings = !this.showSettings;
+      },
+      openGitHubModal() {
+        this.showGitHubModal = true;
+        if (this.ghConnected && !this.ghChecked) setTimeout(() => this.checkGitHubSync(), 300);
+      },
+      closeGitHubModal() {
+        this.showGitHubModal = false;
+        this.ghUploadProgress = 0;
+      },
+      openNewFileModal() {
+        this.showNewFileModal = true;
+      },
+      closeNewFileModal() {
+        this.showNewFileModal = false;
+        this.newFileName = '';
+      },
+      setGhTab(t) {
+        this.ghTab = t;
+      },
 
-          // ✅ FIX: Handle snippet select dari dropdown
-          handleSnippetSelect(event) {
-            const snippet = event.target.value;
-            if (!snippet) return;
-            const text = snippet
-              .replace(/&quot;/g, '"')
-              .replace(/&amp;/g, '&')
-              .replace(/&lt;/g, '<')
-              .replace(/&gt;/g, '>')
-              .replace(/-&gt;/g, '->');
-            this.insertText(text);
-            event.target.selectedIndex = 0;
-          },
+      selectFile(path) {
+        const f = this.files.find(x => x.path === path);
+        if (f) {
+          this.activeFilePath = f.path;
+          this.activeFileContent = f.content;
+          this.activeFileName = f.name;
+          this.unsavedChanges = false;
+        }
+      },
+      handleEditorInput() {
+        this.unsavedChanges = true;
+        if (_saveTimer) clearTimeout(_saveTimer);
+        _saveTimer = setTimeout(() => this.saveActiveFile(), 600);
+      },
+      saveActiveFile() {
+        const f = this.files.find(x => x.path === this.activeFilePath);
+        if (f) {
+          f.content = this.activeFileContent;
+          this._saveFile(f);
+          this.unsavedChanges = false;
+          this.lastSaved = new Date()
+            .toLocaleTimeString('id-ID', {
+              hour: '2-digit',
+              minute: '2-digit'
+            });
+          if (this.ghConnected && this.ghAutoSync) {
+            this._markGhPending(this.activeFilePath);
+            setTimeout(() => this.checkGitHubSync(), 800);
+          }
+          if (this.activeFilePath === 'index.html' && this.showPreview) this.runPreview();
+        }
+      },
+      handleEditorKeydown(e) {
+        if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+          e.preventDefault();
+          this.saveActiveFile();
+          this.showToast('File disimpan', 'success');
+        }
+      },
+      insertText(ch) {
+        const ta = this.$refs.editorTextarea;
+        if (!ta) return;
+        const s = ta.selectionStart,
+          e = ta.selectionEnd;
+        this.activeFileContent = this.activeFileContent.substring(0, s) + ch + this.activeFileContent.substring(e);
+        this.unsavedChanges = true;
+        setTimeout(() => {
+          ta.focus();
+          const p = s + ch.length;
+          ta.setSelectionRange(p, p);
+        }, 50);
+        this.handleEditorInput();
+      },
+      createNewFile() {
+        const name = (this.newFileName || '')
+          .trim();
+        if (!name) return;
+        if (this.files.some(f => f.path === name)) {
+          this.showToast('Berkas sudah ada!', 'warning');
+          return;
+        }
+        const nf = {
+          path: name,
+          name,
+          content: ''
+        };
+        this._saveFile(nf);
+        this.files.push(nf);
+        Object.assign(this.ghFileStatus, {
+          [name]: 'pending'
+        });
+        this.activeFilePath = nf.path;
+        this.activeFileContent = nf.content;
+        this.activeFileName = nf.name;
+        this.unsavedChanges = false;
+        this.closeNewFileModal();
+        this.showToast('Berkas "' + name + '" dibuat', 'success');
+      },
+      handleNewFileKeydown(e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          this.createNewFile();
+        }
+      },
+      async deleteFile(path) {
+        if (!confirm('Hapus "' + path + '"?')) return;
+        await this._deleteFile(path);
+        this.files = this.files.filter(f => f.path !== path);
+        if (this.activeFilePath === path) {
+          if (this.files.length > 0) this.selectFile(this.files[0].path);
+          else {
+            this.activeFilePath = '';
+            this.activeFileContent = '';
+            this.activeFileName = 'Pilih Berkas';
+          }
+        }
+        if (this.ghFileStatus[path]) delete this.ghFileStatus[path];
+        this.isPreviewable = this.files.some(f => f.path === 'index.html');
+        this.showToast('Berkas dihapus', 'success');
+      },
 
-          // UI Toggles
-          toggleTree() { this.showTree = !this.showTree; this._saveUIPersist(); },
-          togglePreview() {
-            this.showPreview = !this.showPreview;
-            this._saveUIPersist();
-            if (this.showPreview) requestAnimationFrame(() => this.runPreview());
-          },
-          toggleChat() { this.showChat = !this.showChat; this._saveUIPersist(); },
-          toggleSettings() { this.showSettings = !this.showSettings; },
-          openGitHubModal() {
-            this.showGitHubModal = true;
-            if (this.ghConnected && !this.ghChecked) setTimeout(() => this.checkGitHubSync(), 300);
-          },
-          closeGitHubModal() { this.showGitHubModal = false; this.ghUploadProgress = 0; },
-          openNewFileModal() { this.showNewFileModal = true; },
-          closeNewFileModal() { this.showNewFileModal = false; this.newFileName = ''; },
-          setGhTab(t) { this.ghTab = t; },
+      runPreview() {
+        const frame = this.$refs.previewFrame;
+        if (!frame) return;
+        this.previewLoading = true;
+        const idx = this.files.find(f => f.path === 'index.html');
+        if (!idx) {
+          frame.srcdoc = '';
+          this.previewLoading = false;
+          return;
+        }
+        let html = idx.content;
+        const other = this.files.filter(f => f.path !== 'index.html');
+        if (other.length > 0) {
+          let inj = '<!-- Injected by RaaJS Studio -->\n';
+          other.forEach(f => {
+            if (f.path.endsWith('.css')) inj += `<style data-file="${f.path}">\n${f.content}\n</style>\n`;
+            else if (f.path.endsWith('.js')) inj += `<script data-file="${f.path}">\n${f.content}\n<\/script>\n`;
+          });
+          const pos = html.indexOf('</head>');
+          html = pos > -1 ? html.substring(0, pos) + inj + html.substring(pos) : inj + html;
+        }
+        frame.srcdoc = html.replace(/<head([^>]*)>/i, `<head$1><base href="${window.location.href.replace(/\/[^/]*$/, '/')}">`);
+        setTimeout(() => {
+          this.previewLoading = false;
+        }, 250);
+      },
 
-          // File Management
-          selectFile(path) {
-            const f = this.files.find(x => x.path === path);
-            if (f) {
-              this.activeFilePath = f.path;
-              this.activeFileContent = f.content;
-              this.activeFileName = f.name; // ✅ Update state eksplisit
-              this.unsavedChanges = false;
-            }
-          },
+      startResizeTree(e) {
+        this._startResize(e, 'tree', '.panel-tree', 200, 360);
+      },
+      startResizePreview(e) {
+        this._startResize(e, 'preview', '.panel-preview', 320, 600);
+      },
+      _startResize(e, name, selector, min, max) {
+        e.preventDefault();
+        const panel = document.querySelector(selector);
+        if (!panel) return;
+        const startX = e.clientX,
+          startW = panel.offsetWidth,
+          handle = e.target;
+        handle.classList.add('dragging');
+        const onMove = ev => {
+          const d = name === 'tree' ? (ev.clientX - startX) : (startX - ev.clientX);
+          panel.style.width = Math.max(min, Math.min(max, startW + d)) + 'px';
+        };
+        const onUp = () => {
+          document.removeEventListener('mousemove', onMove);
+          document.removeEventListener('mouseup', onUp);
+          handle.classList.remove('dragging');
+        };
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onUp);
+      },
 
-          handleEditorInput() {
-            this.unsavedChanges = true;
-            if (_saveTimer) clearTimeout(_saveTimer);
-            _saveTimer = setTimeout(() => this.saveActiveFile(), 600);
-          },
-
-          saveActiveFile() {
-            const f = this.files.find(x => x.path === this.activeFilePath);
-            if (f) {
-              f.content = this.activeFileContent;
-              this._saveFile(f);
-              this.unsavedChanges = false;
-              this.lastSaved = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-              if (this.ghConnected && this.ghAutoSync) {
-                this._markGhPending(this.activeFilePath);
-                setTimeout(() => this.checkGitHubSync(), 800);
-              }
-              if (this.activeFilePath === 'index.html' && this.showPreview) this.runPreview();
-            }
-          },
-
-          handleEditorKeydown(e) {
-            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-              e.preventDefault();
-              this.saveActiveFile();
-              this.showToast('File disimpan', 'success');
-            }
-          },
-
-          insertText(ch) {
-            const ta = this.$refs.editorTextarea;
-            if (!ta) return;
-            const s = ta.selectionStart, e = ta.selectionEnd;
-            const before = this.activeFileContent.substring(0, s);
-            const after = this.activeFileContent.substring(e);
-            this.activeFileContent = before + ch + after;
-            this.unsavedChanges = true;
-            setTimeout(() => {
-              ta.focus();
-              const pos = s + ch.length;
-              ta.setSelectionRange(pos, pos);
-            }, 50);
-            this.handleEditorInput();
-          },
-
-          createNewFile() {
-            const name = (this.newFileName || '').trim();
-            if (!name) return;
-            if (this.files.some(f => f.path === name)) {
-              this.showToast('Berkas sudah ada!', 'warning');
+      saveApiKey() {
+        const key = (this.aiKeyInput || '')
+          .trim();
+        if (!key) return;
+        localStorage.setItem('RaaJS_Gemini_Session', JSON.stringify({
+          key,
+          expiry: Date.now() + 86400000
+        }));
+        this.aiKey = key;
+        this.aiHasKey = true;
+        this.showSettings = false;
+        this.showToast('API Key disimpan', 'success');
+      },
+      _checkApiKey() {
+        const raw = localStorage.getItem('RaaJS_Gemini_Session');
+        if (raw) {
+          try {
+            const s = JSON.parse(raw);
+            if (Date.now() < s.expiry) {
+              this.aiKey = s.key;
+              this.aiKeyInput = s.key;
+              this.aiHasKey = true;
               return;
             }
-            const nf = { path: name, name, content: '' };
-            this._saveFile(nf);
-            this.files.push(nf);
-            Object.assign(this.ghFileStatus, { [name]: 'pending' });
-            this.activeFilePath = nf.path;
-            this.activeFileContent = nf.content;
-            this.activeFileName = nf.name; // ✅ Update state eksplisit
-            this.unsavedChanges = false;
-            this.closeNewFileModal();
-            this.showToast('Berkas "' + name + '" dibuat', 'success');
-          },
+          } catch (e) {}
+          localStorage.removeItem('RaaJS_Gemini_Session');
+        }
+        this.aiHasKey = false;
+      },
+      resetApiKey() {
+        localStorage.removeItem('RaaJS_Gemini_Session');
+        this.aiKey = '';
+        this.aiKeyInput = '';
+        this.aiHasKey = false;
+        this.showToast('API Key dihapus', 'warning');
+      },
 
-          handleNewFileKeydown(e) {
-            if (e.key === 'Enter') { e.preventDefault(); this.createNewFile(); }
-          },
+      handleChatKeydown(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          this.sendMessage();
+        }
+      },
+      async sendMessage() {
+        const text = (this.chatInput || '')
+          .trim();
+        if (!text || this.aiLoading || !this.aiKey) return;
+        _msgId++;
+        this.aiMessages.push({
+          id: 'msg-' + _msgId,
+          sender: 'user',
+          text
+        });
+        this.chatInput = '';
+        this._scrollChat();
+        this.aiLoading = true;
+        const ctx = this.aiContextFiles.length ? this.files.filter(f => this.aiContextFiles.includes(f.path)) : [];
+        const hist = this.aiMessages.map(m => ({
+          role: m.sender === 'user' ? 'user' : 'model',
+          parts: [{
+            text: m.text
+          }]
+        }));
+        const ctxTxt = ctx.map(f => `File "${f.name}":\n${f.content}`)
+          .join('\n\n');
+        if (ctxTxt) hist.unshift({
+          role: 'system',
+          parts: [{
+            text: `Context file terkait:\n${ctxTxt}`
+          }]
+        });
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${this.aiModel}:generateContent?key=${this.aiKey}`;
+        let res = '',
+          ok = false,
+          back = 1000;
+        for (let i = 0; i < 5; i++) {
+          try {
+            const r = await fetch(url, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                contents: hist,
+                systemInstruction: {
+                  parts: [{
+                    text: 'Anda adalah asisten ahli RaaJS v3.1.0...'
+                  }]
+                }
+              })
+            });
+            if (r.ok) {
+              const d = await r.json();
+              res = d.candidates?.[0]?.content?.parts?.[0]?.text || 'Respon kosong.';
+              ok = true;
+              break;
+            } else if (r.status === 429) {
+              res = 'Limit API tercapai. Tunggu sebentar.';
+              ok = true;
+              break;
+            }
+          } catch (e) {
+            console.warn(e);
+          }
+          await new Promise(r => setTimeout(r, back));
+          back *= 2;
+        }
+        if (!ok) res = 'Gagal terhubung ke AI setelah 5 percobaan. Periksa API Key atau koneksi.';
+        _msgId++;
+        this.aiMessages.push({
+          id: 'msg-' + _msgId,
+          sender: 'model',
+          text: res
+        });
+        this.aiLoading = false;
+        this._scrollChat();
+      },
+      _scrollChat() {
+        setTimeout(() => {
+          const el = this.$refs.chatHistory;
+          if (el) el.scrollTop = el.scrollHeight;
+        }, 100);
+      },
 
-          async deleteFile(path) {
-            if (!confirm('Hapus "' + path + '"?')) return;
-            await this._deleteFile(path);
-            this.files = this.files.filter(f => f.path !== path);
-            if (this.activeFilePath === path) {
-              if (this.files.length > 0) {
-                this.selectFile(this.files[0].path);
-              } else {
-                this.activeFilePath = '';
-                this.activeFileContent = '';
-                this.activeFileName = 'Pilih Berkas';
+      _loadGitHubConfig() {
+        const raw = localStorage.getItem('RaaJS_GitHub_Config');
+        if (raw) {
+          try {
+            const c = JSON.parse(raw);
+            this.ghToken = c.token || '';
+            this.ghRepo = c.repo || '';
+            this.ghBranch = c.branch || 'main';
+            this.ghRootPath = c.rootPath || '';
+            this.ghAutoSync = c.autoSync || false;
+            if (this.ghToken && this.ghRepo) {
+              this._initGitHubClient();
+            }
+          } catch (e) {}
+        }
+      },
+      saveGitHubConfig() {
+        const token = (this.ghTokenInput || '')
+          .trim(),
+          repo = (this.ghRepoInput || '')
+          .trim();
+        if (!token || !repo) {
+          this.showToast('Token dan Repository wajib diisi', 'error');
+          return;
+        }
+        localStorage.setItem('RaaJS_GitHub_Config', JSON.stringify({
+          token,
+          repo,
+          branch: this.ghBranch,
+          rootPath: this.ghRootPath,
+          autoSync: this.ghAutoSync
+        }));
+        this.ghToken = token;
+        this.ghRepo = repo;
+        this.ghTokenInput = '';
+        this._initGitHubClient();
+        this.showToast('Konfigurasi GitHub disimpan', 'success');
+        setTimeout(() => this.checkGitHubSync(), 400);
+      },
+      _initGitHubClient() {
+        if (this.ghToken) {
+          _gh = new GitHubAPI(this.ghToken);
+          this.ghConnected = true;
+        } else {
+          _gh = null;
+          this.ghConnected = false;
+        }
+      },
+      async testGitHubConnection() {
+        const token = (this.ghTokenInput || '')
+          .trim() || this.ghToken;
+        if (!token) {
+          this.ghTestResult = 'Token diperlukan';
+          this.ghTestError = true;
+          return;
+        }
+        this.ghTestResult = 'Menghubungkan...';
+        this.ghTestError = false;
+        try {
+          const client = new GitHubAPI(token);
+          const login = await client.test();
+          this.ghTestResult = `Terhubung sebagai @${login}`;
+          this.ghTestError = false;
+          this.ghToken = token;
+          this._initGitHubClient();
+          this.showToast('Koneksi berhasil!', 'success');
+        } catch (e) {
+          this.ghTestResult = e.message;
+          this.ghTestError = true;
+          this.showToast(`Gagal: ${e.message}`, 'error');
+        }
+      },
+      async checkGitHubSync() {
+        if (!this.ghConnected || !_gh) {
+          this.showToast('Konfigurasi GitHub belum lengkap', 'warning');
+          return;
+        }
+        this.ghSyncLoading = true;
+        this.ghSyncResults = [];
+        this.ghChecked = true;
+        try {
+          const [owner, repo] = this.ghRepo.split('/');
+          if (!owner || !repo) throw new Error('Format: username/repo');
+          const path = this.ghRootPath || '';
+          let ghFiles = [];
+          try {
+            ghFiles = await _gh.getContents(owner, repo, path, this.ghBranch);
+          } catch (e) {
+            if (!e.message.includes('404')) throw e;
+          }
+          if (!Array.isArray(ghFiles)) ghFiles = ghFiles ? [ghFiles] : [];
+          const ghMap = {};
+          ghFiles.forEach(f => {
+            if (f.type === 'file') ghMap[f.path.replace(path + (path ? '/' : ''), '')] = {
+              sha: f.sha
+            };
+          });
+          const results = await Promise.all(this.files.map(async lf => {
+            let status = 'pending';
+            if (ghMap[lf.path]) {
+              try {
+                const gp = path ? `${path}/${lf.path}` : lf.path;
+                const resp = await _gh.getContents(owner, repo, gp, this.ghBranch);
+                status = (this._b64Decode(resp.content) === lf.content) ? 'synced' : 'pending';
+              } catch (e) {
+                status = 'pending';
               }
             }
-            if (this.ghFileStatus[path]) delete this.ghFileStatus[path];
-            this.isPreviewable = this.files.some(f => f.path === 'index.html'); // ✅ Update state eksplisit
-            this.showToast('Berkas dihapus', 'success');
-          },
-
-          // Preview
-          runPreview() {
-            const frame = this.$refs.previewFrame;
-            if (!frame) return;
-            this.previewLoading = true;
-            const idx = this.files.find(f => f.path === 'index.html');
-            if (!idx) { frame.srcdoc = ''; this.previewLoading = false; return; }
-
-            let html = idx.content;
-            const otherFiles = this.files.filter(f => f.path !== 'index.html');
-            if (otherFiles.length > 0) {
-              let injected = '<!-- Injected by RaaJS Studio -->\n';
-              otherFiles.forEach(f => {
-                if (f.path.endsWith('.css')) injected += `<style data-file="${f.path}">\n${f.content}\n</style>\n`;
-                else if (f.path.endsWith('.js')) injected += `<script data-file="${f.path}">\n${f.content}\n<\/script>\n`;
-              });
-              const pos = html.indexOf('</head>');
-              html = pos > -1 ? html.substring(0, pos) + injected + html.substring(pos) : injected + html;
-            }
-
-            // ✅ srcdoc + <base> untuk path relatif akurat
-            const baseHref = window.location.href.replace(/\/[^/]*$/, '/');
-            const previewContent = html.replace(/<head([^>]*)>/i, `<head$1><base href="${baseHref}">`);
-            frame.srcdoc = previewContent;
-            setTimeout(() => { this.previewLoading = false; }, 250);
-          },
-
-          // Resizable Panels
-          startResizeTree(e) { this._startResize(e, 'tree', '.panel-tree', 200, 360); },
-          startResizePreview(e) { this._startResize(e, 'preview', '.panel-preview', 320, 600); },
-          _startResize(e, name, selector, min, max) {
-            e.preventDefault();
-            const panel = document.querySelector(selector);
-            if (!panel) return;
-            const startX = e.clientX, startW = panel.offsetWidth;
-            const handle = e.target;
-            handle.classList.add('dragging');
-            const onMove = ev => {
-              const delta = name === 'tree' ? (ev.clientX - startX) : (startX - ev.clientX);
-              panel.style.width = Math.max(min, Math.min(max, startW + delta)) + 'px';
+            return {
+              path: lf.path,
+              status,
+              selected: status === 'pending'
             };
-            const onUp = () => {
-              document.removeEventListener('mousemove', onMove);
-              document.removeEventListener('mouseup', onUp);
-              handle.classList.remove('dragging');
-            };
-            document.addEventListener('mousemove', onMove);
-            document.addEventListener('mouseup', onUp);
-          },
-
-          // API Key
-          saveApiKey() {
-            const key = (this.aiKeyInput || '').trim();
-            if (!key) return;
-            localStorage.setItem('RaaJS_Gemini_Session', JSON.stringify({ key, expiry: Date.now() + 86400000 }));
-            this.aiKey = key; this.aiHasKey = true; this.showSettings = false;
-            this.showToast('API Key disimpan', 'success');
-          },
-          _checkApiKey() {
-            const raw = localStorage.getItem('RaaJS_Gemini_Session');
-            if (raw) {
-              try {
-                const s = JSON.parse(raw);
-                if (Date.now() < s.expiry) { this.aiKey = s.key; this.aiKeyInput = s.key; this.aiHasKey = true; return; }
-              } catch (e) {}
-              localStorage.removeItem('RaaJS_Gemini_Session');
-            }
-            this.aiHasKey = false;
-          },
-          resetApiKey() {
-            localStorage.removeItem('RaaJS_Gemini_Session');
-            this.aiKey = ''; this.aiKeyInput = ''; this.aiHasKey = false;
-            this.showToast('API Key dihapus', 'warning');
-          },
-
-          // AI Chat
-          handleChatKeydown(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); this.sendMessage(); } },
-          async sendMessage() {
-            const text = (this.chatInput || '').trim();
-            if (!text || this.aiLoading || !this.aiKey) return;
-            _msgId++;
-            this.aiMessages.push({ id: 'msg-' + _msgId, sender: 'user', text });
-            this.chatInput = ''; this._scrollChat(); this.aiLoading = true;
-
-            const contextFiles = this.aiContextFiles.length
-              ? this.files.filter(f => this.aiContextFiles.includes(f.path)) : [];
-            const history = this.aiMessages.map(m => ({
-              role: m.sender === 'user' ? 'user' : 'model',
-              parts: [{ text: m.text }]
-            }));
-            const contextText = contextFiles.map(f => `File "${f.name}":\n${f.content}`).join('\n\n');
-            if (contextText) history.unshift({ role: 'system', parts: [{ text: `Context file terkait:\n${contextText}` }] });
-
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/${this.aiModel}:generateContent?key=${this.aiKey}`;
-            let response = '', success = false, backoff = 1000;
-            for (let i = 0; i < 5; i++) {
-              try {
-                const res = await fetch(url, {
-                  method: 'POST', headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ contents: history, systemInstruction: { parts: [{ text: 'Anda adalah asisten ahli RaaJS v3.1.0...' }] } })
-                });
-                if (res.ok) {
-                  const d = await res.json();
-                  response = d.candidates?.[0]?.content?.parts?.[0]?.text || 'Respon kosong.';
-                  success = true; break;
-                } else if (res.status === 429) { response = 'Limit API tercapai. Tunggu sebentar.'; success = true; break; }
-              } catch (err) { console.warn('Fetch error:', err); }
-              await new Promise(r => setTimeout(r, backoff)); backoff *= 2;
-            }
-            if (!success) response = 'Gagal terhubung ke AI setelah 5 percobaan. Periksa API Key atau koneksi.';
-            _msgId++;
-            this.aiMessages.push({ id: 'msg-' + _msgId, sender: 'model', text: response });
-            this.aiLoading = false; this._scrollChat();
-          },
-          _scrollChat() { setTimeout(() => { const el = this.$refs.chatHistory; if (el) el.scrollTop = el.scrollHeight; }, 100); },
-
-          // GitHub
-          _loadGitHubConfig() {
-            const raw = localStorage.getItem('RaaJS_GitHub_Config');
-            if (raw) {
-              try {
-                const c = JSON.parse(raw);
-                this.ghToken = c.token || ''; this.ghRepo = c.repo || ''; this.ghBranch = c.branch || 'main';
-                this.ghRootPath = c.rootPath || ''; this.ghAutoSync = c.autoSync || false;
-                if (this.ghToken && this.ghRepo) { this._initOctokit(); this.ghConnected = true; }
-              } catch (e) {}
-            }
-          },
-          saveGitHubConfig() {
-            const token = (this.ghTokenInput || '').trim(), repo = (this.ghRepoInput || '').trim();
-            if (!token || !repo) { this.showToast('Token dan Repository wajib diisi', 'error'); return; }
-            localStorage.setItem('RaaJS_GitHub_Config', JSON.stringify({ token, repo, branch: this.ghBranch, rootPath: this.ghRootPath, autoSync: this.ghAutoSync }));
-            this.ghToken = token; this.ghRepo = repo; this.ghTokenInput = '';
-            this._initOctokit(); this.ghConnected = true;
-            this.showToast('Konfigurasi GitHub disimpan', 'success');
-            setTimeout(() => this.checkGitHubSync(), 400);
-          },
-  _initOctokit: function () {
-    // ✅ Guard: Cek ketersediaan library sebelum instansiasi
-    if (typeof Octokit === 'undefined') {
-      console.error('[RaaJS] Octokit tidak terdeteksi di window.');
-      this.showToast('Library GitHub (Octokit) gagal dimuat. Periksa koneksi atau adblocker.', 'error');
-      return;
-    }
-    if (this.ghToken) {
-      _octokit = new Octokit({ auth: this.ghToken });
-      this.ghConnected = true;
-    }
-  },
-
-  testGitHubConnection: async function () {
-    const token = (this.ghTokenInput || '').trim() || this.ghToken;
-    if (!token) {
-      this.ghTestResult = 'Token diperlukan';
-      this.ghTestError = true;
-      return;
-    }
-
-    // ✅ Guard kedua untuk keamanan maksimal
-    if (typeof Octokit === 'undefined') {
-      this.ghTestResult = 'Library Octokit tidak tersedia. Reload halaman.';
-      this.ghTestError = true;
-      this.showToast('Library GitHub gagal dimuat.', 'error');
-      return;
-    }
-
-    this.ghTestResult = 'Menghubungkan...';
-    this.ghTestError = false;
-    try {
-      const client = new Octokit({ auth: token });
-      const r = await client.rest.users.getAuthenticated();
-      this.ghTestResult = 'Terhubung sebagai @' + r.data.login;
-      this.ghTestError = false;
-      this.showToast('Koneksi berhasil!', 'success');
-      this.ghToken = token;
-      this._initOctokit();
-    } catch (e) {
-      this.ghTestResult = e.message || 'Gagal terhubung';
-      this.ghTestError = true;
-      this.showToast('Gagal: ' + e.message, 'error');
-    }
-  },
-          async checkGitHubSync() {
-            if (!this.ghConnected || !_octokit) { this.showToast('Konfigurasi GitHub belum lengkap', 'warning'); return; }
-            this.ghSyncLoading = true; this.ghSyncResults = []; this.ghChecked = true;
-            try {
-              const [owner, repo] = this.ghRepo.split('/');
-              if (!owner || !repo) throw new Error('Format: username/repo');
-              const path = this.ghRootPath || '';
-              let ghFiles = [];
-              try {
-                const dir = await _octokit.rest.repos.getContent({ owner, repo, path, ref: this.ghBranch });
-                ghFiles = Array.isArray(dir.data) ? dir.data : [dir.data];
-              } catch (e) { if (e.status !== 404) throw e; }
-              const ghMap = {};
-              ghFiles.forEach(f => { if (f.type === 'file') ghMap[f.path.replace(path + (path ? '/' : ''), '')] = { sha: f.sha }; });
-              const results = await Promise.all(this.files.map(async lf => {
-                let status = 'pending';
-                if (ghMap[lf.path]) {
-                  try {
-                    const gp = path ? `${path}/${lf.path}` : lf.path;
-                    const resp = await _octokit.rest.repos.getContent({ owner, repo, path: gp, ref: this.ghBranch });
-                    status = (this._b64Decode(resp.data.content) === lf.content) ? 'synced' : 'pending';
-                  } catch (e) { status = 'pending'; }
-                }
-                return { path: lf.path, status, selected: status === 'pending' };
-              }));
-              this.ghSyncResults = results;
-              const batch = {}; results.forEach(r => batch[r.path] = r.status);
-              Object.assign(this.ghFileStatus, batch);
-              const pending = results.filter(r => r.status === 'pending').length;
-              this.showToast(pending === 0 ? 'Semua file tersinkron!' : pending + ' file perlu diupload', pending === 0 ? 'success' : 'warning');
-            } catch (e) { console.error('Sync check failed:', e); this.showToast('Gagal memeriksa sync: ' + e.message, 'error'); }
-            this.ghSyncLoading = false;
-          },
-          _initGhStatus() { const batch = {}; this.files.forEach(f => batch[f.path] = 'pending'); Object.assign(this.ghFileStatus, batch); },
-          _markGhPending(p) { Object.assign(this.ghFileStatus, { [p]: 'pending' }); },
-          _updateGitHubStatus() {},
-          selectAllSync(s) { this.ghSyncResults = this.ghSyncResults.map(r => r.status === 'pending' ? { ...r, selected: s } : r); },
-          _b64Encode(str) { try { const bytes = new TextEncoder().encode(str); let binary = ''; for (let i = 0; i < bytes.length; i += 0x8000) binary += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000)); return btoa(binary); } catch (e) { return btoa(unescape(encodeURIComponent(str))); } },
-          _b64Decode(str) { try { const binary = atob(str.replace(/\s/g, '')); const bytes = new Uint8Array(binary.length); for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i); return new TextDecoder().decode(bytes); } catch (e) { return decodeURIComponent(escape(atob(str))); } },
-          async executeGitHubUpload(fromManage) {
-            fromManage = fromManage || false;
-            if (!this.ghConnected || !_octokit) { this.showToast('GitHub belum terkoneksi', 'error'); return; }
-            const files = fromManage
-              ? this.files.filter(f => this.ghManageSel[f.path])
-              : this.ghSyncResults.filter(r => r.selected && r.status === 'pending').map(r => this.files.find(f => f.path === r.path)).filter(Boolean);
-            if (!files.length) { this.showToast('Pilih file untuk diupload', 'warning'); return; }
-            this.ghUploadLoading = true; this.ghUploadProgress = 0;
-            const [owner, repo] = this.ghRepo.split('/');
-            const bp = this.ghRootPath ? this.ghRootPath.replace(/\/$/, '') : '';
-            let done = 0;
-            try {
-              await Promise.all(files.map(async file => {
-                const gp = bp ? `${bp}/${file.path}` : file.path;
-                try {
-                  let sha = null;
-                  try { sha = (await _octokit.rest.repos.getContent({ owner, repo, path: gp, ref: this.ghBranch })).data.sha; } catch (e) { if (e.status !== 404) throw e; }
-                  await _octokit.rest.repos.createOrUpdateFileContents({ owner, repo, path: gp, message: 'Update via RaaJS Studio: ' + file.name, content: this._b64Encode(file.content), branch: this.ghBranch, sha: sha || undefined });
-                  Object.assign(this.ghFileStatus, { [file.path]: 'synced' });
-                  const sr = this.ghSyncResults.find(x => x.path === file.path); if (sr) sr.status = 'synced';
-                } catch (e) { console.error('Upload fail', file.path, e); Object.assign(this.ghFileStatus, { [file.path]: 'error' }); this.showToast('Gagal upload ' + file.path, 'error'); }
-                finally { done++; this.ghUploadProgress = Math.round((done / files.length) * 100); }
-              }));
-              this.showToast(done + ' file berhasil diupload!', 'success');
-            } catch (e) { console.error('Batch upload failed:', e); this.showToast('Error: ' + e.message, 'error'); }
-            this.ghUploadLoading = false; setTimeout(() => this.ghUploadProgress = 0, 1200);
-          },
-          async executeGitHubDelete() {
-            if (!this.ghConnected || !_octokit) { this.showToast('GitHub belum terkoneksi', 'error'); return; }
-            const sel = this.files.filter(f => this.ghManageSel[f.path]);
-            if (!sel.length) { this.showToast('Pilih file untuk dihapus', 'warning'); return; }
-            if (!confirm(`Hapus ${sel.length} file dari GitHub?\nFile lokal TIDAK terhapus.`)) return;
-            this.ghUploadLoading = true;
-            const [owner, repo] = this.ghRepo.split('/');
-            const bp = this.ghRootPath ? this.ghRootPath.replace(/\/$/, '') : '';
-            try {
-              await Promise.all(sel.map(async file => {
-                const gp = bp ? `${bp}/${file.path}` : file.path;
-                try {
-                  const dr = await _octokit.rest.repos.getContent({ owner, repo, path: gp, ref: this.ghBranch });
-                  await _octokit.rest.repos.deleteFile({ owner, repo, path: gp, message: 'Hapus via RaaJS: ' + file.name, sha: dr.data.sha, branch: this.ghBranch });
-                  Object.assign(this.ghFileStatus, { [file.path]: 'pending' });
-                } catch (e) { if (e.status !== 404) this.showToast('Gagal hapus ' + file.path, 'error'); }
-              }));
-              this.showToast(sel.length + ' file dihapus dari GitHub', 'success');
-            } catch (e) { this.showToast('Error: ' + e.message, 'error'); }
-            this.ghUploadLoading = false;
-          },
-
-          // Reset
-          async resetProject() {
-            if (!confirm('Reset ke file bawaan?')) return;
-            this.loadingFiles = true;
-            const tx = _db.transaction('files', 'readwrite');
-            tx.objectStore('files').clear();
-            await new Promise(r => tx.oncomplete = r);
-            const defs = DEFAULT_FILES.map(f => ({ path: f.path, name: f.name, content: f.content }));
-            for (const d of defs) await this._saveFile(d);
-            this.files = defs; this.activeFilePath = defs[0].path; this.activeFileContent = defs[0].content;
-            this.activeFileName = defs[0].name; this.unsavedChanges = false; this._initGhStatus();
-            this.loadingFiles = false; this.showToast('Proyek direset', 'success');
-          },
-          async factoryReset() {
-            if (!confirm('Hapus SEMUA data lokal?')) return;
-            localStorage.removeItem('RaaJS_Gemini_Session'); localStorage.removeItem('RaaJS_GitHub_Config'); localStorage.removeItem('RaaJS_UI_Persist');
-            const tx = _db.transaction('files', 'readwrite'); tx.objectStore('files').clear();
-            await new Promise(r => tx.oncomplete = r); location.reload();
-          },
-
-          // Toast
-          showToast(msg, type = 'success') {
-            this.toastMessage = msg; this.toastType = type; this.toastVisible = true;
-            setTimeout(() => this.toastVisible = false, 3500);
-          },
-
-          // Persist
-          _saveUIPersist() { try { localStorage.setItem('RaaJS_UI_Persist', JSON.stringify({ showTree: this.showTree, showPreview: this.showPreview, showChat: this.showChat })); } catch (e) {} },
-          _loadUIPersist() { try { const raw = localStorage.getItem('RaaJS_UI_Persist'); if (raw) { const s = JSON.parse(raw); if (typeof s.showTree === 'boolean') this.showTree = s.showTree; if (typeof s.showPreview === 'boolean') this.showPreview = s.showPreview; if (typeof s.showChat === 'boolean') this.showChat = s.showChat; } } catch (e) {} },
-
-          // IndexedDB
-          _initDB() { return new Promise((resolve, reject) => { const req = indexedDB.open(DB_NAME, DB_VERSION); req.onupgradeneeded = e => { const db = e.target.result; if (!db.objectStoreNames.contains('files')) db.createObjectStore('files', { keyPath: 'path' }); }; req.onsuccess = e => { _db = e.target.result; resolve(); }; req.onerror = e => reject(e.target.error); }); },
-          async _loadFiles() {
-            const tx = _db.transaction('files', 'readonly');
-            const items = await new Promise(r => { const req = tx.objectStore('files').getAll(); req.onsuccess = () => r(req.result); req.onerror = () => r([]); });
-            if (!items.length) { const defs = DEFAULT_FILES.map(f => ({ path: f.path, name: f.name, content: f.content })); for (const d of defs) await this._saveFile(d); this.files = defs; } else { this.files = items; }
-            this.isPreviewable = this.files.some(f => f.path === 'index.html'); // ✅ Update state eksplisit
-          },
-          _saveFile(f) { const tx = _db.transaction('files', 'readwrite'); tx.objectStore('files').put({ path: f.path, name: f.name, content: f.content }); return new Promise(r => tx.oncomplete = r); },
-          _deleteFile(p) { const tx = _db.transaction('files', 'readwrite'); tx.objectStore('files').delete(p); return new Promise(r => tx.oncomplete = r); }
+          }));
+          this.ghSyncResults = results;
+          const batch = {};
+          results.forEach(r => batch[r.path] = r.status);
+          Object.assign(this.ghFileStatus, batch);
+          const pending = results.filter(r => r.status === 'pending')
+            .length;
+          this.showToast(pending === 0 ? 'Semua file tersinkron!' : pending + ' file perlu diupload', pending === 0 ? 'success' : 'warning');
+        } catch (e) {
+          console.error(e);
+          this.showToast(`Gagal memeriksa sync: ${e.message}`, 'error');
         }
-      };
-    });
+        this.ghSyncLoading = false;
+      },
+      _initGhStatus() {
+        const b = {};
+        this.files.forEach(f => b[f.path] = 'pending');
+        Object.assign(this.ghFileStatus, b);
+      },
+      _markGhPending(p) {
+        Object.assign(this.ghFileStatus, {
+          [p]: 'pending'
+        });
+      },
+      _updateGitHubStatus() {},
+      selectAllSync(s) {
+        this.ghSyncResults = this.ghSyncResults.map(r => r.status === 'pending' ? {
+          ...r,
+          selected: s
+        } : r);
+      },
+
+      _b64Encode(str) {
+        try {
+          const b = new TextEncoder()
+            .encode(str);
+          let bin = '';
+          for (let i = 0; i < b.length; i += 0x8000) bin += String.fromCharCode.apply(null, b.subarray(i, i + 0x8000));
+          return btoa(bin);
+        } catch (e) {
+          return btoa(unescape(encodeURIComponent(str)));
+        }
+      },
+      _b64Decode(str) {
+        try {
+          const b = atob(str.replace(/\s/g, ''));
+          const u = new Uint8Array(b.length);
+          for (let i = 0; i < b.length; i++) u[i] = b.charCodeAt(i);
+          return new TextDecoder()
+            .decode(u);
+        } catch (e) {
+          return decodeURIComponent(escape(atob(str)));
+        }
+      },
+
+      async executeGitHubUpload(fromManage) {
+        fromManage = fromManage || false;
+        if (!this.ghConnected || !_gh) {
+          this.showToast('GitHub belum terkoneksi', 'error');
+          return;
+        }
+        const files = fromManage ? this.files.filter(f => this.ghManageSel[f.path]) : this.ghSyncResults.filter(r => r.selected && r.status === 'pending')
+          .map(r => this.files.find(f => f.path === r.path))
+          .filter(Boolean);
+        if (!files.length) {
+          this.showToast('Pilih file untuk diupload', 'warning');
+          return;
+        }
+        this.ghUploadLoading = true;
+        this.ghUploadProgress = 0;
+        const [owner, repo] = this.ghRepo.split('/');
+        const bp = this.ghRootPath ? this.ghRootPath.replace(/\/$/, '') : '';
+        let done = 0;
+        try {
+          await Promise.all(files.map(async file => {
+            const gp = bp ? `${bp}/${file.path}` : file.path;
+            try {
+              let sha = null;
+              try {
+                sha = (await _gh.getContents(owner, repo, gp, this.ghBranch))
+                  .sha;
+              } catch (e) {
+                if (!e.message.includes('404')) throw e;
+              }
+              await _gh.putFile(owner, repo, gp, `Update via RaaJS Studio: ${file.name}`, this._b64Encode(file.content), this.ghBranch, sha);
+              Object.assign(this.ghFileStatus, {
+                [file.path]: 'synced'
+              });
+              const sr = this.ghSyncResults.find(x => x.path === file.path);
+              if (sr) sr.status = 'synced';
+            } catch (e) {
+              console.error(e);
+              Object.assign(this.ghFileStatus, {
+                [file.path]: 'error'
+              });
+              this.showToast(`Gagal upload ${file.path}`, 'error');
+            } finally {
+              done++;
+              this.ghUploadProgress = Math.round((done / files.length) * 100);
+            }
+          }));
+          this.showToast(`${done} file berhasil diupload!`, 'success');
+        } catch (e) {
+          console.error(e);
+          this.showToast(`Error: ${e.message}`, 'error');
+        }
+        this.ghUploadLoading = false;
+        setTimeout(() => this.ghUploadProgress = 0, 1200);
+      },
+      async executeGitHubDelete() {
+        if (!this.ghConnected || !_gh) {
+          this.showToast('GitHub belum terkoneksi', 'error');
+          return;
+        }
+        const sel = this.files.filter(f => this.ghManageSel[f.path]);
+        if (!sel.length) {
+          this.showToast('Pilih file untuk dihapus', 'warning');
+          return;
+        }
+        if (!confirm(`Hapus ${sel.length} file dari GitHub?\nFile lokal TIDAK terhapus.`)) return;
+        this.ghUploadLoading = true;
+        const [owner, repo] = this.ghRepo.split('/');
+        const bp = this.ghRootPath ? this.ghRootPath.replace(/\/$/, '') : '';
+        try {
+          await Promise.all(sel.map(async file => {
+            const gp = bp ? `${bp}/${file.path}` : file.path;
+            try {
+              const dr = await _gh.getContents(owner, repo, gp, this.ghBranch);
+              await _gh.deleteFile(owner, repo, gp, `Hapus via RaaJS: ${file.name}`, this.ghBranch, dr.sha);
+              Object.assign(this.ghFileStatus, {
+                [file.path]: 'pending'
+              });
+            } catch (e) {
+              if (!e.message.includes('404')) this.showToast(`Gagal hapus ${file.path}`, 'error');
+            }
+          }));
+          this.showToast(`${sel.length} file dihapus dari GitHub`, 'success');
+        } catch (e) {
+          this.showToast(`Error: ${e.message}`, 'error');
+        }
+        this.ghUploadLoading = false;
+      },
+
+      async resetProject() {
+        if (!confirm('Reset ke file bawaan?')) return;
+        this.loadingFiles = true;
+        const tx = _db.transaction('files', 'readwrite');
+        tx.objectStore('files')
+          .clear();
+        await new Promise(r => tx.oncomplete = r);
+        const defs = DEFAULT_FILES.map(f => ({
+          path: f.path,
+          name: f.name,
+          content: f.content
+        }));
+        for (const d of defs) await this._saveFile(d);
+        this.files = defs;
+        this.activeFilePath = defs[0].path;
+        this.activeFileContent = defs[0].content;
+        this.activeFileName = defs[0].name;
+        this.unsavedChanges = false;
+        this._initGhStatus();
+        this.loadingFiles = false;
+        this.showToast('Proyek direset', 'success');
+      },
+      async factoryReset() {
+        if (!confirm('Hapus SEMUA data lokal?')) return;
+        localStorage.removeItem('RaaJS_Gemini_Session');
+        localStorage.removeItem('RaaJS_GitHub_Config');
+        localStorage.removeItem('RaaJS_UI_Persist');
+        const tx = _db.transaction('files', 'readwrite');
+        tx.objectStore('files')
+          .clear();
+        await new Promise(r => tx.oncomplete = r);
+        location.reload();
+      },
+      showToast(msg, type = 'success') {
+        this.toastMessage = msg;
+        this.toastType = type;
+        this.toastVisible = true;
+        setTimeout(() => this.toastVisible = false, 3500);
+      },
+      _saveUIPersist() {
+        try {
+          localStorage.setItem('RaaJS_UI_Persist', JSON.stringify({
+            showTree: this.showTree,
+            showPreview: this.showPreview,
+            showChat: this.showChat
+          }));
+        } catch (e) {}
+      },
+      _loadUIPersist() {
+        try {
+          const raw = localStorage.getItem('RaaJS_UI_Persist');
+          if (raw) {
+            const s = JSON.parse(raw);
+            if (typeof s.showTree === 'boolean') this.showTree = s.showTree;
+            if (typeof s.showPreview === 'boolean') this.showPreview = s.showPreview;
+            if (typeof s.showChat === 'boolean') this.showChat = s.showChat;
+          }
+        } catch (e) {}
+      },
+      _initDB() {
+        return new Promise((resolve, reject) => {
+          const req = indexedDB.open(DB_NAME, DB_VERSION);
+          req.onupgradeneeded = e => {
+            const db = e.target.result;
+            if (!db.objectStoreNames.contains('files')) db.createObjectStore('files', {
+              keyPath: 'path'
+            });
+          };
+          req.onsuccess = e => {
+            _db = e.target.result;
+            resolve();
+          };
+          req.onerror = e => reject(e.target.error);
+        });
+      },
+      async _loadFiles() {
+        const tx = _db.transaction('files', 'readonly');
+        const items = await new Promise(r => {
+          const req = tx.objectStore('files')
+            .getAll();
+          req.onsuccess = () => r(req.result);
+          req.onerror = () => r([]);
+        });
+        if (!items.length) {
+          const defs = DEFAULT_FILES.map(f => ({
+            path: f.path,
+            name: f.name,
+            content: f.content
+          }));
+          for (const d of defs) await this._saveFile(d);
+          this.files = defs;
+        } else {
+          this.files = items;
+        }
+        this.isPreviewable = this.files.some(f => f.path === 'index.html');
+      },
+      _saveFile(f) {
+        const tx = _db.transaction('files', 'readwrite');
+        tx.objectStore('files')
+          .put({
+            path: f.path,
+            name: f.name,
+            content: f.content
+          });
+        return new Promise(r => tx.oncomplete = r);
+      },
+      _deleteFile(p) {
+        const tx = _db.transaction('files', 'readwrite');
+        tx.objectStore('files')
+          .delete(p);
+        return new Promise(r => tx.oncomplete = r);
+      }
+    }
+  };
+});
+
   </script>
 </body>
 </html>
