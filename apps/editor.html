@@ -1014,9 +1014,12 @@ RaaJS.define('studio', () => {
         if (this.lastSaved) return 'Saved ' + this.lastSaved;
         return 'Ready';
       },
+
       sortedTreeItems() {
         const items = [];
         const folders = new Set();
+
+        // Hanya READ state - tidak ada mutasi
         this.files.forEach(f => {
           const parts = f.path.split('/');
           let currentPath = '';
@@ -1025,26 +1028,27 @@ RaaJS.define('studio', () => {
             folders.add(currentPath);
           }
         });
-        folders.forEach(fp => {
-          if (this.expandedFolders[fp] === undefined) this.expandedFolders[fp] = true;
-        });
+
         folders.forEach(folderPath => {
           const depth = folderPath.split('/')
             .length - 1;
           const name = folderPath.split('/')
             .pop();
           items.push({
-            key: `folder_${folderPath}`,
+            key: `folder_${folderPath}`, // ✅ Stable primitive key
             path: folderPath,
             name: name,
             isFolder: true,
             depth: depth
           });
         });
+
         this.files.forEach(f => {
           const parts = f.path.split('/');
           const parentDir = parts.length > 1 ? parts.slice(0, -1)
             .join('/') : '';
+
+          // Hanya baca expandedFolders - tidak mutasi
           let isVisible = true;
           if (parentDir) {
             const ancestors = parentDir.split('/');
@@ -1057,6 +1061,7 @@ RaaJS.define('studio', () => {
               }
             }
           }
+
           if (isVisible) {
             items.push({
               key: `file_${f.path}`,
@@ -1067,6 +1072,7 @@ RaaJS.define('studio', () => {
             });
           }
         });
+
         return items.sort((a, b) => {
           if (a.isFolder !== b.isFolder) return a.isFolder ? -1 : 1;
           return a.path.localeCompare(b.path);
@@ -1077,10 +1083,15 @@ RaaJS.define('studio', () => {
       this._loadUIPersist();
       this._checkApiKey();
       this._loadGitHubConfig();
+
       this._initDB()
         .then(() => this._loadFiles())
         .then(() => {
           this.loadingFiles = false;
+
+          // ✅ PANGGIL SETELAH files tersedia:
+          this._initializeExpandedFolders();
+
           if (!this.treeEmpty) {
             const idx = this.files.find(f => f.path === 'index.html');
             if (idx) {
@@ -1102,6 +1113,24 @@ RaaJS.define('studio', () => {
         });
     },
     methods: {
+      // Method Inisialisasi folder
+      _initializeExpandedFolders() {
+        const folders = new Set();
+        this.files.forEach(f => {
+          const parts = f.path.split('/');
+          let currentPath = '';
+          for (let i = 0; i < parts.length - 1; i++) {
+            currentPath = currentPath ? `${currentPath}/${parts[i]}` : parts[i];
+            folders.add(currentPath);
+          }
+        });
+        // Mutasi state DI LUAR computed - AMAN
+        folders.forEach(fp => {
+          if (this.expandedFolders[fp] === undefined) {
+            this.expandedFolders[fp] = true;
+          }
+        });
+      },
       getPathParts(path) {
         const parts = path.split('/');
         return {
@@ -1112,14 +1141,18 @@ RaaJS.define('studio', () => {
         };
       },
       toggleFolder(dirPath) {
-        this.expandedFolders[dirPath] = !this.expandedFolders[dirPath];
+        const folders = Object.assign({}, this.expandedFolders);
+        folders[dirPath] = !folders[dirPath];
+        this.expandedFolders = folders; // ← Reassign memicu Proxy tracking
       },
       toggleAiContextPicker() {
         this.showAiContextPicker = !this.showAiContextPicker;
       },
       toggleContextFile(path, event) {
         if (event.target.checked) {
-          if (!this.aiContextFiles.includes(path)) this.aiContextFiles.push(path);
+          if (!this.aiContextFiles.includes(path)) {
+            this.aiContextFiles = [...this.aiContextFiles, path]; // ← reassign
+          }
         } else {
           this.aiContextFiles = this.aiContextFiles.filter(p => p !== path);
         }
@@ -1172,19 +1205,22 @@ RaaJS.define('studio', () => {
         }
       },
       toggleManageSel(path, event) {
+        // ✅ Pattern: clone → mutate → reassign (wajib untuk dynamic keys)
         const sel = Object.assign({}, this.ghManageSel);
         sel[path] = event.target.checked;
-        this.ghManageSel = sel;
+        this.ghManageSel = sel; // ← Reassign memicu Proxy tracking
       },
       selectAllManage(val) {
+        const sel = {};
         if (val) {
-          const sel = {};
-          this.remoteOnlyFiles.forEach(f => { sel[f.path] = true; });
-          this.files.forEach(f => { sel[f.path] = true; });
-          this.ghManageSel = sel;
-        } else {
-          this.ghManageSel = {};
+          this.remoteOnlyFiles.forEach(f => {
+            sel[f.path] = true;
+          });
+          this.files.forEach(f => {
+            sel[f.path] = true;
+          });
         }
+        this.ghManageSel = sel; // ← Reassign
       },
       selectFile(path) {
         const f = this.files.find(x => x.path === path);
@@ -1258,13 +1294,15 @@ RaaJS.define('studio', () => {
         this.files.push(nf);
         const parts = name.split('/');
         if (parts.length > 1) {
+          const folders = Object.assign({}, this.expandedFolders); // ← Clone dulu
           let parent = '';
           for (let i = 0; i < parts.length - 1; i++) {
             parent = parent ? `${parent}/${parts[i]}` : parts[i];
-            this.expandedFolders[parent] = true;
+            folders[parent] = true; // ← Mutasi clone
           }
+          this.expandedFolders = folders; // ← Reassign
         }
-        Object.assign(this.ghFileStatus, {
+        this.ghFileStatus = Object.assign({}, this.ghFileStatus, {
           [name]: 'pending'
         });
         this.activeFilePath = nf.path;
@@ -1549,11 +1587,15 @@ RaaJS.define('studio', () => {
       async checkGitHubSync() {
         if (!this.ghConnected || !_gh) {
           this.showToast('Konfigurasi GitHub belum lengkap', 'warning');
+          this.ghChecked = true; // ← Set even on early exit!
           return;
         }
+
         this.ghSyncLoading = true;
         this.ghSyncResults = [];
+        // ✅ Set ghChecked EARLY so UI updates even if error occurs
         this.ghChecked = true;
+
         try {
           const [owner, repo] = this.ghRepo.split('/');
           if (!owner || !repo) throw new Error('Format: username/repo');
@@ -1613,32 +1655,39 @@ RaaJS.define('studio', () => {
                 });
               }
             });
-          this.ghSyncResults = results;
+          // ✅ Setelah hasil siap, reassign arrays/objects untuk reactivity
+          this.ghSyncResults = results; // ← Reassign array
+
+          // ✅ Update ghFileStatus dengan pattern clone→mutate→reassign
           const batch = {};
           results.forEach(r => {
             if (r.status !== 'remote-only') batch[r.path] = r.status;
           });
-          Object.assign(this.ghFileStatus, batch);
+          this.ghFileStatus = Object.assign({}, this.ghFileStatus, batch); // ← Reassign
+
           const pending = results.filter(r => r.status === 'pending')
             .length;
           const remoteOnly = results.filter(r => r.status === 'remote-only')
             .length;
           this.showToast(pending === 0 && remoteOnly === 0 ? 'Semua file tersinkron!' : `${pending} perlu upload, ${remoteOnly} remote-only`, pending === 0 && remoteOnly === 0 ? 'success' : 'warning');
         } catch (e) {
-          console.error(e);
+          // ✅ LOG ERROR untuk debugging + update UI state
+          console.error('[RaaJS GitHub Sync Error]', e);
           this.showToast(`Gagal memeriksa sync: ${e.message}`, 'error');
+          // ✅ Jangan reset ghChecked - biarkan UI menampilkan state error
+        } finally {
+          this.ghSyncLoading = false;
         }
-        this.ghSyncLoading = false;
       },
       _initGhStatus() {
         const b = {};
         this.files.forEach(f => b[f.path] = 'pending');
-        Object.assign(this.ghFileStatus, b);
+        this.ghFileStatus = Object.assign({}, this.ghFileStatus, b); // ← Reassign
       },
       _markGhPending(p) {
-        Object.assign(this.ghFileStatus, {
+        this.ghFileStatus = Object.assign({}, this.ghFileStatus, {
           [p]: 'pending'
-        });
+        }); // ← Reassign
       },
       _updateGitHubStatus() {},
       selectAllSync(s) {
@@ -1698,9 +1747,9 @@ RaaJS.define('studio', () => {
                 if (!e.message.includes('404')) throw e;
               }
               await _gh.putFile(owner, repo, githubPath, `Update via RaaJS Studio: ${file.path}`, this._b64Encode(file.content), this.ghBranch, sha);
-              Object.assign(this.ghFileStatus, {
+              this.ghFileStatus = Object.assign({}, this.ghFileStatus, {
                 [file.path]: 'synced'
-              });
+              }); // ← Reassign
               const sr = this.ghSyncResults.find(x => x.path === file.path);
               if (sr) {
                 sr.status = 'synced';
@@ -1708,7 +1757,7 @@ RaaJS.define('studio', () => {
               }
             } catch (e) {
               console.error(e);
-              Object.assign(this.ghFileStatus, {
+              this.ghFileStatus = Object.assign({}, this.ghFileStatus, {
                 [file.path]: 'error'
               });
               this.showToast(`Gagal upload ${file.path}`, 'error');
@@ -1778,16 +1827,24 @@ RaaJS.define('studio', () => {
             }
           }));
           this.showToast(deleteDone + ' file berhasil dihapus dari GitHub', 'success');
-          // Fix reactivity: reassign ghManageSel
+          // ✅ Fix reactivity: reassign ghManageSel setelah delete
           const clean = Object.assign({}, this.ghManageSel);
-          selectedPaths.forEach(p => { delete clean[p]; });
-          this.ghManageSel = clean;
+          selectedPaths.forEach(p => {
+            delete clean[p];
+          });
+          this.ghManageSel = clean; // ← Reassign
+
+          // ✅ Refresh status setelah delete
           setTimeout(() => this.checkGitHubSync(), 1000);
         } catch (e) {
+          // ✅ LOG ERROR untuk debugging
+          console.error('[RaaJS GitHub Delete Error]', e);
           this.showToast('Error batch delete: ' + e.message, 'error');
         }
         this.ghUploadLoading = false;
-        setTimeout(() => { this.ghDeleteProgress = 0; }, 1200);
+        setTimeout(() => {
+          this.ghDeleteProgress = 0;
+        }, 1200);
       },
       async resetProject() {
         if (!confirm('Reset ke file bawaan?')) return;
@@ -1904,7 +1961,6 @@ RaaJS.define('studio', () => {
     }
   };
 });
-
 </script>
 </body>
 </html>
