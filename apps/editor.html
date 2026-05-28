@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@octokit/rest@20.0.2/dist-bundle/index.min.js"></script>
+    <script src="https://unpkg.com/@octokit/rest@20.0.2/dist-bundle/index.min.js"></script>
 
     <script src="../engine/raa.js"></script>
     <script src="../engine/raa-computed-watch.js"></script>
@@ -1257,16 +1257,51 @@ Workspace ini menggunakan RaaJS v3.1.0 — framework reaktif zero-dependency.
             this.showToast('Konfigurasi GitHub disimpan', 'success');
             setTimeout(() => this.checkGitHubSync(), 400);
           },
-          _initOctokit() { if (typeof Octokit !== 'undefined' && this.ghToken) _octokit = new Octokit({ auth: this.ghToken }); },
-          async testGitHubConnection() {
-            const token = (this.ghTokenInput || '').trim() || this.ghToken;
-            if (!token) { this.ghTestResult = 'Token diperlukan'; this.ghTestError = true; return; }
-            this.ghTestResult = 'Menghubungkan...'; this.ghTestError = false;
-            try {
-              const r = await new Octokit({ auth: token }).rest.users.getAuthenticated();
-              this.ghTestResult = 'Terhubung sebagai @' + r.data.login; this.showToast('Koneksi berhasil!', 'success');
-            } catch (e) { this.ghTestResult = e.message || 'Gagal terhubung'; this.ghTestError = true; this.showToast('Gagal: ' + e.message, 'error'); }
-          },
+  _initOctokit: function () {
+    // ✅ Guard: Cek ketersediaan library sebelum instansiasi
+    if (typeof Octokit === 'undefined') {
+      console.error('[RaaJS] Octokit tidak terdeteksi di window.');
+      this.showToast('Library GitHub (Octokit) gagal dimuat. Periksa koneksi atau adblocker.', 'error');
+      return;
+    }
+    if (this.ghToken) {
+      _octokit = new Octokit({ auth: this.ghToken });
+      this.ghConnected = true;
+    }
+  },
+
+  testGitHubConnection: async function () {
+    const token = (this.ghTokenInput || '').trim() || this.ghToken;
+    if (!token) {
+      this.ghTestResult = 'Token diperlukan';
+      this.ghTestError = true;
+      return;
+    }
+
+    // ✅ Guard kedua untuk keamanan maksimal
+    if (typeof Octokit === 'undefined') {
+      this.ghTestResult = 'Library Octokit tidak tersedia. Reload halaman.';
+      this.ghTestError = true;
+      this.showToast('Library GitHub gagal dimuat.', 'error');
+      return;
+    }
+
+    this.ghTestResult = 'Menghubungkan...';
+    this.ghTestError = false;
+    try {
+      const client = new Octokit({ auth: token });
+      const r = await client.rest.users.getAuthenticated();
+      this.ghTestResult = 'Terhubung sebagai @' + r.data.login;
+      this.ghTestError = false;
+      this.showToast('Koneksi berhasil!', 'success');
+      this.ghToken = token;
+      this._initOctokit();
+    } catch (e) {
+      this.ghTestResult = e.message || 'Gagal terhubung';
+      this.ghTestError = true;
+      this.showToast('Gagal: ' + e.message, 'error');
+    }
+  },
           async checkGitHubSync() {
             if (!this.ghConnected || !_octokit) { this.showToast('Konfigurasi GitHub belum lengkap', 'warning'); return; }
             this.ghSyncLoading = true; this.ghSyncResults = []; this.ghChecked = true;
