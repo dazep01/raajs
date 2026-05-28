@@ -1,13 +1,15 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RaaJS Studio — Creative Workspace v3.1.0</title>
+    <link rel="icon" type="image/svg+xml" href="../assets/logo-color.svg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@octokit/rest@20.0.2/dist-bundle/index.min.js"></script>
+
     <script src="../engine/raa.js"></script>
     <script src="../engine/raa-computed-watch.js"></script>
     <script src="../engine/raa-http.js"></script>
@@ -347,7 +349,7 @@
                 <div class="header-brand-icon">R</div>
                 <div class="header-brand-text">
                     <h1>Raa<span>JS</span> STUDIO</h1>
-                    <p>v3.1.0 "Data Liberation"</p>
+                    <p v3.1.0 "Data Liberation"</p>
                 </div>
             </div>
             <div class="header-actions">
@@ -417,14 +419,29 @@
                 <div class="editor-body">
                     <textarea raa-core:ref="editorTextarea" raa-bind:model="activeFileContent" raa-on:input="handleEditorInput()" placeholder="/* Pilih berkas atau mulai menulis kode RaaJS Anda */" class="editor-textarea" raa-on:keydown="handleEditorKeydown($event)"></textarea>
                     <div class="editor-toolbar">
-                        <button raa-on:click="insertText('	')" class="toolbar-btn">Tab</button>
-                        <button raa-on:click="insertText('{')" class="toolbar-btn">{ }</button>
-                        <button raa-on:click="insertText('[')" class="toolbar-btn">[ ]</button>
-                        <button raa-on:click="insertText('()')" class="toolbar-btn">( )</button>
-                        <button raa-on:click="insertText(';')" class="toolbar-btn">;</button>
-                        <button raa-on:click="insertText('raa-bind:')" class="toolbar-btn brand">raa-bind:</button>
-                        <button raa-on:click="insertText('raa-flow:')" class="toolbar-btn brand">raa-flow:</button>
-                        <button raa-on:click="insertText('raa-on:')" class="toolbar-btn brand">raa-on:</button>
+                        <button raa-on:click="insertText('raa-bind:text=\"\"')" class="toolbar-btn brand">bind:text</button>
+                        <button raa-on:click="insertText('raa-bind:html=\"\"')" class="toolbar-btn brand">bind:html</button>
+                        <button raa-on:click="insertText('raa-bind:model=\"\"')" class="toolbar-btn brand">bind:model</button>
+                        <button raa-on:click="insertText('raa-bind:class=\"{ : }\"')" class="toolbar-btn brand">bind:class</button>
+                        <button raa-on:click="insertText('raa-bind:style=\"{ : }\"')" class="toolbar-btn brand">bind:style</button>
+                        <button raa-on:click="insertText('raa-flow:if=\"\"')" class="toolbar-btn brand">flow:if</button>
+                        <button raa-on:click="insertText('raa-flow:for=\"item in list\"')" class="toolbar-btn brand">flow:for</button>
+                        <button raa-on:click="insertText('raa-flow:show=\"\"')" class="toolbar-btn brand">flow:show</button>
+                        <button raa-on:click="insertText('raa-on:click=\"\"')" class="toolbar-btn brand">on:click</button>
+                        <button raa-on:click="insertText('raa-core:app=\"\"')" class="toolbar-btn brand">core:app</button>
+                        <button raa-on:click="insertText('raa-core:init=\"Object.assign($state, { }) \')" class="toolbar-btn brand">core:init</button>
+                        <button raa-on:click="insertText('raa-core:ref=\"\"')" class="toolbar-btn brand">core:ref</button>
+                        <button raa-on:click="insertText('raa-eco:island')" class="toolbar-btn brand">eco:island</button>
+                        <button raa-on:click="insertText('raa-eco:persist=\"\"')" class="toolbar-btn brand">eco:persist</button>
+                        <button raa-on:click="insertText('raa-eco:router')" class="toolbar-btn brand">eco:router</button>
+                        <button raa-on:click="insertText('raa-eco:route=\"\"')" class="toolbar-btn brand">eco:route</button>
+                        <button raa-on:click="insertText('raa-net:fetch=\"\'url\' -> data\"')" class="toolbar-btn brand">net:fetch</button>
+                        <button raa-on:click="insertText('raa-net:sync=\"\'ws://url\' -> data\"')" class="toolbar-btn brand">net:sync</button>
+                        <button raa-on:click="insertText('raa-ux:lazy')" class="toolbar-btn brand">ux:lazy</button>
+                        <button raa-on:click="insertText('raa-ux:focus')" class="toolbar-btn brand">ux:focus</button>
+                        <button raa-on:click="insertText('raa-ux:loading=\"\"')" class="toolbar-btn brand">ux:loading</button>
+                        <button raa-on:click="insertText('raa-ux:disable=\"\"')" class="toolbar-btn brand">ux:disable</button>
+                        <button raa-on:click="insertText('RaaJS.define(\'halo\', () => ({    state: {          },    methods: {          }}));')" class="toolbar-btn api">RaaJS.define</button>
                         <button raa-on:click="saveActiveFile()" class="toolbar-btn" style="margin-left: auto; border-color: rgba(255,140,95,0.3); color: var(--accent-orange);">
                             <svg width="12" height="12" fill="currentColor" viewBox="0 0 256 256" style="vertical-align: middle; margin-right: 4px;"><path d="M216,40H68.53a16.08,16.08,0,0,0-13.72,7.77L9.14,123.88a8,8,0,0,0,0,8.24l45.67,76.11A16.08,16.08,0,0,0,68.53,216H216a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40ZM61.67,204.12,68.53,200h0ZM216,200H68.53l-43.2-72,43.2-72H216Z"/></svg>
                             Save
@@ -490,26 +507,32 @@
                     </div>
                 </div>
 
-<div class="chat-input-area">
-  <button class="btn btn-sm" raa-on:click="showAiContextPicker = !showAiContextPicker" style="margin-bottom:8px;">
-    Pilih File Context ({{ aiContextFiles.length }})
-  </button>
+                <div class="chat-input-area">
+                    <!-- ✅ FIX #1: Ganti assignment = dengan method call -->
+                    <!-- ✅ FIX #2: Ganti {{ }} dengan raa-bind:text -->
+                    <button class="btn btn-sm" raa-on:click="toggleAiContextPicker()" style="margin-bottom:8px;">
+                        Pilih File Context (<span raa-bind:text="aiContextFiles.length"></span>)
+                    </button>
 
-  <div raa-flow:show="showAiContextPicker" style="max-height:150px; overflow:auto; background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 8px; margin-bottom: 8px;">
-    <template raa-flow:for="file in files" raa-key="file.path">
-      <label style="display:flex; align-items:center; gap:6px; font-size:0.85rem; margin-bottom:4px; color: var(--text-primary); cursor:pointer;">
-        <input type="checkbox" raa-bind:model="aiContextFiles" raa-bind:value="file.path" />
-        <span>{{ file.name }}</span>
-      </label>
-    </template>
-    <button class="btn btn-sm btn-primary" raa-on:click="showAiContextPicker = false" style="width:100%;">Tutup</button>
-  </div>
+                    <div raa-flow:show="showAiContextPicker" style="max-height:150px; overflow:auto; background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 8px; margin-bottom: 8px;">
+                        <template raa-flow:for="file in files" raa-key="file.path">
+                            <label style="display:flex; align-items:center; gap:6px; font-size:0.85rem; margin-bottom:4px; color: var(--text-primary); cursor:pointer;">
+                                <!-- ✅ FIX #3: Checkbox array binding dengan includes() + handler -->
+                                <input type="checkbox" 
+                                       raa-bind:checked="aiContextFiles.includes(file.path)"
+                                       raa-on:change="toggleContextFile(file.path, $event)" />
+                                <!-- ✅ FIX #4: Ganti {{ file.name }} dengan raa-bind:text -->
+                                <span raa-bind:text="file.name"></span>
+                            </label>
+                        </template>
+                        <button class="btn btn-sm btn-primary" raa-on:click="toggleAiContextPicker()" style="width:100%;">Tutup</button>
+                    </div>
 
-  <textarea raa-bind:model="chatInput" raa-ux:disable="aiLoading" placeholder="Tanya tentang RaaJS..." class="chat-textarea" raa-on:keydown="handleChatKeydown($event)"></textarea>
-  <button raa-on:click="sendMessage()" raa-ux:disable="aiLoading || !chatInput" class="btn-icon" style="height: 44px; width: 44px; border-radius: var(--radius-md); flex-shrink: 0;">
-    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="#000000" viewBox="0 0 256 256"><path d="M227.32,28.68a16,16,0,0,0-15.66-4.08l-.15,0L19.57,82.84a16,16,0,0,0-2.49,29.8L102,154l41.3,84.87A15.86,15.86,0,0,0,157.74,248q.69,0,1.38-.06a15.88,15.88,0,0,0,14-11.51l58.2-191.94c0-.05,0-.1,0-.15A16,16,0,0,0,227.32,28.68ZM157.83,231.85l-.05.14,0-.07-40.06-82.3,48-48a8,8,0,0,0-11.31-11.31l-48,48L24.08,98.25l-.07,0,.14,0L216,40Z"></path></svg>
-  </button>
-</div>
+                    <textarea raa-bind:model="chatInput" raa-ux:disable="aiLoading" placeholder="Tanya tentang RaaJS..." class="chat-textarea" raa-on:keydown="handleChatKeydown($event)"></textarea>
+                    <button raa-on:click="sendMessage()" raa-ux:disable="aiLoading || !chatInput" class="btn-icon" style="height: 44px; width: 44px; border-radius: var(--radius-md); flex-shrink: 0;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="#000000" viewBox="0 0 256 256"><path d="M227.32,28.68a16,16,0,0,0-15.66-4.08l-.15,0L19.57,82.84a16,16,0,0,0-2.49,29.8L102,154l41.3,84.87A15.86,15.86,0,0,0,157.74,248q.69,0,1.38-.06a15.88,15.88,0,0,0,14-11.51l58.2-191.94c0-.05,0-.1,0-.15A16,16,0,0,0,227.32,28.68ZM157.83,231.85l-.05.14,0-.07-40.06-82.3,48-48a8,8,0,0,0-11.31-11.31l-48,48L24.08,98.25l-.07,0,.14,0L216,40Z"></path></svg>
+                    </button>
+                </div>
 
             </aside>
         </div>
@@ -572,7 +595,7 @@
                     <div class="form-group">
                         <label>Root Path</label>
                         <input type="text" raa-bind:model="ghRootPath" class="form-control" placeholder="kosongkan untuk root">
-                        <div class="form-hint">File disimpan di: <code>/{root}/{nama_file}</code></div>
+                        <div class="form-hint">File disimpan di: <code>/' + root + '/' + nama_file</code></div>
                     </div>
                     <button raa-on:click="checkGitHubSync()" class="btn btn-primary w-full mt-2" raa-ux:disable="ghSyncLoading || !ghRepoInput">
                         <span raa-flow:show="!ghSyncLoading">Deteksi Perubahan</span>
@@ -901,6 +924,25 @@ Workspace ini menggunakan RaaJS v3.1.0 — framework reaktif zero-dependency.
         },
 
         methods: {
+          // ✅ FIX: Method baru untuk toggle context picker (ganti assignment =)
+          toggleAiContextPicker: function() {
+            this.showAiContextPicker = !this.showAiContextPicker;
+          },
+
+          // ✅ FIX: Method baru untuk checkbox array binding
+          toggleContextFile: function(path, event) {
+            if (event.target.checked) {
+              if (!this.aiContextFiles.includes(path)) {
+                this.aiContextFiles.push(path);
+              }
+            } else {
+              // Re-assign array untuk trigger reactivity
+              this.aiContextFiles = this.aiContextFiles.filter(function(p) {
+                return p !== path;
+              });
+            }
+          },
+
           // ======== UI Toggles ========
           toggleTree: function () {
             this.showTree = !this.showTree;
@@ -1791,7 +1833,6 @@ Workspace ini menggunakan RaaJS v3.1.0 — framework reaktif zero-dependency.
             }
           };
         });
-
     </script>
 </body>
 </html>
