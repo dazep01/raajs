@@ -1,0 +1,74 @@
+name: Auto-Generate Missing Source Maps
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '**.min.js'
+      - '!**.min.js.map'
+  workflow_dispatch: # Bisa dijalankan manual dari tab Actions
+
+jobs:
+  generate-maps:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js & Terser
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm install -g terser
+
+      - name: Scan & Generate Missing Maps
+        run: |
+          echo "🔍 Scanning repository for missing source maps..."
+          changed=0
+
+          # Cari semua file .min.js (hindari node_modules)
+          find . -type f -name "*.min.js" -not -path "*/node_modules/*" -print0 | while IFS= read -r -d '' min_file; do
+            orig_file="${min_file%.min.js}.js"
+            map_file="${min_file}.map"
+            
+            # 1. Lewati jika file sumber (.js) tidak ditemukan
+            if [ ! -f "$orig_file" ]; then
+              echo "⚠️  Skip $min_file (original .js not found)"
+              continue
+            fi
+            
+            # 2. ✅ LEWATI jika source map sudah tersedia
+            if [ -f "$map_file" ]; then
+              echo "⏭️  Map exists: $(basename $map_file)"
+              continue
+            fi
+            
+            echo "⚙️  Generating missing map for: $(basename $orig_file)"
+            changed=1
+            
+            # Generate source map + pastikan .min.js konsisten
+            # Menggunakan config persis seperti production Anda
+            terser "$orig_file" -o "$min_file" \
+              --compress drop_console=false,toplevel=true \
+              --mangle toplevel=true,reserved=['Raa','RaaTemplate','window','document'] \
+              --format comments=/@license|@preserve|RaaJS|ANATOMI|CHANGELOG|v\d+\.\d+/,ascii_only=false \
+              --source-map "url=$(basename "$map_file"),filename=$(basename "$orig_file"),includeSources=false" \
+              && echo "✨ Created: $(basename $map_file)" || echo "❌ Failed: $(basename $orig_file)"
+          done
+
+          if [ "$changed" -eq 0 ]; then
+            echo "🎉 All source maps are already up to date!"
+          else
+            echo "📦 One or more source maps were generated."
+          fi
+
+      - name: Commit & Push New Maps
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: auto-generate missing source maps [skip ci]"
+          file_pattern: '*.min.js.map'
+          commit_options: '--no-verify'
