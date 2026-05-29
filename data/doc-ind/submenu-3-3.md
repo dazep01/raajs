@@ -1,4 +1,4 @@
-## Kontrol Alur (Flow Control): Mengatur Irama Eksistensi
+# Kontrol Alur (Flow Control): Mengatur Irama Eksistensi
 
 > Versi: RaaJS v3.1.0 "Data Liberation"
 > Dunia tidak pernah statis; ia bergerak dalam pilihan dan pengulangan. Begitu pula dengan aplikasi kita. Kontrol Alur dalam RaaJS adalah manifestasi dari keputusan tersebut—menentukan kapan sesuatu harus "ada" di atas panggung DOM, dan kapan ia harus beristirahat di balik tirai. Melalui trio raa-flow:*, kita tidak hanya menulis kode, kita sedang menyutradarai sebuah pertunjukan data yang dinamis.
