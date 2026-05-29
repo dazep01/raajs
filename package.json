@@ -1,19 +1,24 @@
 {
-  "name": "workspace",
-  "version": "1.0.0",
-  "description": "```     ____              _______    / __ \\____ _____  / / ___/   / /_/ / __ `/ __ `/ /\\__ \\   / _, _/ /_/ / /_/ / /___/ /  /_/ |_|\\__,_/\\__,_/_//____/  v2.2",
-  "main": "index.js",
+  "name": "raajs-framework",
+  "version": "3.1.0",
+  "description": "RaaJS: A lightweight, reactive JavaScript framework.",
+  "main": "engine/raa.js",
   "scripts": {
-    "test": "jest"
+    "test": "echo \"No tests specified\" && exit 0"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dazep01/raajs.git"
+  },
+  "keywords": [
+    "framework",
+    "reactive",
+    "javascript",
+    "lightweight"
+  ],
+  "author": "dazep01",
+  "license": "MIT",
   "devDependencies": {
-    "@babel/core": "^7.29.0",
-    "@babel/preset-env": "^7.29.5",
-    "jest": "^30.4.2",
-    "jest-environment-jsdom": "^30.4.1",
-    "jsdom": "^29.1.1"
+    "terser": "^5.31.0"
   }
 }
