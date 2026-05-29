@@ -5,8 +5,8 @@ on:
     branches:
       - main
     paths:
-      - '**.min.js' # Trigger hanya jika file .min.js berubah/baru
-  workflow_dispatch: # Bisa dijalankan manual
+      - '**.min.js'
+  workflow_dispatch:
 
 jobs:
   fix-maps:
@@ -14,46 +14,43 @@ jobs:
     permissions:
       contents: write
     
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+    # 1. HAPUS atau komentari baris env di bawah ini jika sudah update versi action.
+    # Baris ini tadinya dipakai sistem untuk memaksa jalan di Node 24.
+    # env:
+    #   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
+      # 2. UBAH: actions/checkout@v4 menjadi @v6 (Mendukung Node 24 bawaan)
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
+      # 3. UBAH: actions/setup-node@v4 menjadi @v6 (Mendukung Node 24 bawaan)
       - name: Setup Node.js & Install Terser
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: '20'
+          node-version: '24' # 4. UBAH: Naikkan dari '20' ke '22' atau '24' (Node 20 sudah deprecated)
       - run: npm install -g terser
 
+      # --- Bagian script di bawah ini TETAP SAMA (Tidak ada yang perlu diubah) ---
       - name: Detect & Generate Missing Maps
         run: |
           echo "🔍 Scanning for .min.js files missing their source maps..."
-          
-          # Cari semua file .min.js
           find . -type f -name "*.min.js" -not -path "*/node_modules/*" | while read -r min_file; do
             source_file="${min_file%.min.js}.js"
             map_file="${min_file}.map"
 
-            # 1. Skip jika file sumber (.js) tidak ada
             if [ ! -f "$source_file" ]; then
               echo "⚠️  Skip $(basename $min_file): Source file not found."
               continue
             fi
 
-            # 2. Skip jika source map SUDAH ADA (Sesuai permintaan Anda)
             if [ -f "$map_file" ]; then
               echo "⏭️  Skip $(basename $min_file): Map already exists."
               continue
             fi
 
-            # 3. Generate Source Map SAJA
             echo "⚙️  Generating map for: $(basename $min_file)"
             
-            # Kita jalankan terser pada file SUMBER (.js)
-            # Output kode minified dibuang ke /dev/null (kita pakai versi dari GitMoire)
-            # Output source map disimpan ke .map
             terser "$source_file" \
               -o /dev/null \
               --compress drop_console=false,toplevel=true \
@@ -64,9 +61,10 @@ jobs:
               || echo "❌ Failed: $(basename $min_file)"
           done
 
+      # 5. UBAH: git-auto-commit-action@v5 menjadi @v6 (Versi terbaru untuk kompatibilitas Node 24)
       - name: Commit New Source Maps
         if: success()
-        uses: stefanzweifel/git-auto-commit-action@v5
+        uses: stefanzweifel/git-auto-commit-action@v6
         with:
           commit_message: "chore: add missing source maps [skip ci]"
           file_pattern: '*.min.js.map'
