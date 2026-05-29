@@ -20,7 +20,7 @@ Inti frontend mungil dengan Plugin System yang cerdas dan aman.
 
 RaaJS diciptakan khusus untuk kamu yang ingin membangun antarmuka (*UI*) interaktif yang tangguh tanpa perlu terjebak dalam drama *toolchain* atau proses *build* yang melelahkan.
 
-> ⚠️ **Breaking Change v3.1.0:** Atribut `raa-core:data` telah **dihapus permanen**. Gunakan `raa-core:init` dengan `Object.assign($state, { ... })` atau deklarasikan state via `RaaJS.define()`. Lihat bagian [Migrasi](#-migrasi) untuk panduan lengkap.
+> ⚠️ **Breaking Change v3.1.0:** Atribut `raa-core:data` telah **dihapus permanen**. Gunakan `raa-core:init` dengan `Object.assign($state, { ... })` atau deklarasikan state via `RaaJS.define()`. Lihat bagian ***Migrasi*** untuk panduan lengkap.
 
 ### Filosofi: Sepeda Balap vs Kapal Perang
 
