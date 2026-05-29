@@ -21,12 +21,12 @@ jobs:
       - name: Setup Node.js & Install Terser
         uses: actions/setup-node@v6
         with:
-          node-version: '24' # Menggunakan Node 24 penuh untuk eksekusi Terser
+          node-version: '24'
       - run: npm install -g terser
 
       - name: Detect & Generate Missing Maps
         run: |
-          echo "🔍 Scanning for .min.js files missing their source maps..."
+          echo "🔍 Scanning for .min.js files..."
           
           find . -type f -name "*.min.js" -not -path "*/node_modules/*" | while read -r min_file; do
             source_file="${min_file%.min.js}.js"
@@ -37,30 +37,32 @@ jobs:
               continue
             fi
 
-            if [ -f "$map_file" ]; then
+            if [ "${{ github.event_name }}" != "workflow_dispatch" ] && [ -f "$map_file" ]; then
               echo "⏭️  Skip $(basename $min_file): Map already exists."
               continue
             fi
 
             echo "⚙️  Generating map for: $(basename $min_file)"
             
-            # Kita keluarkan output terser langsung menimpa .min.js agar .map mau ditulis fisik
             terser "$source_file" \
               -o "$min_file" \
               --compress drop_console=false,toplevel=true \
               --mangle toplevel=true,reserved=['Raa','RaaTemplate','window','document'] \
-              --format comments=/@license|@preserve|RaaJS|ANATOMI|CHANGELOG|v\d+\.\d+/,ascii_only=false \
+              --format comments=/@license|@preserve|RaaJS|ANATOMI|CHANGELOG|v\\d+\\.\\d+/,ascii_only=false \
               --source-map "url=$(basename $map_file),filename=$(basename $source_file),includeSources=false" \
               && echo "✅ Created: $(basename $map_file)" \
               || echo "❌ Failed: $(basename $min_file)"
           done
 
+      - name: List Generated Maps
+        run: |
+          echo "🗺️  Generated map files:"
+          find . -type f -name "*.min.js.map" -not -path "*/node_modules/*" -exec ls -lh {} \;
+
       - name: Commit New Source Maps
         if: success()
-        # PERBAIKAN UTAMA: Naik ke v7 untuk menghilangkan warning Node 20 secara permanen
         uses: stefanzweifel/git-auto-commit-action@v7
         with:
           commit_message: "chore: add missing source maps [skip ci]"
-          # PERBAIKAN DETAIL: Ubah pattern agar Git melacak folder secara rekursif mencari berkas .map baru
-          file_pattern: '**.map'
+          file_pattern: '**/*.min.js.map'
           commit_options: '--no-verify'
