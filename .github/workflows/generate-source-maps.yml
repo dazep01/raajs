@@ -7,7 +7,7 @@ on:
     paths:
       - '**.min.js'
       - '!**.min.js.map'
-  workflow_dispatch: # Bisa dijalankan manual dari tab Actions
+  workflow_dispatch:
 
 jobs:
   generate-maps:
@@ -15,60 +15,89 @@ jobs:
     permissions:
       contents: write
     
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js & Terser
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - run: npm install -g terser
+      
+      - name: Install Terser
+        run: npm install -g terser
 
-      - name: Scan & Generate Missing Maps
+      - name: Generate Missing Source Maps (Node Script)
         run: |
-          echo "🔍 Scanning repository for missing source maps..."
-          changed=0
+          node -e "
+          const fs = require('fs');
+          const path = require('path');
+          const { execSync } = require('child_process');
 
-          # Cari semua file .min.js (hindari node_modules)
-          find . -type f -name "*.min.js" -not -path "*/node_modules/*" -print0 | while IFS= read -r -d '' min_file; do
-            orig_file="${min_file%.min.js}.js"
-            map_file="${min_file}.map"
-            
-            # 1. Lewati jika file sumber (.js) tidak ditemukan
-            if [ ! -f "$orig_file" ]; then
-              echo "⚠️  Skip $min_file (original .js not found)"
-              continue
-            fi
-            
-            # 2. ✅ LEWATI jika source map sudah tersedia
-            if [ -f "$map_file" ]; then
-              echo "⏭️  Map exists: $(basename $map_file)"
-              continue
-            fi
-            
-            echo "⚙️  Generating missing map for: $(basename $orig_file)"
-            changed=1
-            
-            # Generate source map + pastikan .min.js konsisten
-            # Menggunakan config persis seperti production Anda
-            terser "$orig_file" -o "$min_file" \
-              --compress drop_console=false,toplevel=true \
-              --mangle toplevel=true,reserved=['Raa','RaaTemplate','window','document'] \
-              --format comments=/@license|@preserve|RaaJS|ANATOMI|CHANGELOG|v\d+\.\d+/,ascii_only=false \
-              --source-map "url=$(basename "$map_file"),filename=$(basename "$orig_file"),includeSources=false" \
-              && echo "✨ Created: $(basename $map_file)" || echo "❌ Failed: $(basename $orig_file)"
-          done
+          console.log('🔍 Scanning for .min.js files without maps...');
+          
+          // Fungsi rekursif untuk mencari file
+          function walkDir(dir, callback) {
+            fs.readdirSync(dir).forEach(f => {
+              let dirPath = path.join(dir, f);
+              let isDirectory = fs.statSync(dirPath).isDirectory();
+              if (isDirectory && f !== 'node_modules' && !f.startsWith('.')) {
+                walkDir(dirPath, callback);
+              } else {
+                callback(path.join(dir, f));
+              }
+            });
+          }
 
-          if [ "$changed" -eq 0 ]; then
-            echo "🎉 All source maps are already up to date!"
-          else
-            echo "📦 One or more source maps were generated."
-          fi
+          let count = 0;
+          walkDir('.', (filePath) => {
+            if (!filePath.endsWith('.min.js')) return;
+            
+            const mapPath = filePath + '.map';
+            const sourcePath = filePath.replace('.min.js', '.js');
+
+            // 1. Skip jika source asli tidak ada
+            if (!fs.existsSync(sourcePath)) {
+              console.log(\`⚠️  Skip \${filePath} (source .js not found)\`);
+              return;
+            }
+
+            // 2. Skip jika map sudah ada
+            if (fs.existsSync(mapPath)) {
+              console.log(\`⏭️  Map exists: \${path.basename(mapPath)}\`);
+              return;
+            }
+
+            console.log(\`⚙️  Generating map for: \${filePath}\`);
+            
+            try {
+              // Jalankan Terser CLI untuk regenerate .min.js DAN .map sekaligus
+              // Penting: Kita regenerate .min.js juga agar sinkron dengan map
+              const cmd = \`terser "\${sourcePath}" -o "\${filePath}" --compress drop_console=false,toplevel=true --mangle toplevel=true,reserved=['Raa','RaaTemplate','window','document'] --format comments=/@license|@preserve|RaaJS|ANATOMI|CHANGELOG|v\\\\d+\\\\.\\\\d+/,ascii_only=false --source-map \"url=\${path.basename(mapPath)},filename=\${path.basename(sourcePath)},includeSources=false\"\`;
+              
+              execSync(cmd, { stdio: 'inherit' });
+              
+              if (fs.existsSync(mapPath)) {
+                console.log(\`✅ Created: \${path.basename(mapPath)}\`);
+                count++;
+              } else {
+                console.error(\`❌ Failed to create map for \${filePath}\`);
+              }
+            } catch (e) {
+              console.error(\`❌ Error processing \${filePath}: \${e.message}\`);
+            }
+          });
+
+          console.log(\`\\n✨ Done. Generated \${count} new source maps.\`);
+          "
 
       - name: Commit & Push New Maps
+        if: success()
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "chore: auto-generate missing source maps [skip ci]"
-          file_pattern: '*.min.js.map'
+          file_pattern: '*.min.js.map *.min.js' # Commit both to ensure sync
           commit_options: '--no-verify'
