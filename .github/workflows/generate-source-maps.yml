@@ -13,10 +13,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    
-    # Memaksa smua aksi JavaScript (termasuk git-auto-commit@v6) berjalan di Node 24
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
       - name: Checkout Repository
@@ -25,7 +21,7 @@ jobs:
       - name: Setup Node.js & Install Terser
         uses: actions/setup-node@v6
         with:
-          node-version: '22'
+          node-version: '24' # Menggunakan Node 24 penuh untuk eksekusi Terser
       - run: npm install -g terser
 
       - name: Detect & Generate Missing Maps
@@ -48,8 +44,7 @@ jobs:
 
             echo "⚙️  Generating map for: $(basename $min_file)"
             
-            # PERBAIKAN: Output dialihkan langsung ke $min_file (bukan /dev/null) 
-            # agar file .map sukses tertulis ke sistem berkas.
+            # Kita keluarkan output terser langsung menimpa .min.js agar .map mau ditulis fisik
             terser "$source_file" \
               -o "$min_file" \
               --compress drop_console=false,toplevel=true \
@@ -62,8 +57,10 @@ jobs:
 
       - name: Commit New Source Maps
         if: success()
-        uses: stefanzweifel/git-auto-commit-action@v6
+        # PERBAIKAN UTAMA: Naik ke v7 untuk menghilangkan warning Node 20 secara permanen
+        uses: stefanzweifel/git-auto-commit-action@v7
         with:
           commit_message: "chore: add missing source maps [skip ci]"
-          file_pattern: '*.min.js.map'
+          # PERBAIKAN DETAIL: Ubah pattern agar Git melacak folder secara rekursif mencari berkas .map baru
+          file_pattern: '**.map'
           commit_options: '--no-verify'
