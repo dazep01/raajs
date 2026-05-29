@@ -1,0 +1,30 @@
+- name: Debug Generate Maps
+  run: |
+    echo "=== DEBUG INFO ==="
+    echo "Event: ${{ github.event_name }}"
+    echo "Files found:"
+    find . -type f -name "*.min.js" -not -path "*/node_modules/*"
+    echo ""
+    
+    find . -type f -name "*.min.js" -not -path "*/node_modules/*" | while read -r min_file; do
+      source_file="${min_file%.min.js}.js"
+      map_file="${min_file}.map"
+      
+      echo "Processing: $min_file"
+      echo "  Source: $source_file (exists: $([ -f "$source_file" ] && echo YES || echo NO))"
+      echo "  Map: $map_file (exists: $([ -f "$map_file" ] && echo YES || echo NO))"
+      
+      if [ ! -f "$source_file" ]; then
+        echo "  ❌ SKIP: No source file"
+        continue
+      fi
+      
+      # Coba generate simpel
+      terser "$source_file" -o "$min_file" \
+        --source-map "url='$(basename $map_file)'" \
+        --compress --mangle \
+        && echo "  ✅ Map generated!" \
+        || echo "  ❌ Terser failed with exit code $?"
+      
+      ls -la "$map_file" 2>/dev/null || echo "  ❌ Map file not found after terser"
+    done
