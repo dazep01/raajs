@@ -73,56 +73,64 @@ Ketika Scope Evaluator bertemu dengan sebuah identifier (misalnya `nama`), ia me
 
 ```mermaid
 graph TB
-    %% ---------- PRIORITAS 1 ----------
-    subgraph P1[🔝 Prioritas 1 – SPECIAL KEYS]
+    %% ========== STYLES ==========
+    classDef priority1 fill:#FFD966,stroke:#B45F06,stroke-width:2px,color:#3E2723,font-weight:bold
+    classDef priority2 fill:#F9CB9C,stroke:#E67E22,stroke-width:2px,color:#3E2723
+    classDef priority3 fill:#FFE599,stroke:#F1C40F,stroke-width:2px,color:#3E2723
+    classDef priority4 fill:#B6D7A8,stroke:#27AE60,stroke-width:2px,color:#1E3A1E
+    classDef priority5 fill:#D5D8DC,stroke:#7F8C8D,stroke-width:2px,color:#2C3E50
+
+    %% ========== PRIORITAS 1 ==========
+    subgraph P1["🔹 PRIORITAS 1 : SPECIAL KEYS"]
         direction TB
-        A1["1️⃣ SPECIAL KEYS"]
-        A2["  - $store<br>  - $refs<br>  - $el<br>  - $state<br>  - $locals"]
-        A1 --> A2
+        N1["<b>1️⃣ SPECIAL KEYS</b>"]
+        N2["• $store<br>• $refs<br>• $el<br>• $state<br>• $locals"]
+        N1 --> N2
     end
 
-    %% ---------- PRIORITAS 2 ----------
-    subgraph P2[🟠 Prioritas 2 – EXTRA LOCALS]
+    %% ========== PRIORITAS 2 ==========
+    subgraph P2["🔸 PRIORITAS 2 : EXTRA LOCALS"]
         direction TB
-        B1["2️⃣ EXTRA LOCALS"]
-        B2["  - $event<br>(dari raa-on:)"]
-        B3["  - $index<br>(dari raa-flow:for)"]
-        B1 --> B2
-        B1 --> B3    end
-
-    %% ---------- PRIORITAS 3 ----------
-    subgraph P3[🟡 Prioritas 3 – ANCESTOR LOOP LOCALS]
-        direction TB
-        C1["3️⃣ ANCESTOR LOOP LOCALS"]
-        C2["  Variabel dari loop leluhur<br>(via $locals)"]
-        C1 --> C2
+        M1["<b>2️⃣ EXTRA LOCALS</b>"]
+        M2["• $event (dari raa-on:)"]
+        M3["• $index (dari raa-flow:for)"]
+        M1 --> M2
+        M1 --> M3
     end
 
-    %% ---------- PRIORITAS 4 ----------
-    subgraph P4[🟢 Prioritas 4 – REACTIVE STATE]
+    %% ========== PRIORITAS 3 ==========
+    subgraph P3["🔹 PRIORITAS 3 : ANCESTOR LOOP LOCALS"]
         direction TB
-        D1["4️⃣ REACTIVE STATE"]
-        D2["  Properti yang dideklarasikan<br>di state: {} factory"]
-        D1 --> D2    end
-
-    %% ---------- PRIORITAS 5 ----------
-    subgraph P5[⚪ Prioritas 5 – SAFE GLOBALS]
-        direction TB
-        E1["5️⃣ SAFE GLOBALS"]
-        E2["  Math, Date, JSON, parseInt,<br>Array, Object, dll."]
-        E1 --> E2
+        L1["<b>3️⃣ ANCESTOR LOOP LOCALS</b>"]
+        L2["• Variabel dari loop leluhur (via $locals)"]
+        L1 --> L2
     end
 
-    %% ---------- PENCARAN URUTAN ----------
-    classDef top fill:#ffeb3b,stroke:#f57c00,stroke-width:2px;
-    classDef mid fill:#cce5ff,stroke:#2196f3,stroke-width:2px;
-    classDef low fill:#e0e0e0,stroke:#757575,stroke-width:2px;
-    class P1 top
-    class P2,P3,P4 mid
-    class P5 low
+    %% ========== PRIORITAS 4 ==========
+    subgraph P4["🔸 PRIORITAS 4 : REACTIVE STATE"]
+        direction TB
+        K1["<b>4️⃣ REACTIVE STATE</b>"]
+        K2["• Properti yang dideklarasikan di state: {} factory"]
+        K1 --> K2
+    end
 
-    %% Mengurutkan tampilan dari atas ke bawah
+    %% ========== PRIORITAS 5 ==========
+    subgraph P5["⚪ PRIORITAS 5 : SAFE GLOBALS"]
+        direction TB
+        J1["<b>5️⃣ SAFE GLOBALS</b>"]
+        J2["• Math, Date, JSON, parseInt<br>• Array, Object, dll."]
+        J1 --> J2
+    end
+
+    %% ========== URUTAN PRIORITAS ==========
     P1 --> P2 --> P3 --> P4 --> P5
+
+    %% ========== APPLY CLASSES ==========
+    class P1 priority1
+    class P2 priority2
+    class P3 priority3
+    class P4 priority4
+    class P5 priority5
 ```
 
 ### Contoh Visual: Siapa Menang dalam Konflik Nama?
