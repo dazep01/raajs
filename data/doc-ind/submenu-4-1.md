@@ -535,8 +535,4 @@ methods: {
 
 ---
 
-**← Sebelumnya:** [Event Handling](submenu-3-4.md) &nbsp;&nbsp;|&nbsp;&nbsp; **Berikutnya:** [Scope Evaluator →](submenu-4-2.md)
-
----
-
 *Dokumentasi ini adalah bagian dari RaaJS v3.1.0 Official Docs. Kontribusi dan koreksi disambut di repositori resmi.*
