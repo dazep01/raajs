@@ -72,65 +72,55 @@ Variabel berikut **sengaja diblokir** dan akan mengembalikan `undefined` jika di
 Ketika Scope Evaluator bertemu dengan sebuah identifier (misalnya `nama`), ia mencarinya melalui **5 lapisan berurutan**. Lapisan pertama yang menemukan variabel akan digunakan — pencarian berhenti di sana.
 
 ```mermaid
-graph TB
-    %% ========== STYLES ==========
-    classDef priority1 fill:#FFD966,stroke:#B45F06,stroke-width:2px,color:#3E2723,font-weight:bold
-    classDef priority2 fill:#F9CB9C,stroke:#E67E22,stroke-width:2px,color:#3E2723
-    classDef priority3 fill:#FFE599,stroke:#F1C40F,stroke-width:2px,color:#3E2723
-    classDef priority4 fill:#B6D7A8,stroke:#27AE60,stroke-width:2px,color:#1E3A1E
-    classDef priority5 fill:#D5D8DC,stroke:#7F8C8D,stroke-width:2px,color:#2C3E50
+flowchart TD
+    classDef p1 fill:#FFD966,stroke:#B45F06,stroke-width:2px,color:#3E2723
+    classDef p2 fill:#F9CB9C,stroke:#E67E22,stroke-width:2px,color:#3E2723
+    classDef p3 fill:#FFE599,stroke:#F1C40F,stroke-width:2px,color:#3E2723
+    classDef p4 fill:#B6D7A8,stroke:#27AE60,stroke-width:2px,color:#1E3A1E
+    classDef p5 fill:#D5D8DC,stroke:#7F8C8D,stroke-width:2px,color:#2C3E50
 
-    %% ========== PRIORITAS 1 ==========
-    subgraph P1["🔹 PRIORITAS 1 : SPECIAL KEYS"]
-        direction TB
-        N1["<b>1️⃣ SPECIAL KEYS</b>"]
-        N2["• $store<br>• $refs<br>• $el<br>• $state<br>• $locals"]
-        N1 --> N2
+    subgraph P1["🔝 PRIORITAS 1 : SPECIAL KEYS"]
+        direction LR
+        A1["<b>1️⃣ SPECIAL KEYS</b>"]
+        A2["▪ $store<br>▪ $refs<br>▪ $el<br>▪ $state<br>▪ $locals"]
+        A1 --> A2
     end
 
-    %% ========== PRIORITAS 2 ==========
-    subgraph P2["🔸 PRIORITAS 2 : EXTRA LOCALS"]
-        direction TB
-        M1["<b>2️⃣ EXTRA LOCALS</b>"]
-        M2["• $event (dari raa-on:)"]
-        M3["• $index (dari raa-flow:for)"]
-        M1 --> M2
-        M1 --> M3
+    subgraph P2["🟠 PRIORITAS 2 : EXTRA LOCALS"]
+        direction LR
+        B1["<b>2️⃣ EXTRA LOCALS</b>"]
+        B2["▪ $event (dari raa-on:)<br>▪ $index (dari raa-flow:for)"]
+        B1 --> B2
     end
 
-    %% ========== PRIORITAS 3 ==========
-    subgraph P3["🔹 PRIORITAS 3 : ANCESTOR LOOP LOCALS"]
-        direction TB
-        L1["<b>3️⃣ ANCESTOR LOOP LOCALS</b>"]
-        L2["• Variabel dari loop leluhur (via $locals)"]
-        L1 --> L2
+    subgraph P3["🟡 PRIORITAS 3 : ANCESTOR LOOP LOCALS"]
+        direction LR
+        C1["<b>3️⃣ ANCESTOR LOOP LOCALS</b>"]
+        C2["▪ Variabel dari loop leluhur (via $locals)"]
+        C1 --> C2
     end
 
-    %% ========== PRIORITAS 4 ==========
-    subgraph P4["🔸 PRIORITAS 4 : REACTIVE STATE"]
-        direction TB
-        K1["<b>4️⃣ REACTIVE STATE</b>"]
-        K2["• Properti yang dideklarasikan di state: {} factory"]
-        K1 --> K2
+    subgraph P4["🟢 PRIORITAS 4 : REACTIVE STATE"]
+        direction LR
+        D1["<b>4️⃣ REACTIVE STATE</b>"]
+        D2["▪ Properti yang dideklarasikan di state: {} factory"]
+        D1 --> D2
     end
 
-    %% ========== PRIORITAS 5 ==========
     subgraph P5["⚪ PRIORITAS 5 : SAFE GLOBALS"]
-        direction TB
-        J1["<b>5️⃣ SAFE GLOBALS</b>"]
-        J2["• Math, Date, JSON, parseInt<br>• Array, Object, dll."]
-        J1 --> J2
+        direction LR
+        E1["<b>5️⃣ SAFE GLOBALS</b>"]
+        E2["▪ Math, Date, JSON, parseInt<br>▪ Array, Object, dll."]
+        E1 --> E2
     end
 
-    %% ========== URUTAN PRIORITAS ==========
     P1 --> P2 --> P3 --> P4 --> P5
 
-    %% ========== APPLY CLASSES ==========
-    class P1 priority1
-    class P2 priority2
-    class P3 priority3
-    class P4 priority4
-    class P5 priority5
+    class P1 p1
+    class P2 p2
+    class P3 p3
+    class P4 p4
+    class P5 p5
 ```
 
 ### Contoh Visual: Siapa Menang dalam Konflik Nama?
