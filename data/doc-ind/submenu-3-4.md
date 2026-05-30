@@ -447,7 +447,7 @@ methods: {
 
 Perhatikan: `$event` di dalam `raa-on:event:*` langsung berisi **payload** yang dikirim via `$bus.emit()` — bukan wrapper event DOM. Ini berbeda dengan `raa-on:click` di mana `$event` adalah MouseEvent asli dari browser.
 
-Kita akan bedah Event Bus secara mendalam di [Komunikasi Komponen](submenu-5-2.md).
+Kita akan bedah Event Bus secara mendalam di ***Komunikasi Komponen***.
 
 ---
 
@@ -462,10 +462,6 @@ Pertama, mutasi state selalu di dalam `methods`, bukan langsung di ekspresi temp
 Kedua, `$event` selalu tersedia di semua ekspresi `raa-on:*` dan berisi objek event asli dari browser — kecuali di `raa-on:event:*` (Event Bus) di mana ia berisi payload yang di-emit.
 
 Ketiga, modifier bisa dikombinasikan bebas: `.prevent.stop`, `.stop.self`, dan seterusnya — urutan tidak berpengaruh.
-
----
-
-**← Sebelumnya:** [Kontrol Alur](submenu-3-3.md) &nbsp;&nbsp;|&nbsp;&nbsp; **Berikutnya:** [Sintaks Ekspresi →](submenu-4-1.md)
 
 ---
 
