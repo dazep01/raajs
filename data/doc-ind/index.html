@@ -398,6 +398,184 @@
                                 <p style="font-size: 15px; color: var(--text-secondary); text-align: justify; margin-bottom: 1rem">Dokumentasi ini disusun sebagai teman belajar, bukan sekadar daftar perintah. Di sini, kita akan menjelajahi konsep dasar reaktivitas <em>Proxy</em>, pemanfaatan direktif deklaratif (<code>raa-core</code>, <code>raa-bind</code>, <code>raa-flow</code>, <code>raa-on</code>, <code>raa-ux</code>), mengubah aplikasi dari sekadar reaktif menjadi sadar konteks (<code>raa-eco</code>) tanpa perlu menulis logika boilerplate, hingga teknik lanjutan seperti <em>isolated islands</em> (<code>raa-eco:island</code>) dan integrasi <em>network layer</em> (<code>raa-net</code>).</p>
                                 <p style="font-size: 15px; color: var(--text-secondary); text-align: justify; margin-bottom: 1rem">Lebih dari sekadar kerangka dasar, ekosistem RaaJS diperkaya oleh serangkaian ekstensi cerdas yang siap pakai untuk kebutuhan aplikasi modern. Dari manajemen state kompleks dengan <code>raa-computed-watch</code>, komunikasi antar-komponen via <code>raa-eventbus</code>, hingga penanganan HTTP deklaratif melalui <code>raa-http</code>. Kita juga akan mempelajari validasi formulir instan (<code>raa-validate</code>), animasi halus (<code>raa-animation</code>), hingga utilitas UI interaktif (<code>raa-ui</code>) dan internasionalisasi (<code>raa-i18n</code>). Semua dirancang untuk terintegrasi secara mulus, memungkinkan kita membangun fitur canggih tanpa meninggalkan kenyamanan HTML.</p>
                                 <p style="font-size: 15px; color: var(--text-secondary); text-align: justify; margin-bottom: 1rem">Tujuannya sederhana: membantu mengadopsi pola pikir <strong>"State-First Development"</strong>. Setiap perubahan UI berasal dari mutasi state yang jelas dan terprediksi. Mari mulai perjalanan membangun web yang lebih cepat, lebih ringan, dan lebih manusiawi.</p>
+                                <h3 style="text-align: left; color: var(--brand-purple); font-size: 1.25rem; margin-bottom: 1rem">File-file Sumber</h3>
+<div style="overflow-x: auto;">
+  <table style="width: 100%; border-collapse: collapse; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 14px; color: #333;">
+    <thead>
+      <tr style="background-color: #f9fafb; border-bottom: 2px solid #e5e7eb; text-align: left;">
+        <th style="padding: 12px 16px; font-weight: 600;">Kategori</th>
+        <th style="padding: 12px 16px; font-weight: 600;">Materi</th>
+        <th style="padding: 12px 16px; font-weight: 600;">Sumber</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Menu 1: Pengenalan & Dasar -->
+      <tr style="border-bottom: 1px solid #e5e7eb;">
+        <td rowspan="3" style="padding: 12px 16px; vertical-align: top; font-weight: 500; color: #4b5563;">Pengenalan & Dasar</td>
+        <td style="padding: 12px 16px;">Apa itu RaaJS?</td>
+        <td style="padding: 12px 16px;">
+          <a href="https://github.com/dazep01/raajs/blob/main/data/doc-ind/submenu-1-1.md" target="_blank" rel="noopener noreferrer" style="color: #2563eb; text-decoration: none;">submenu-1-1.md</a>
+        </td>
+      </tr>
+      <tr style="border-bottom: 1px solid #e5e7eb;">
+        <td style="padding: 12px 16px;">Instalasi Cepat</td>
+        <td style="padding: 12px 16px;">
+          <a href="https://github.com/dazep01/raajs/blob/main/data/doc-ind/submenu-1-2.md" target="_blank" rel="noopener noreferrer" style="color: #2563eb; text-decoration: none;">submenu-1-2.md</a>
+        </td>
+      </tr>
+      <tr style="border-bottom: 1px solid #e5e7eb;">
+        <td style="padding: 12px 16px;">Konsep Hello World</td>
+        <td style="padding: 12px 16px;">
+          <a href="https://github.com/dazep01/raajs/blob/main/data/doc-ind/submenu-1-3.md" target="_blank" rel="noopener noreferrer" style="color: #2563eb; text-decoration: none;">submenu-1-3.md</a>
+        </td>
+      </tr>
+
+      <!-- Menu 2: Panduan Inti -->
+      <tr style="border-bottom: 1px solid #e5e7eb;">
+        <td rowspan="3" style="padding: 12px 16px; vertical-align: top; font-weight: 500; color: #4b5563;">Panduan Inti</td>
+        <td style="padding: 12px 16px;">Model Reaktivitas</td>
+        <td style="padding: 12px 16px;">
+          <a href="https://github.com/dazep01/raajs/blob/main/data/doc-ind/submenu-2-1.md" target="_blank" rel="noopener noreferrer" style="color: #2563eb; text-decoration: none;">submenu-2-1.md</a>
+        </td>
+      </tr>
+      <tr style="border-bottom: 1px solid #e5e7eb;">
+        <td style="padding: 12px 16px;">State Management</td>
+        <td style="padding: 12px 16px;">
+          <a href="https://github.com/dazep01/raajs/blob/main/data/doc-ind/submenu-2-2.md" target="_blank" rel="noopener noreferrer" style="color: #2563eb; text-decoration: none;">submenu-2-2.md</a>
+        </td>
+      </tr>
+      <tr style="border-bottom: 1px solid #e5e7eb;">
+        <td style="padding: 12px 16px;">Siklus Hidup Aplikasi</td>
+        <td style="padding: 12px 16px;">
+          <a href="https://github.com/dazep01/raajs/blob/main/data/doc-ind/submenu-2-3.md" target="_blank" rel="noopener noreferrer" style="color: #2563eb; text-decoration: none;">submenu-2-3.md</a>
+        </td>
+      </tr>
+
+      <!-- Menu 3: Direktif & Template -->
+      <tr style="border-bottom: 1px solid #e5e7eb;">
+        <td rowspan="4" style="padding: 12px 16px; vertical-align: top; font-weight: 500; color: #4b5563;">Direktif & Template</td>
+        <td style="padding: 12px 16px;">Direktif Root & Setup</td>
+        <td style="padding: 12px 16px;">
+          <a href="https://github.com/dazep01/raajs/blob/main/data/doc-ind/submenu-3-1.md" target="_blank" rel="noopener noreferrer" style="color: #2563eb; text-decoration: none;">submenu-3-1.md</a>
+        </td>
+      </tr>
+      <tr style="border-bottom: 1px solid #e5e7eb;">
+        <td style="padding: 12px 16px;">Data Binding</td>
+        <td style="padding: 12px 16px;">
+          <a href="https://github.com/dazep01/raajs/blob/main/data/doc-ind/submenu-3-2.md" target="_blank" rel="noopener noreferrer" style="color: #2563eb; text-decoration: none;">submenu-3-2.md</a>
+        </td>
+      </tr>
+      <tr style="border-bottom: 1px solid #e5e7eb;">
+        <td style="padding: 12px 16px;">Kontrol Alur</td>
+        <td style="padding: 12px 16px;">
+          <a href="https://github.com/dazep01/raajs/blob/main/data/doc-ind/submenu-3-3.md" target="_blank" rel="noopener noreferrer" style="color: #2563eb; text-decoration: none;">submenu-3-3.md</a>
+        </td>
+      </tr>
+      <tr style="border-bottom: 1px solid #e5e7eb;">
+        <td style="padding: 12px 16px;">Event Handling</td>
+        <td style="padding: 12px 16px;">
+          <a href="https://github.com/dazep01/raajs/blob/main/data/doc-ind/submenu-3-4.md" target="_blank" rel="noopener noreferrer" style="color: #2563eb; text-decoration: none;">submenu-3-4.md</a>
+        </td>
+      </tr>
+
+      <!-- Menu 4: Bahasa Ekspresi & Keamanan -->
+      <tr style="border-bottom: 1px solid #e5e7eb;">
+        <td rowspan="3" style="padding: 12px 16px; vertical-align: top; font-weight: 500; color: #4b5563;">Bahasa Ekspresi & Keamanan</td>
+        <td style="padding: 12px 16px;">Sintaks Ekspresi</td>
+        <td style="padding: 12px 16px;">
+          <a href="https://github.com/dazep01/raajs/blob/main/data/doc-ind/submenu-4-1.md" target="_blank" rel="noopener noreferrer" style="color: #2563eb; text-decoration: none;">submenu-4-1.md</a>
+        </td>
+      </tr>
+      <tr style="border-bottom: 1px solid #e5e7eb;">
+        <td style="padding: 12px 16px;">Scope Evaluator</td>
+        <td style="padding: 12px 16px;">
+          <a href="https://github.com/dazep01/raajs/blob/main/data/doc-ind/submenu-4-2.md" target="_blank" rel="noopener noreferrer" style="color: #2563eb; text-decoration: none;">submenu-4-2.md</a>
+        </td>
+      </tr>
+      <tr style="border-bottom: 1px solid #e5e7eb;">
+        <td style="padding: 12px 16px;">Sanitasi Keamanan</td>
+        <td style="padding: 12px 16px;">
+          <a href="https://github.com/dazep01/raajs/blob/main/data/doc-ind/submenu-4-3.md" target="_blank" rel="noopener noreferrer" style="color: #2563eb; text-decoration: none;">submenu-4-3.md</a>
+        </td>
+      </tr>
+
+      <!-- Menu 5: Ekosistem & Plugin -->
+      <tr style="border-bottom: 1px solid #e5e7eb;">
+        <td rowspan="5" style="padding: 12px 16px; vertical-align: top; font-weight: 500; color: #4b5563;">Ekosistem & Plugin</td>
+        <td style="padding: 12px 16px;">Computed & Watchers</td>
+        <td style="padding: 12px 16px;">
+          <a href="https://github.com/dazep01/raajs/blob/main/data/doc-ind/submenu-5-1.md" target="_blank" rel="noopener noreferrer" style="color: #2563eb; text-decoration: none;">submenu-5-1.md</a>
+        </td>
+      </tr>
+      <tr style="border-bottom: 1px solid #e5e7eb;">
+        <td style="padding: 12px 16px;">Komunikasi Komponen</td>
+        <td style="padding: 12px 16px;">
+          <a href="https://github.com/dazep01/raajs/blob/main/data/doc-ind/submenu-5-2.md" target="_blank" rel="noopener noreferrer" style="color: #2563eb; text-decoration: none;">submenu-5-2.md</a>
+        </td>
+      </tr>
+      <tr style="border-bottom: 1px solid #e5e7eb;">
+        <td style="padding: 12px 16px;">HTTP & Data Fetching</td>
+        <td style="padding: 12px 16px;">
+          <a href="https://github.com/dazep01/raajs/blob/main/data/doc-ind/submenu-5-3.md" target="_blank" rel="noopener noreferrer" style="color: #2563eb; text-decoration: none;">submenu-5-3.md</a>
+        </td>
+      </tr>
+      <tr style="border-bottom: 1px solid #e5e7eb;">
+        <td style="padding: 12px 16px;">Validasi & UI</td>
+        <td style="padding: 12px 16px;">
+          <a href="https://github.com/dazep01/raajs/blob/main/data/doc-ind/submenu-5-4.md" target="_blank" rel="noopener noreferrer" style="color: #2563eb; text-decoration: none;">submenu-5-4.md</a>
+        </td>
+      </tr>
+      <tr style="border-bottom: 1px solid #e5e7eb;">
+        <td style="padding: 12px 16px;">Internasionalisasi (i18n) & Animasi</td>
+        <td style="padding: 12px 16px;">
+          <a href="https://github.com/dazep01/raajs/blob/main/data/doc-ind/submenu-5-5.md" target="_blank" rel="noopener noreferrer" style="color: #2563eb; text-decoration: none;">submenu-5-5.md</a>
+        </td>
+      </tr>
+
+      <!-- Menu 6: Arsitektur Plugin Kustom -->
+      <tr style="border-bottom: 1px solid #e5e7eb;">
+        <td rowspan="3" style="padding: 12px 16px; vertical-align: top; font-weight: 500; color: #4b5563;">Arsitektur Plugin Kustom</td>
+        <td style="padding: 12px 16px;">Membuat Plugin</td>
+        <td style="padding: 12px 16px;">
+          <a href="https://github.com/dazep01/raajs/blob/main/data/doc-ind/submenu-6-1.md" target="_blank" rel="noopener noreferrer" style="color: #2563eb; text-decoration: none;">submenu-6-1.md</a>
+        </td>
+      </tr>
+      <tr style="border-bottom: 1px solid #e5e7eb;">
+        <td style="padding: 12px 16px;">Hook Siklus Hidup</td>
+        <td style="padding: 12px 16px;">
+          <a href="https://github.com/dazep01/raajs/blob/main/data/doc-ind/submenu-6-2.md" target="_blank" rel="noopener noreferrer" style="color: #2563eb; text-decoration: none;">submenu-6-2.md</a>
+        </td>
+      </tr>
+      <tr style="border-bottom: 1px solid #e5e7eb;">
+        <td style="padding: 12px 16px;">Direktif & Efek Kustom</td>
+        <td style="padding: 12px 16px;">
+          <a href="https://github.com/dazep01/raajs/blob/main/data/doc-ind/submenu-6-3.md" target="_blank" rel="noopener noreferrer" style="color: #2563eb; text-decoration: none;">submenu-6-3.md</a>
+        </td>
+      </tr>
+
+      <!-- Menu 7: Troubleshooting & Migrasi -->
+      <tr style="border-bottom: 1px solid #e5e7eb;">
+        <td rowspan="3" style="padding: 12px 16px; vertical-align: top; font-weight: 500; color: #4b5563;">Troubleshooting & Migrasi</td>
+        <td style="padding: 12px 16px;">FAQ & Pitfalls</td>
+        <td style="padding: 12px 16px;">
+          <a href="https://github.com/dazep01/raajs/blob/main/data/doc-ind/submenu-7-1.md" target="_blank" rel="noopener noreferrer" style="color: #2563eb; text-decoration: none;">submenu-7-1.md</a>
+        </td>
+      </tr>
+      <tr style="border-bottom: 1px solid #e5e7eb;">
+        <td style="padding: 12px 16px;">Panduan Migrasi v3.0 → v3.1</td>
+        <td style="padding: 12px 16px;">
+          <a href="https://github.com/dazep01/raajs/blob/main/data/doc-ind/submenu-7-2.md" target="_blank" rel="noopener noreferrer" style="color: #2563eb; text-decoration: none;">submenu-7-2.md</a>
+        </td>
+      </tr>
+      <tr style="border-bottom: 1px solid #e5e7eb;">
+        <td style="padding: 12px 16px;">Optimasi Performa</td>
+        <td style="padding: 12px 16px;">
+          <a href="https://github.com/dazep01/raajs/blob/main/data/doc-ind/submenu-7-3.md" target="_blank" rel="noopener noreferrer" style="color: #2563eb; text-decoration: none;">submenu-7-3.md</a>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
                             </div>
                         </template>
                     </article>
