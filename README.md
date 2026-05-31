@@ -1,14 +1,20 @@
-# RaaJS v3.1.0: Seni Reaktivitas Minimalis
-```
-    ____              _______
-   / __ \____ _____  / / ___/
-  / /_/ / __ `/ __ `/ /\__ \ 
- / _, _/ /_/ / /_/ / /___/ / 
-/_/ |_|\__,_/\__,_/_//____/  v3.1.0 "Data Liberation"
-                             
-Reaktif. Deklaratif. Mengutamakan HTML.
-Inti frontend mungil dengan Plugin System yang cerdas dan aman.
-```
+<div align="center">
+<h1>RaaJS v3.1.0 - "Data Liberation"</h1>
+<h3><strong>Seni Reaktivitas Minimalis</strong></h3>
+<img src="./assets/logo-color.png" width="400" alt="RaaJS Logo">
+<p>Frontend Reactive Core HTML-First yang ringan, deklaratif, dan dapat diperluas
+melalui Plugin System modern.</p>
+<p>
+<img src="https://custom-icon-badges.demolab.com/badge/-Reactive-F25278?style=for-the-badge&logo=zap&logoColor=F25278&labelColor=FDC4B0">
+<img src="https://custom-icon-badges.demolab.com/badge/-Declarative-D946EF?style=for-the-badge&logo=sliders&logoColor=D946EF&labelColor=F0ABFC">
+<img src="https://custom-icon-badges.demolab.com/badge/-Plugin%20System-A78BFA?style=for-the-badge&logo=package&logoColor=A78BFA&labelColor=D8B4FE">
+</p>
+<p>
+<img src="https://custom-icon-badges.demolab.com/badge/-v3.1.0-silver?style=flat&logo=github&logoColor=silver&labelColor=grey">
+<img src="https://custom-icon-badges.demolab.com/badge/-MIT-silver?style=flat&logo=law&logoColor=silver&labelColor=grey">
+<img src="https://custom-icon-badges.demolab.com/badge/-~9KB%20gzip-silver?style=flat&logo=database&logoColor=silver&labelColor=grey">
+</p>
+</div>
 
 ---
 
