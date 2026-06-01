@@ -947,26 +947,87 @@ methods: {
 
 ## Rangkuman Modifier dalam Satu Tabel
 
-| Atribut | Tipe | Perilaku |
-|---|---|---|
-| `raa-http:reactive` | flag | GET diulang saat dependensi URL berubah |
-| `raa-http:lazy` | flag | Request tidak otomatis, menunggu dipicu |
-| `raa-http:poll="N"` | ms | Ulangi setiap N milidetik |
-| `raa-http:debounce="N"` | ms | Tunda N ms setelah pemicu terakhir |
-| `raa-http:throttle="N"` | ms | Maks satu request per N ms |
-| `raa-http:timeout="N"` | ms | Batalkan jika melebihi N ms |
-| `raa-http:confirm="pesan"` | string | Tampilkan dialog konfirmasi dulu |
-| `raa-http:headers='{"k":"v"}'` | JSON | Tambah header kustom |
-| `raa-http:query='{"k":"v"}'` | JSON | Tambah query parameter |
-| `raa-http:body='{"k":"v"}'` | JSON | Override body request |
-| `raa-http:response="tipe"` | string | Tipe parsing: `json`/`text`/`blob`/`formData`/`arrayBuffer` |
-| `raa-on:http:success="fn()"` | expr | Handler saat berhasil (`$event` = response) |
-| `raa-on:http:error="fn()"` | expr | Handler saat gagal (`$event` = error) |
-| `raa-on:http:finally="fn()"` | expr | Handler yang selalu jalan |
-
----
-
-**← Sebelumnya:** [Komunikasi Komponen](submenu-5-2.md) &nbsp;&nbsp;|&nbsp;&nbsp; **Berikutnya:** [Validasi & UI →](submenu-5-4.md)
+<table>
+  <thead>
+    <tr>
+      <th align="left">Atribut</th>
+      <th align="center">Tipe</th>
+      <th align="left">Perilaku</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>raa-http:reactive</code></td>
+      <td align="center">flag</td>
+      <td>GET diulang saat dependensi URL berubah</td>
+    </tr>
+    <tr>
+      <td><code>raa-http:lazy</code></td>
+      <td align="center">flag</td>
+      <td>Request tidak otomatis, menunggu dipicu</td>
+    </tr>
+    <tr>
+      <td><code>raa-http:poll="N"</code></td>
+      <td align="center">ms</td>
+      <td>Ulangi setiap N milidetik</td>
+    </tr>
+    <tr>
+      <td><code>raa-http:debounce="N"</code></td>
+      <td align="center">ms</td>
+      <td>Tunda N ms setelah pemicu terakhir</td>
+    </tr>
+    <tr>
+      <td><code>raa-http:throttle="N"</code></td>
+      <td align="center">ms</td>
+      <td>Maks satu request per N ms</td>
+    </tr>
+    <tr>
+      <td><code>raa-http:timeout="N"</code></td>
+      <td align="center">ms</td>
+      <td>Batalkan jika melebihi N ms</td>
+    </tr>
+    <tr>
+      <td><code>raa-http:confirm="pesan"</code></td>
+      <td align="center">string</td>
+      <td>Tampilkan dialog konfirmasi dulu</td>
+    </tr>
+    <tr>
+      <td><code>raa-http:headers='{"k":"v"}'</code></td>
+      <td align="center">JSON</td>
+      <td>Tambah header kustom</td>
+    </tr>
+    <tr>
+      <td><code>raa-http:query='{"k":"v"}'</code></td>
+      <td align="center">JSON</td>
+      <td>Tambah query parameter</td>
+    </tr>
+    <tr>
+      <td><code>raa-http:body='{"k":"v"}'</code></td>
+      <td align="center">JSON</td>
+      <td>Override body request</td>
+    </tr>
+    <tr>
+      <td><code>raa-http:response="tipe"</code></td>
+      <td align="center">string</td>
+      <td>Tipe parsing: <code>json</code>/<code>text</code>/<code>blob</code>/<code>formData</code>/<code>arrayBuffer</code></td>
+    </tr>
+    <tr>
+      <td><code>raa-on:http:success="fn()"</code></td>
+      <td align="center">expr</td>
+      <td>Handler saat berhasil (<code>$event</code> = response)</td>
+    </tr>
+    <tr>
+      <td><code>raa-on:http:error="fn()"</code></td>
+      <td align="center">expr</td>
+      <td>Handler saat gagal (<code>$event</code> = error)</td>
+    </tr>
+    <tr>
+      <td><code>raa-on:http:finally="fn()"</code></td>
+      <td align="center">expr</td>
+      <td>Handler yang selalu jalan</td>
+    </tr>
+  </tbody>
+</table>
 
 ---
 
