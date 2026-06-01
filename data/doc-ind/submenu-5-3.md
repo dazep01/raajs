@@ -1,8 +1,13 @@
 # HTTP & Data Fetching
 
 > **Versi:** RaaJS v3.1.0 "Data Liberation"
+>
 > **Ekstensi:** `raa-http.js`
-> Hampir semua aplikasi nyata berkomunikasi dengan server. RaaJS menyediakan HTTP client yang bukan sekadar pembungkus `fetch` biasa — ia terintegrasi penuh dengan sistem reaktif, sadar siklus hidup komponen, dan membawa data masuk ke state dengan cara yang paling deklaratif yang bisa kamu bayangkan.
+>
+
+---
+
+Hampir semua aplikasi nyata berkomunikasi dengan server. RaaJS menyediakan HTTP client yang bukan sekadar pembungkus `fetch` biasa — ia terintegrasi penuh dengan sistem reaktif, sadar siklus hidup komponen, dan membawa data masuk ke state dengan cara yang paling deklaratif yang bisa kamu bayangkan.
 
 ---
 
