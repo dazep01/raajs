@@ -1,7 +1,10 @@
 # Model Reaktivitas
 
-> **Versi:** RaaJS v3.1.0 "Data Liberation"
+> **Versi:** RaaJS v3.1.1 "The Iron Sanctuary"
+
 > Ini adalah halaman terpenting di seluruh dokumentasi. Memahami bagaimana reaktivitas bekerja di RaaJS akan membuat segalanya — debugging, arsitektur, performa — menjadi jauh lebih masuk akal.
+
+> **📌 Catatan v3.1.1:** Model reaktivitas yang dijelaskan di halaman ini tidak berubah secara konsep dari v3.1.0. Namun ada dua perubahan internal yang relevan dan **satu perubahan perilaku** yang perlu kamu tahu: (1) *effect scheduler* kini memakai 4 antrean prioritas terpisah dengan flush O(N); (2) referensi raw object kini memakai Symbol internal; dan (3) **akses `__raa_raw__` melalui string sudah diblokir** — lihat bagian 6 untuk detail dan penggantinya.
 
 ---
 
@@ -16,7 +19,6 @@ Bandingkan dua pendekatan ini:
 ```javascript
 // ─── Cara Lama: kamu harus ingat untuk update DOM ───────────────
 let count = 0;
-
 document.getElementById('btn').addEventListener('click', () => {
   count++;
   document.getElementById('angka').textContent = count; // ← harus manual!
@@ -24,6 +26,7 @@ document.getElementById('btn').addEventListener('click', () => {
 
 // ─── Cara RaaJS: cukup ubah data, tampilan mengurus dirinya sendiri ─
 state: { count: 0 }
+
 <span raa-bind:text="count"></span>
 <button raa-on:click="count++">Tambah</button>
 // → Tidak perlu kode update DOM sama sekali.
@@ -88,13 +91,14 @@ RaaJS membungkus seluruh objek `state`-mu dengan Proxy yang jauh lebih canggih d
 - **`track()`** — saat sebuah properti *dibaca* di dalam effect, Proxy mencatat ketergantungan tersebut.
 - **`trigger()`** — saat sebuah properti *diubah*, Proxy memberi tahu semua effect yang bergantung padanya untuk berjalan ulang.
 
+> **🔒 Diperkuat di v3.1.1:** Proxy kini menyimpan referensi balik ke objek asli (raw) menggunakan **Symbol internal** (`RAA_RAW`) — bukan lagi string `__raa_raw__`. Karena ekspresi template hanya bisa menghasilkan kunci string, jalur ini benar-benar tak tersentuh dari template, menutup celah kebocoran objek raw. Selain itu, saat kamu menugaskan sebuah nilai reaktif ke properti lain (mis. `this.salinan = this.user`), Proxy otomatis *meng-unwrap* nilainya ke objek raw terlebih dahulu — mencegah Proxy berlapis-lapis (proxy di dalam proxy).
+
 ### Siklus Reaktif Lengkap
 
 Inilah bagaimana sebuah perubahan state berjalan dari awal hingga tampilan diperbarui:
 
 ```mermaid
 sequenceDiagram
-
 participant User
 participant Proxy
 participant ReactiveSystem
@@ -102,21 +106,13 @@ participant EffectScheduler
 participant DOM
 
 User->>Proxy: this.count++
-
 Proxy->>ReactiveSystem: trigger('count')
-
 ReactiveSystem->>EffectScheduler: scheduleEffect(effect)
-
 EffectScheduler->>EffectScheduler: queueMicrotask()
-
 EffectScheduler->>EffectScheduler: flushEffects()
-
 EffectScheduler->>Proxy: effect membaca state terbaru
-
 Proxy->>ReactiveSystem: track()
-
 EffectScheduler->>DOM: update UI
-
 DOM-->>User: count berubah
 ```
 
@@ -126,7 +122,7 @@ Satu hal penting: pembaruan DOM tidak terjadi secara **langsung** saat kamu meng
 // Contoh batching:
 methods: {
   updateBanyak() {
-    this.nama = 'Budi';   // Belum update DOM
+    this.nama = 'Budi';    // Belum update DOM
     this.usia = 30;        // Belum update DOM
     this.kota = 'Jakarta'; // Belum update DOM
     // ← Setelah semua ini selesai, baru DOM diperbarui SEKALI
@@ -141,9 +137,9 @@ methods: {
 Effect adalah **fungsi kecil** yang mengetahui cara memperbarui satu bagian spesifik dari DOM. Setiap direktif binding (`raa-bind:text`, `raa-bind:class`, dll.) menciptakan satu effect.
 
 ```
-raa-bind:text="nama"     → effect: () => el.textContent = state.nama
+raa-bind:text="nama"                → effect: () => el.textContent = state.nama
 raa-bind:class="{ aktif: isAktif }" → effect: () => applyClassBinding(el, ...)
-raa-flow:if="tampil"     → effect: () => renderOrRemoveTemplate(...)
+raa-flow:if="tampil"                → effect: () => renderOrRemoveTemplate(...)
 ```
 
 EffectScheduler mengelola semua effect ini dengan sistem **prioritas**:
@@ -157,6 +153,8 @@ EffectScheduler mengelola semua effect ini dengan sistem **prioritas**:
 
 Dalam praktiknya, kamu tidak perlu memikirkan prioritas ini kecuali saat menulis plugin kustom. RaaJS mengurus semua ini secara otomatis.
 
+> **⚡ Dioptimalkan di v3.1.1:** Sebelumnya keempat level prioritas ini hidup dalam satu antrean tunggal yang harus **diurutkan** (`sort`) di setiap flush — biaya O(N log N). Mulai v3.1.1, scheduler memakai **empat bucket `Set` terpisah** (satu per level prioritas) yang dikuras berurutan dari HIGH ke IDLE — flush kini murni O(N), tanpa alokasi array untuk sorting, dengan deduplikasi alami bawaan `Set`. Effect yang dijadwalkan *di tengah* flush juga dijamin tidak ikut berjalan di siklus yang sama — ia menunggu microtask berikutnya (snapshot per bucket).
+
 ### Deteksi Loop Tak Terbatas
 
 EffectScheduler juga memiliki sistem proteksi: jika sebuah effect berjalan lebih dari **50 kali** dalam satu flush cycle, RaaJS akan menghentikannya dan menampilkan peringatan di konsol:
@@ -166,6 +164,8 @@ EffectScheduler juga memiliki sistem proteksi: jika sebuah effect berjalan lebih
 ```
 
 Ini biasanya terjadi ketika sebuah effect secara tidak sengaja memodifikasi state yang menjadi dependensinya sendiri, menciptakan lingkaran tak terbatas.
+
+> **🛡️ Catatan v3.1.1:** Pada mode production (non-debug), pesan peringatan ini tidak lagi menyertakan referensi langsung ke DOM node — hanya string deskriptor seperti `<button#tambah.btn>`. Ini mencegah konsol browser menahan node yang seharusnya sudah bisa dibersihkan garbage collector (kebocoran memori halus yang ada di versi sebelumnya). Saat `debug: true`, referensi node tetap ditampilkan utuh agar bisa di-inspect.
 
 ---
 
@@ -212,6 +212,13 @@ this.daftar.copyWithin(0, 1);  // ✅
 this.daftar = [10, 20, 30];    // ✅
 ```
 
+**Menghapus properti dengan `delete`:**
+
+```javascript
+// Proxy v3.1.1 memiliki trap deleteProperty — penghapusan juga terpantau:
+delete this.user.alamat;       // ✅ memicu update pada effect yang membaca 'alamat'
+```
+
 ---
 
 ### ❌ Yang TIDAK Reaktif (Jebakan Umum!)
@@ -242,6 +249,8 @@ state: {
   errorMsg: ''
 }
 ```
+
+> **💡 Bantuan debug:** Jika di template kamu menulis (lewat `raa-bind:model` atau `raa-on:`) ke properti yang **tidak ada** di state, mode debug v3.1.1 akan menampilkan peringatan `[RaaJS warn:UNKNOWN_KEY] Assigning to unknown key "..." on state. If this is a typo, fix the template expression.` — sangat membantu menangkap typo nama properti lebih awal.
 
 #### Jebakan 2: Memodifikasi elemen array by index
 
@@ -276,11 +285,13 @@ this.daftar = [];
 const user = this.user; // user adalah proxy
 user.nama = 'Baru';     // Ini MEMANG reaktif karena user masih proxy
 
-// Yang tidak reaktif: ketika kamu mengakses __raa_raw__ atau
-// menggunakan spread operator yang melepas reaktivitas:
+// Yang tidak reaktif: ketika kamu menggunakan spread operator
+// yang melepas reaktivitas:
 const rawUser = { ...this.user }; // ← ini adalah plain object, BUKAN proxy
 rawUser.nama = 'Baru'; // ❌ tidak memicu apa pun
 ```
+
+> **⚠️ Diperketat di v3.1.1:** Pada versi sebelumnya, objek raw juga bisa "bocor" lewat properti string `__raa_raw__` — dan mutasi terhadapnya senyap tanpa reaktivitas. Mulai v3.1.1, kunci string `__raa_raw__` masuk daftar blokir (`BLOCKED_KEYS`) dan referensi raw diganti dengan Symbol internal yang tidak bisa diakses dari kode aplikasi maupun ekspresi template. Satu sumber jebakan senyap resmi ditutup.
 
 ---
 
@@ -313,6 +324,8 @@ methods: {
 ```
 
 Ini bekerja karena saat Proxy mendeteksi akses ke properti yang nilainya objek, ia akan secara rekursif membungkus objek tersebut dengan Proxy baru. Hasilnya, seluruh pohon objek terlindungi secara reaktif.
+
+> **⚡ Efisien:** Pembungkusan rekursif ini di-*cache* via WeakMap (`_reactiveCache`) — objek nested yang sama selalu menghasilkan Proxy yang sama, tidak dibuat ulang di setiap akses. Di v3.1.1, prinsip cache yang sama juga diterapkan pada *scope proxy* milik evaluator ekspresi (cache per pasangan elemen × state), sehingga evaluasi ekspresi template di jalur panas tidak lagi mengalokasikan Proxy baru setiap kali.
 
 ---
 
@@ -351,33 +364,69 @@ methods: {
 
 ---
 
-## 6. Memeriksa Reaktivitas Secara Manual
+## 6. Memeriksa Reaktivitas Secara Manual *(Diubah di v3.1.1!)*
 
 Selama development, kamu bisa memeriksa apakah sebuah objek adalah Proxy reaktif atau plain object biasa melalui konsol browser:
 
 ```javascript
 // Akses raw object (non-proxy) dari state
 const rawState = window.Raa.roots  // tidak langsung tersedia
+
 // Cara praktis via DevTools:
 // 1. Buka panel DevTools (Ctrl+Shift+R)
 // 2. Pilih root yang ingin kamu periksa
 // 3. Klik "Export State" atau edit langsung via God Mode
 ```
 
-Atau dari dalam method kamu bisa mengakses raw object melalui `__raa_raw__`:
+### ⚠️ `__raa_raw__` Sudah Dihapus di v3.1.1
+
+Di versi sebelumnya, kamu bisa mengakses raw object melalui properti string `__raa_raw__`. **Mulai v3.1.1, cara ini tidak lagi berfungsi:**
 
 ```javascript
 methods: {
   debug() {
+    // ❌ v3.1.1: TIDAK BERFUNGSI LAGI
     const raw = this.__raa_raw__;
-    // 'raw' adalah plain JS object, bukan Proxy
-    // Berguna untuk serialisasi atau logging
-    console.log(JSON.stringify(raw));
+    // → undefined dari kode method;
+    // → di ekspresi template malah melempar error "blocked property"
   }
 }
 ```
 
-> **Catatan:** Mengubah nilai melalui `raw` tidak akan memicu reaktivitas. Properti `__raa_raw__` hanya untuk keperluan membaca/debugging.
+Alasannya: referensi raw kini disimpan di balik **Symbol internal** (`RAA_RAW`), dan string `__raa_raw__` (beserta semua kunci berawalan `__raa_`) masuk daftar blokir keamanan. Ini bagian dari penutupan vektor *prototype pollution* — tidak ada lagi pintu belakang ber-string menuju isi mesin.
+
+### ✅ Pengganti yang Aman di v3.1.1
+
+Untuk kebutuhan yang sama (serialisasi & logging), gunakan pola berikut:
+
+```javascript
+methods: {
+  debug() {
+    // ✅ Serialisasi: JSON.stringify bekerja langsung pada proxy
+    console.log(JSON.stringify(this));
+
+    // ✅ Salinan plain-object (snapshot, terlepas dari reaktivitas)
+    const snapshot = JSON.parse(JSON.stringify(this));
+
+    // ✅ Salinan dangkal satu objek nested
+    const userCopy = { ...this.user };
+  }
+}
+```
+
+> **Catatan:** Sama seperti dulu, mengubah nilai pada salinan/snapshot ini **tidak** memicu reaktivitas — gunakan hanya untuk membaca, serialisasi, atau logging.
+
+### Variabel Spesial di Ekspresi Template
+
+Untuk inspeksi dari dalam template, evaluator v3.1.1 menyediakan variabel spesial berikut (hanya berlaku di ekspresi direktif, bukan di dalam method):
+
+| Variabel | Isi |
+|---|---|
+| `$state` | Proxy state milik root saat ini |
+| `$store` | Global store bersama antar aplikasi |
+| `$refs` | Elemen-elemen yang didaftarkan via `raa-core:ref` |
+| `$el` | Elemen tempat ekspresi sedang dievaluasi |
+| `$locals` | Variabel lokal warisan dari `raa-flow:for` di atasnya |
 
 ---
 
@@ -394,6 +443,8 @@ Tidak semua nilai cocok untuk disimpan di state. RaaJS secara cerdas mengenali n
 | `RegExp` | ❌ Tidak | Tidak perlu reaktif |
 | `Promise` | ❌ Tidak | Async handling tidak butuh Proxy |
 | Elemen DOM | ❌ Tidak | RaaJS mendeteksi dan melewati node DOM |
+
+> **Catatan presisi:** "Plain object" di sini benar-benar berarti objek polos — engine memeriksa `Object.getPrototypeOf(value) === Object.prototype`. Instance dari class kustom (misalnya `new Pengguna()`) **tidak** akan dibungkus Proxy dan karenanya tidak reaktif. Simpan data sebagai objek/array literal biasa.
 
 **Implikasi untuk `Date`:**
 
@@ -505,7 +556,7 @@ Mari buat sebuah contoh yang mendemonstrasikan berbagai aspek reaktivitas yang s
 
   </div>
 
-  <script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.0/engine/raa.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.1/engine/raa.min.js"></script>
   <script>
     let idCounter = 10;
 
@@ -513,14 +564,17 @@ Mari buat sebuah contoh yang mendemonstrasikan berbagai aspek reaktivitas yang s
       state: {
         // Demo 1
         counter: 0,
+
         // Demo 2
         user: { nama: '', kota: 'Bandung' },
+
         // Demo 3
         items: [
           { id: 1, label: 'Item Pertama' },
           { id: 2, label: 'Item Kedua' },
           { id: 3, label: 'Item Ketiga' }
         ],
+
         // Demo 4
         stateA: 0,
         stateB: 0,
@@ -563,15 +617,17 @@ Mari buat sebuah contoh yang mendemonstrasikan berbagai aspek reaktivitas yang s
 Seluruh halaman ini bisa diringkas menjadi tiga hukum yang wajib kamu ingat:
 
 ### Hukum 1 — Deklarasikan dari Awal
+
 > Hanya properti yang ada di dalam objek `state` sejak aplikasi diinisialisasi yang akan reaktif. Properti yang ditambahkan belakangan tidak akan terpantau.
 
 ### Hukum 2 — Gunakan Method untuk Array
+
 > Untuk memodifikasi array secara reaktif, gunakan method bawaan: `push`, `pop`, `shift`, `unshift`, `splice`, `sort`, `reverse`, `fill`, `copyWithin` — atau ganti seluruh array dengan assignment. Jangan modifikasi elemen langsung via index.
 
 ### Hukum 3 — Percayakan Pembaruan DOM ke RaaJS
+
 > Jangan pernah memperbarui DOM secara manual untuk data yang sudah dikelola RaaJS. Cukup ubah state, dan RaaJS akan mengurus sisanya — lebih efisien, lebih aman, dan lebih dapat diandalkan.
 
 ---
 
-*Dokumentasi ini adalah bagian dari RaaJS v3.1.0 Official Docs. Kontribusi dan koreksi disambut di repositori resmi.*
-
+*Dokumentasi ini adalah bagian dari RaaJS v3.1.1 Official Docs. Kontribusi dan koreksi disambut di repositori resmi.*
