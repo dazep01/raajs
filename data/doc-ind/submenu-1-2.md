@@ -1,7 +1,25 @@
 # Instalasi Cepat
 
-> **Versi:** RaaJS v3.1.0 "Data Liberation"
+> **Versi:** RaaJS v3.1.1 "The Iron Sanctuary"
+
 > Tidak ada `npm install`. Tidak ada `package.json`. Tidak ada konfigurasi apa pun. Cukup satu baris `<script>` dan kamu siap meluncur.
+
+---
+
+## Apa yang Baru di v3.1.1?
+
+Rilis v3.1.1 (2026-06-11) adalah rilis **keamanan & performa**. Tidak ada perubahan cara instalasi maupun API publik — cukup perbarui nomor versi pada URL CDN-mu dari `@3.1.0` menjadi `@3.1.1`.
+
+| Kategori | Perbaikan |
+|---|---|
+| 🔒 **Keamanan** | Vektor *prototype pollution* (`__proto__`, `constructor`, `prototype`) diblokir saat evaluasi ekspresi maupun penugasan (`raa-bind:model`) |
+| 🔒 **Keamanan** | Referensi internal engine kini memakai *Symbol-keyed raw reference* (`RAA_RAW`) — mustahil diakses dari string ekspresi template |
+| 🔒 **Keamanan** | Sanitasi URL berbahaya (`javascript:`, `data:text/html`) pada atribut pembawa URL: `href`, `src`, `action`, `formaction`, `poster`, dll |
+| ⚡ **Performa** | Scope proxy di-*cache* per pasangan (element, state) via WeakMap — menghilangkan alokasi Proxy berulang di jalur panas |
+| ⚡ **Performa** | *Effect scheduler* kini memakai 4 priority bucket (HIGH/NORMAL/LOW/IDLE) — flush O(N), bukan lagi O(N log N) |
+| 🛠️ **Diagnostik** | Mode production tidak lagi menahan referensi DOM node di console (mencegah kebocoran memori); string deskriptor dicetak sebagai gantinya |
+
+> **💡 Migrasi dari v3.1.0:** Tidak ada *breaking change*. Semua direktif, API, dan ekstensi v3.1.0 tetap kompatibel. Cukup ganti `@3.1.0` → `@3.1.1` di semua URL CDN.
 
 ---
 
@@ -24,7 +42,7 @@ Ini adalah cara termudah untuk memulai. Cukup tambahkan tag `<script>` ke halama
 
 ```html
 <!-- RaaJS Core — selalu muat ini PERTAMA -->
-<script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.0/engine/raa.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.1/engine/raa.min.js"></script>
 ```
 
 ### File Ekstensi (Opsional, Sesuai Kebutuhan)
@@ -33,31 +51,31 @@ Tambahkan hanya ekstensi yang benar-benar kamu butuhkan. Urutan pemuatan tidak p
 
 ```html
 <!-- Computed Properties & Watchers -->
-<script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.0/engine/extensions/raa-computed-watch.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.1/engine/extensions/raa-computed-watch.min.js"></script>
 
 <!-- HTTP Client Deklaratif -->
-<script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.0/engine/extensions/raa-http.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.1/engine/extensions/raa-http.min.js"></script>
 
 <!-- Validasi Form -->
-<script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.0/engine/extensions/raa-validate.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.1/engine/extensions/raa-validate.min.js"></script>
 
 <!-- Sistem Animasi -->
-<script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.0/engine/extensions/raa-animation.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.1/engine/extensions/raa-animation.min.js"></script>
 
 <!-- UI Toolkit (tooltip, clipboard, mask, dll) -->
-<script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.0/engine/extensions/raa-ui.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.1/engine/extensions/raa-ui.min.js"></script>
 
 <!-- Internasionalisasi & Multi-bahasa -->
-<script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.0/engine/extensions/raa-i18n.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.1/engine/extensions/raa-i18n.min.js"></script>
 
 <!-- Event Bus (komunikasi antar komponen) -->
-<script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.0/engine/extensions/raa-eventbus.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.1/engine/extensions/raa-eventbus.min.js"></script>
 
 <!-- Template Reusable dengan Slot -->
-<script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.0/engine/extensions/raa-template.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.1/engine/extensions/raa-template.min.js"></script>
 
 <!-- DevTools — HANYA untuk development, jangan dibawa ke production! -->
-<script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.0/engine/extensions/raa-devtools.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.1/engine/extensions/raa-devtools.min.js"></script>
 ```
 
 > **💡 Tips jsDelivr:** jsDelivr adalah CDN open-source yang cepat, andal, dan gratis. File yang sama akan di-*cache* di browser pengguna sehingga kunjungan berikutnya akan terasa lebih cepat.
@@ -109,7 +127,7 @@ proyek-saya/
 <script src="raajs/extensions/raa-validate.min.js"></script>
 ```
 
-> **📂 File non-minified tersedia?** Ya. Untuk keperluan debugging atau mempelajari cara kerja internal RaaJS, kamu bisa mengunduh versi non-minified (`raa.js`, bukan `raa.min.js`) dari repositori yang sama.
+> **📂 File non-minified tersedia?** Ya. Untuk keperluan debugging atau mempelajari cara kerja internal RaaJS, kamu bisa mengunduh versi non-minified (`raa.js`, bukan `raa.min.js`) dari repositori yang sama. Versi non-minified v3.1.1 menyertakan dokumentasi inline yang sangat lengkap — termasuk anatomi arsitektur, daftar direktif, batasan bahasa ekspresi, dan catatan setiap patch keamanan.
 
 ---
 
@@ -134,13 +152,14 @@ Cukup untuk memahami reaktivitas, binding, loop, dan event handling. Sempurna un
   <!-- Konten aplikasimu di sini -->
 
   <!-- Hanya file inti -->
-  <script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.0/engine/raa.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.1/engine/raa.min.js"></script>
 
   <script>
     RaaJS.define('app', () => ({
       state: { pesan: 'Halo dari RaaJS!' }
     }));
   </script>
+
 </body>
 </html>
 ```
@@ -164,17 +183,18 @@ Cocok untuk sebagian besar aplikasi: ada form, ada data dari API, ada validasi.
   <!-- Konten aplikasimu -->
 
   <!-- Core (wajib) -->
-  <script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.0/engine/raa.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.1/engine/raa.min.js"></script>
 
   <!-- Ekstensi yang umum dibutuhkan -->
-  <script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.0/engine/extensions/raa-computed-watch.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.0/engine/extensions/raa-http.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.0/engine/extensions/raa-validate.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.1/engine/extensions/raa-computed-watch.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.1/engine/extensions/raa-http.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.1/engine/extensions/raa-validate.min.js"></script>
 
   <!-- DevTools hanya saat development -->
-  <script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.0/engine/extensions/raa-devtools.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.1/engine/extensions/raa-devtools.min.js"></script>
 
   <script src="app.js"></script>
+
 </body>
 </html>
 ```
@@ -198,23 +218,24 @@ Untuk aplikasi dengan animasi, multi-bahasa, komponen reusable, dan komunikasi a
   <!-- Konten aplikasimu -->
 
   <!-- 1. Core — selalu pertama -->
-  <script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.0/engine/raa.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.1/engine/raa.min.js"></script>
 
   <!-- 2. Ekstensi — urutan antar sesama ekstensi tidak kritis -->
-  <script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.0/engine/extensions/raa-computed-watch.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.0/engine/extensions/raa-http.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.0/engine/extensions/raa-validate.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.0/engine/extensions/raa-animation.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.0/engine/extensions/raa-ui.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.0/engine/extensions/raa-i18n.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.0/engine/extensions/raa-eventbus.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.0/engine/extensions/raa-template.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.1/engine/extensions/raa-computed-watch.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.1/engine/extensions/raa-http.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.1/engine/extensions/raa-validate.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.1/engine/extensions/raa-animation.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.1/engine/extensions/raa-ui.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.1/engine/extensions/raa-i18n.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.1/engine/extensions/raa-eventbus.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.1/engine/extensions/raa-template.min.js"></script>
 
   <!-- 3. DevTools — HANYA di development, hapus sebelum deploy ke production -->
-  <script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.0/engine/extensions/raa-devtools.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.1/engine/extensions/raa-devtools.min.js"></script>
 
   <!-- 4. Kode aplikasimu — selalu paling terakhir -->
   <script src="app.js"></script>
+
 </body>
 </html>
 ```
@@ -250,6 +271,8 @@ Secara konkret:
 
 > **Mengapa urutan ini penting?** Setiap ekstensi saat dimuat akan langsung mencari `window.Raa` (instance RaaJS yang dibuat oleh core) dan mendaftarkan dirinya. Jika core belum dimuat, ekstensi tidak akan menemukan `window.Raa` dan instalasi plugin akan gagal diam-diam.
 
+> **⏱️ Catatan inisialisasi:** Core membuat instance global `window.Raa` secara otomatis pada event `DOMContentLoaded`. Inilah alasan lain mengapa semua `<script>` RaaJS sebaiknya diletakkan di akhir `<body>` — agar seluruh markup sudah tersedia saat kompilasi dimulai.
+
 ---
 
 ## Verifikasi: Pastikan RaaJS Berhasil Dimuat
@@ -284,6 +307,24 @@ window.Raa.pluginManager.getPlugins()
 
 ---
 
+## Catatan Khusus: Opsi Konfigurasi Instance (Baru Didokumentasikan di v3.1.1)
+
+Instance otomatis (`window.Raa`) dibuat tanpa konfigurasi. Namun jika kamu membuat instance manual via `new RaaJS(config)`, opsi berikut tersedia:
+
+```javascript
+const raa = new RaaJS({
+  store: {},                      // Global store awal
+  rootSelector: '[raa-core\\:app]', // Selector root (default)
+  debug: true,                    // Aktifkan mode debug & warning verbose
+  trustHTML: false,               // Jika true, lewati sanitasi raa-bind:html (HATI-HATI!)
+  sanitizer: null                 // Fungsi sanitizer HTML kustom (mis. DOMPurify)
+});
+```
+
+> **🔒 Keamanan `raa-bind:html`:** Secara default v3.1.1 menyanitasi output HTML, termasuk memblokir URL berbahaya (`javascript:`, `data:text/html`). Hanya set `trustHTML: true` jika kontennya 100% berasal dari sumber tepercaya, atau lebih baik pasang `sanitizer` kustom seperti DOMPurify.
+
+---
+
 ## Catatan Khusus: DevTools di Production
 
 File `raa-devtools.min.js` dirancang **hanya untuk lingkungan development**. Ia menyematkan panel inspeksi, memantau performa flush, dan merekam setiap mutasi state — aktivitas yang tidak diinginkan di production.
@@ -299,34 +340,43 @@ Satu cara praktis untuk mengelola ini adalah dengan kondisi environment:
 
 ```html
 <!-- Cara sederhana: gunakan komentar sebagai toggle -->
-
 <!-- [DEV ONLY — hapus sebelum deploy] -->
-<script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.0/engine/extensions/raa-devtools.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.1/engine/extensions/raa-devtools.min.js"></script>
 <!-- [/DEV ONLY] -->
 ```
 
 ---
 
-## Referensi Cepat: Semua URL CDN v3.1.0
+## Referensi Cepat: Semua URL CDN v3.1.1
 
-Untuk kemudahan copy-paste, berikut adalah seluruh URL CDN RaaJS v3.1.0:
+Untuk kemudahan copy-paste, berikut adalah seluruh URL CDN RaaJS v3.1.1:
 
 ```
 Core:
-https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.0/engine/raa.min.js
+https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.1/engine/raa.min.js
 
 Ekstensi:
-https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.0/engine/extensions/raa-computed-watch.min.js
-https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.0/engine/extensions/raa-http.min.js
-https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.0/engine/extensions/raa-validate.min.js
-https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.0/engine/extensions/raa-animation.min.js
-https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.0/engine/extensions/raa-ui.min.js
-https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.0/engine/extensions/raa-i18n.min.js
-https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.0/engine/extensions/raa-eventbus.min.js
-https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.0/engine/extensions/raa-template.min.js
-https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.0/engine/extensions/raa-devtools.min.js
+https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.1/engine/extensions/raa-computed-watch.min.js
+https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.1/engine/extensions/raa-http.min.js
+https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.1/engine/extensions/raa-validate.min.js
+https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.1/engine/extensions/raa-animation.min.js
+https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.1/engine/extensions/raa-ui.min.js
+https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.1/engine/extensions/raa-i18n.min.js
+https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.1/engine/extensions/raa-eventbus.min.js
+https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.1/engine/extensions/raa-template.min.js
+https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.1/engine/extensions/raa-devtools.min.js
 ```
 
 ---
 
-*Dokumentasi ini adalah bagian dari RaaJS v3.1.0 Official Docs. Kontribusi dan koreksi disambut di repositori resmi.*
+## Riwayat Versi Singkat
+
+| Versi | Tanggal | Kode Nama | Sorotan |
+|---|---|---|---|
+| **v3.1.1** | 2026-06-11 | The Iron Sanctuary | Patch keamanan (prototype pollution, sanitasi URL) & performa (proxy cache, 4 priority bucket) |
+| v3.1.0 | 2026-05-24 | Data Liberation | Penghapusan `raa-core:data` — gunakan `raa-core:init` atau app factory |
+| v3.0.0 | 2026-05-23 | The Perfect Union | Merge terbaik dari v2.2.0, v2.3.2, dan v2.3.3 |
+
+---
+
+*Dokumentasi ini adalah bagian dari RaaJS v3.1.1 Official Docs. Kontribusi dan koreksi disambut di repositori resmi.*
