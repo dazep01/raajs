@@ -1,9 +1,12 @@
 # State Management
 
-> **Versi:** RaaJS v3.1.0 "Data Liberation"
+> **Versi:** RaaJS v3.1.1 "The Iron Sanctuary"
+
 > *Panduan Naratif: Mengelola Data Aplikasi dari Sederhana hingga Canggih*
 
 State adalah **jantung** dari setiap aplikasi RaaJS. Ia menentukan apa yang dilihat pengguna, bagaimana aplikasi bereaksi, dan data apa yang diingat. Di panduan ini, kita akan bedah tuntas cara mendeklarasikan, mengorganisasi, berbagi, dan mempersistensikan state — dengan gaya yang mengalir, teknis yang padat, dan contoh yang langsung bisa dipraktikkan.
+
+> **📌 Catatan v3.1.1:** Semua API state management di halaman ini (`state`, `methods`, `init`, `$store`, `$refs`, `raa-eco:persist`, `raa-eco:island`) tidak berubah dari v3.1.0. Yang baru: proteksi *prototype pollution* kini berlaku juga pada jalur penugasan state dari template, dan beberapa penjelasan di halaman ini **dipertajam akurasinya** terhadap perilaku engine yang sebenarnya (lihat bagian Global Store).
 
 ---
 
@@ -26,6 +29,7 @@ Bayangkan state seperti **papan status digital** di dapur restoran modern:
 Setiap kali ada perubahan — pesanan baru masuk, masakan selesai, stok menipis — papan ini diperbarui. Dan semua staf (koki, pelayan, kasir) yang melihat papan tersebut **langsung tahu apa yang harus dilakukan**, tanpa perlu ada yang berlari memberitahu satu per satu.
 
 Di RaaJS:
+
 - **State** = papan status tersebut
 - **Direktif HTML** (`raa-bind:`, `raa-flow:`, dll) = staf yang memantau papan
 - **Reaktivitas** = sistem notifikasi otomatis yang membuat semua "staf" sinkron
@@ -113,6 +117,8 @@ RaaJS.define('namaApp', () => ({
 > 💡 **Kenapa factory function `() => ({})`, bukan objek langsung `{}`?**
 >
 > Menggunakan factory function memastikan setiap instance aplikasi mendapatkan **salinan state yang benar-benar baru**. Jika kamu punya dua elemen dengan `raa-core:app="widget"` di halaman yang sama, masing-masing akan memiliki state terpisah. Jika menggunakan objek literal langsung, keduanya akan berbagi referensi objek yang sama — dan perubahan di satu widget akan memengaruhi widget lainnya. Ini adalah bug yang sulit dilacak!
+>
+> Di v3.1.1, ini bahkan **diwajibkan oleh engine**: `RaaJS.define()` melempar error jika argumen kedua bukan fungsi.
 
 ---
 
@@ -132,12 +138,14 @@ state: {
   aktif: false,          // boolean eksplisit
   daftar: [],            // array kosong, bukan null
   config: {},            // objek kosong, bukan null
-  
+
   // ✅ Null boleh digunakan untuk data yang memang belum tersedia
   dataServer: null,      // akan diisi setelah fetch
   errorPesan: null       // akan diisi jika ada error
 }
 ```
+
+> 💡 **Bantuan debug v3.1.1:** Jika sebuah ekspresi template (misalnya `raa-bind:model`) menulis ke properti yang tidak ada di state, mode debug akan menampilkan peringatan `[RaaJS warn:UNKNOWN_KEY] Assigning to unknown key "..." on state.` — penyelamat dari typo nama properti.
 
 ### Aturan #2: Struktur State yang Semantik dan Terkelompok
 
@@ -172,6 +180,26 @@ state: {
 ```
 
 > 🎯 *Tips: Gunakan camelCase untuk konsistensi dengan JavaScript standar, dan kelompokkan properti yang berkaitan ke dalam objek nested.*
+
+### Aturan #3: Hindari Nama Properti Terlarang *(Baru di v3.1.1)*
+
+Engine v3.1.1 memblokir sejumlah nama kunci dari seluruh ekspresi template demi mencegah *prototype pollution*. Jangan gunakan nama-nama berikut sebagai properti state yang ingin kamu akses dari template:
+
+```javascript
+state: {
+  // ❌ Tidak akan bisa diakses/ditulis dari ekspresi template:
+  constructor: '...',     // diblokir
+  prototype: '...',       // diblokir
+  __proto__: '...',       // diblokir
+  __raa_apapun: '...',    // semua awalan __raa_ dicadangkan untuk engine
+
+  // ✅ Aman — nama deskriptif biasa:
+  tipeKonstruktor: '...',
+  templatePrototipe: '...'
+}
+```
+
+Ekspresi yang menyentuh kunci-kunci tersebut akan dihentikan dengan error eksplisit, baik saat dibaca maupun saat ditulis (mis. via `raa-bind:model`).
 
 ---
 
@@ -214,17 +242,13 @@ methods: {
 
     try {
       const response = await fetch('https://api.contoh.com/produk');
-
       if (!response.ok) {
         throw new Error('Server error: ' + response.status);
       }
-
       const data = await response.json();
       this.daftarProduk = data; // ← Ini memicu reaktivitas secara normal
-
     } catch (err) {
       this.errorPesan = err.message; // ← Error handling yang reaktif
-
     } finally {
       this.sedangMuat = false; // ← Selalu dijalankan, sukses maupun gagal
     }
@@ -283,7 +307,7 @@ methods: {
 <template raa-flow:for="item in daftar" raa-key="item.id">
   <div>
     <span raa-bind:text="item.nama"></span>
-    
+
     <!-- Kirim argumen langsung dari template -->
     <button raa-on:click="hapusItem(item.id)">Hapus</button>
     <button raa-on:click="ubahStatus(item.id, 'selesai')">Selesai</button>
@@ -291,7 +315,7 @@ methods: {
 </template>
 ```
 
-> 💡 *Tips: Parameter di template dievaluasi dalam konteks state aplikasi, jadi kamu bisa mengirim `item`, `item.id`, `index`, atau bahkan ekspresi seperti `item.harga * 2`.*
+> 💡 *Tips: Parameter di template dievaluasi dalam konteks state aplikasi, jadi kamu bisa mengirim* `item`*,* `item.id`*,* `index`*, atau bahkan ekspresi seperti* `item.harga * 2`*. Di dalam handler event, objek event asli juga tersedia sebagai* `$event` *— misalnya* `raa-on:keydown="cekTombol($event)"`*.*
 
 ---
 
@@ -310,6 +334,8 @@ Berikut alur lengkap kapan `init()` dijalankan:
 5. **`init()` dijadwalkan via `queueMicrotask`** — dijalankan setelah stack JavaScript saat ini selesai
 6. Di dalam `init()`, kamu bisa: fetch data awal, setup timer, cek autentikasi, dll
 7. Perubahan state dari `init()` akan memicu update DOM secara normal
+
+> **🛡️ Pengaman v3.1.1:** Jika root sudah di-*destroy* sebelum microtask sempat berjalan (misalnya elemen dihapus dari DOM seketika), `init()` **tidak akan dipanggil** — engine memeriksa status kompilasi root terlebih dahulu. Error yang terjadi di dalam `init()` juga diisolasi dan dilaporkan ke konsol (mode debug) tanpa merusak aplikasi lain.
 
 ### Contoh: Inisialisasi Dashboard dengan Parallel Fetch
 
@@ -347,7 +373,7 @@ RaaJS.define('dashboardApp', () => ({
 | **Jumlah** | Hanya satu per aplikasi | Bisa banyak, satu per elemen |
 | **Cocok untuk** | Startup global: fetch data, cek auth, setup analytics | Inisialisasi per-komponen: fokus input, inisialisasi library pihak ketiga |
 
-> 💡 *Pattern umum: Gunakan `init()` untuk setup aplikasi secara keseluruhan, dan `raa-core:init` untuk setup komponen individual yang perlu diinisialisasi saat dirender.*
+> 💡 *Pattern umum: Gunakan* `init()` *untuk setup aplikasi secara keseluruhan, dan* `raa-core:init` *untuk setup komponen individual yang perlu diinisialisasi saat dirender.*
 
 ---
 
@@ -364,12 +390,12 @@ Global Store diatur saat membuat instance RaaJS. Normalnya RaaJS membuat instanc
 #### Opsi 1: Modifikasi instance yang sudah ada
 
 ```html
-<script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.0/engine/raa.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.1/engine/raa.min.js"></script>
 <script>
   // Tambahkan ke store yang sudah ada SEBELUM aplikasi dikompilasi
   document.addEventListener('DOMContentLoaded', () => {
     Object.assign(window.Raa.globalStore, {
-      appVersion: '3.1.0',
+      appVersion: '3.1.1',
       userSesiAktif: null,
       tema: 'dark',
       bahasa: 'id'
@@ -383,7 +409,7 @@ Global Store diatur saat membuat instance RaaJS. Normalnya RaaJS membuat instanc
 ```javascript
 const raa = new RaaJS({
   store: {
-    appVersion: '3.1.0',
+    appVersion: '3.1.1',
     userSesiAktif: null,
     tema: 'dark',
     bahasa: 'id'
@@ -393,7 +419,7 @@ const raa = new RaaJS({
 window.Raa = raa;
 ```
 
-### Mengakses `$store` dari Template: Cross-App Reactivity
+### Mengakses `$store` dari Template
 
 ```html
 <!-- Aplikasi A: Header -->
@@ -417,9 +443,6 @@ methods: {
   gantiBahasa(bahasa) {
     // Modifikasi $store dari method
     this.$store.bahasa = bahasa;
-    
-    // Semua template yang membaca $store.bahasa akan diperbarui otomatis
-    // karena RaaJS melacak akses ke $store dalam efek reaktif
   },
   loginUser(userData) {
     this.$store.userSesiAktif = userData;
@@ -427,17 +450,38 @@ methods: {
 }
 ```
 
-### Alur Reaktivitas Global Store
+### ⚠️ Akurasi Diperketat: `$store` Itu Bersama, Tapi TIDAK Reaktif
 
-Berikut bagaimana perubahan di `$store` menyebar ke seluruh aplikasi:
+Bagian ini dipertajam setelah verifikasi langsung terhadap engine v3.1.1, karena sering disalahpahami:
 
-1. Sebuah method di App A mengubah `this.$store.tema = 'light'`
-2. RaaJS mendeteksi perubahan pada properti `$store` yang sedang dilacak
-3. Semua efek reaktif di **semua aplikasi** yang membaca `$store.tema` dijadwalkan untuk dijalankan ulang
-4. DOM di App A, App B, App C, dst. diperbarui secara sinkron
-5. Pengguna melihat perubahan tema secara instan di seluruh halaman
+**`$store` adalah objek JavaScript polos — ia tidak dibungkus Proxy dan aksesnya tidak dilacak oleh sistem dependensi.** Di dalam Proxy state, kunci `$store` dikembalikan *sebelum* `track()` sempat dipanggil. Konsekuensinya:
 
-> ⚠️ **Catatan penting:** Objek di dalam `$store` **tidak** dibungkus Proxy secara otomatis seperti `state` lokal aplikasi. Perubahan pada properti `$store` akan memicu reaktivitas **hanya jika** properti tersebut diakses dalam konteks efek reaktif. Untuk use case sederhana (konfigurasi, tema, user sesi), ini biasanya sudah cukup. Jika kamu butuh reaktivitas mendalam pada objek nested di `$store`, pertimbangkan untuk membungkusnya manual atau menggunakan state lokal + event bus.
+1. ✅ Semua aplikasi **membaca nilai yang sama** dari `$store` — berbagi data berfungsi penuh.
+2. ✅ Saat sebuah effect berjalan (karena state lokalnya berubah), ia akan membaca **nilai `$store` terbaru**.
+3. ❌ Mengubah `this.$store.tema` **tidak otomatis memicu update DOM** di aplikasi mana pun — tidak ada `trigger()` untuk store.
+
+**Pola yang benar:** dampingi setiap mutasi `$store` dengan "sinyal" pada state lokal reaktif, sehingga effect-nya berjalan ulang dan membaca store terbaru:
+
+```javascript
+// State lokal sebagai sinyal versi
+state: { storeVersi: 0 },
+
+methods: {
+  gantiTema(tema) {
+    this.$store.tema = tema;   // 1. ubah data bersama
+    this.storeVersi++;          // 2. sentuh state reaktif → effect berjalan ulang
+  }
+}
+```
+
+```html
+<!-- Sertakan sinyal dalam ekspresi agar effect bergantung padanya -->
+<p raa-bind:text="storeVersi >= 0 ? $store.tema : ''"></p>
+```
+
+Untuk sinkronisasi lintas aplikasi yang benar-benar otomatis, gunakan ekstensi **Event Bus** (`raa-eventbus`): App A mem-broadcast event, App B mendengarkan dan memperbarui state lokalnya sendiri (yang reaktif).
+
+> 💡 *Untuk use case sederhana — konfigurasi yang dibaca sekali saat render, user sesi, konstanta global — `$store` apa adanya sudah cukup. Naikkan ke pola sinyal atau event bus hanya saat kamu butuh UI lintas-aplikasi yang ikut berubah secara langsung.*
 
 ---
 
@@ -449,18 +493,20 @@ Secara default, state RaaJS hilang begitu halaman di-refresh. Untuk menyimpan st
 <!-- State aplikasi ini akan otomatis disimpan ke localStorage
      dengan kunci 'pengaturan-user' -->
 <div raa-core:app="settingsApp" raa-eco:persist="pengaturan-user">
+
   <label>
     <input type="checkbox" raa-bind:model="darkMode">
     Mode Gelap
   </label>
+
   <input type="range" raa-bind:model="ukuranFont" min="12" max="24">
+
 </div>
 ```
 
 ### Alur Persistensi: Dari Load ke Save
 
 Berikut bagaimana `raa-eco:persist` bekerja dari awal hingga akhir:
-
 
 #### 📥 Saat Halaman Dimuat (Load)
 
@@ -470,7 +516,6 @@ Berikut bagaimana `raa-eco:persist` bekerja dari awal hingga akhir:
 4. DOM dirender dengan preferensi yang tersimpan
 5. Pengguna melihat aplikasi dalam keadaan terakhir yang mereka tinggalkan
 
-
 #### 📤 Saat State Berubah (Save)
 
 1. Pengguna mengubah `darkMode` dari `true` ke `false`
@@ -479,16 +524,16 @@ Berikut bagaimana `raa-eco:persist` bekerja dari awal hingga akhir:
 4. JSON disimpan ke `localStorage` dengan kunci `'pengaturan-user'`
 5. Proses ini terjadi setelah flush efek selesai, sehingga tidak memblokir UI
 
+> **Presisi v3.1.1:** Auto-save hanya dijalankan untuk root yang effect-nya benar-benar ikut dalam flush tersebut (engine melacak *visited roots* per flush) — aplikasi lain di halaman yang sama tidak ikut menulis ke localStorage tanpa alasan.
 
 #### 🔄 Saat Halaman Di-refresh
 
 1. Proses load berulang dari awal
 2. Preferensi pengguna tetap terjaga — pengalaman yang mulus! 🎉
 
-
 ### Apa yang Disimpan dan Tidak: Filter Cerdas RaaJS
 
-RaaJS secara cerdas menyaring apa yang boleh disimpan ke localStorage agar tidak error saat serialisasi:
+RaaJS secara cerdas menyaring apa yang boleh disimpan ke localStorage agar tidak error saat serialisasi (mekanisme internal `safeSerialize` dengan pelacak referensi `WeakSet`):
 
 | Tipe Data | Disimpan? | Alasan |
 |-----------|-----------|--------|
@@ -496,10 +541,10 @@ RaaJS secara cerdas menyaring apa yang boleh disimpan ke localStorage agar tidak
 | Plain object `{}` | ✅ Ya | Bisa di-serialisasi JSON selama tidak ada fungsi/circular ref |
 | Array `[]` | ✅ Ya | Bisa di-serialisasi JSON |
 | Fungsi / method | ❌ Tidak | Tidak bisa di-serialisasi JSON; akan di-skip otomatis |
-| Elemen DOM / `$refs` | ❌ Tidak | Tidak perlu dan tidak bisa dipersistensikan |
+| Elemen DOM / `$refs` | ❌ Tidak | Tidak perlu dan tidak bisa dipersistensikan (kunci `$refs` dikecualikan eksplisit) |
 | Referensi circular | ❌ Tidak (dilewati) | Tidak bisa di-serialisasi; RaaJS akan skip properti tersebut |
 
-> 💡 *Tips: Jika state-mu berisi data kompleks yang tidak bisa di-JSON.stringify, pertimbangkan untuk memisahkan data yang perlu persist ke objek terpisah.*
+> 💡 *Tips: Jika state-mu berisi data kompleks yang tidak bisa di-JSON.stringify, pertimbangkan untuk memisahkan data yang perlu persist ke objek terpisah. Error load/save persist dilaporkan ke konsol hanya pada mode debug — aktifkan `debug: true` saat menelusuri masalah persistensi.*
 
 ### Tips: Selektif dalam Persisten — Pisahkan State Permanen vs Sementara
 
@@ -561,6 +606,12 @@ Berikut mekanisme di balik `raa-eco:island`:
 4. Perubahan di satu island **tidak memicu re-render** di island lain
 5. Island bisa tetap mengakses `$store` global jika perlu berbagi data tertentu
 
+> **⚠️ Presisi v3.1.1 — cara island dikompilasi:** Island adalah **batas kompilasi** — saat aplikasi induk dikompilasi, semua elemen di dalam island sengaja dilewati (`getManagedElements` mengecualikannya). Namun pemindaian otomatis saat halaman dimuat hanya mencari elemen `[raa-core:app]`. Artinya:
+> - **Island di dalam root induk, dengan `raa-core:app` sendiri** → otomatis dikompilasi sebagai root terpisah (pengecualian nested-root memang berlaku khusus untuk island).
+> - **Island mandiri tanpa `raa-core:app`** (seperti contoh di atas) → kompilasi dengan memanggil `window.Raa.mount(elemen)` secara manual, atau tambahkan `raa-core:app` yang menunjuk ke factory kosong/bersama.
+>
+> Praktik paling sederhana: beri setiap island atribut `raa-core:app` dari satu factory yang sama — factory dipanggil ulang per island, sehingga setiap island tetap mendapat state segar yang terisolasi.
+
 > 🎯 *Pattern ini sangat berguna untuk komponen yang dirender berulang (list, grid, carousel) di mana setiap instance perlu mengelola state-nya sendiri tanpa interferensi.*
 
 ---
@@ -573,6 +624,7 @@ Selain state data, RaaJS juga mengelola referensi ke elemen DOM melalui `$refs`.
 
 ```html
 <div raa-core:app="formApp">
+
   <input type="text"
          raa-core:ref="inputNama"
          raa-bind:model="nama"
@@ -585,6 +637,7 @@ Selain state data, RaaJS juga mengelola referensi ke elemen DOM melalui `$refs`.
 
   <button raa-on:click="fokusNama()">Fokus ke Nama</button>
   <button raa-on:click="selectEmail()">Pilih Teks Email</button>
+
 </div>
 
 <script>
@@ -618,10 +671,10 @@ Jika kamu memberikan `raa-core:ref` yang sama ke lebih dari satu elemen, `$refs.
     contoh() {
       // this.$refs.field adalah Array[3], bukan satu elemen
       console.log(Array.isArray(this.$refs.field)); // true
-      
+
       // Akses elemen individual
       this.$refs.field[0].focus(); // fokus ke input pertama
-      
+
       // Loop semua elemen
       this.$refs.field.forEach(el => el.classList.add('highlight'));
     }
@@ -629,7 +682,7 @@ Jika kamu memberikan `raa-core:ref` yang sama ke lebih dari satu elemen, `$refs.
 </script>
 ```
 
-> 💡 *Tips: Gunakan nama ref yang unik untuk elemen tunggal, dan gunakan nama yang sama hanya ketika kamu memang ingin mengelompokkan elemen-elemen serupa.*
+> 💡 *Tips: Gunakan nama ref yang unik untuk elemen tunggal, dan gunakan nama yang sama hanya ketika kamu memang ingin mengelompokkan elemen-elemen serupa. Elemen yang sama tidak akan didaftarkan dua kali — engine memeriksa duplikat sebelum menambahkan ke array.*
 
 ---
 
@@ -641,30 +694,30 @@ Dengan semua pilihan yang tersedia, bagaimana memutuskan mana yang sebaiknya dig
 
 **Pertanyaan:** Apakah data ini hanya diakses oleh satu aplikasi (`raa-core:app`)?
 
-- **Ya, dan tidak perlu disimpan setelah refresh**  
-  → Gunakan `state` di `RaaJS.define()` tanpa persist.  
+- **Ya, dan tidak perlu disimpan setelah refresh**
+  → Gunakan `state` di `RaaJS.define()` tanpa persist.
   *Contoh: Counter sementara, state UI toggle, form yang belum dikirim.*
 
-- **Ya, dan perlu disimpan setelah refresh**  
-  → Gunakan `state` + `raa-eco:persist`.  
+- **Ya, dan perlu disimpan setelah refresh**
+  → Gunakan `state` + `raa-eco:persist`.
   *Contoh: Preferensi tema, bahasa, pengaturan tampilan.*
 
 ### Skenario 2: Data Dipakai oleh Beberapa Aplikasi
 
 **Pertanyaan:** Apakah data ini perlu diakses oleh lebih dari satu aplikasi di halaman yang sama?
 
-- **Ya**  
-  → Gunakan **Global Store (`$store`)**.  
+- **Ya**
+  → Gunakan **Global Store (`$store`)**.
   *Contoh: User sesi aktif, versi aplikasi, konfigurasi global.*
 
-> 💡 *Tips: Jika data di `$store` perlu reaktif mendalam, pastikan akses ke properti `$store` dilakukan dalam konteks efek reaktif (misal: di dalam `raa-bind:` atau method yang dipanggil dari template).*
+> 💡 *Ingat: `$store` berbagi **data**, bukan **reaktivitas**. Jika UI aplikasi lain harus ikut berubah seketika, padukan dengan pola sinyal (lihat bagian Global Store) atau ekstensi Event Bus.*
 
 ### Skenario 3: Komponen Berulang dengan State Independen
 
 **Pertanyaan:** Apakah kamu merender banyak instance komponen yang sama, dan masing-masing perlu state sendiri?
 
-- **Ya**  
-  → Gunakan **`raa-eco:island`** dengan state lokal.  
+- **Ya**
+  → Gunakan **`raa-eco:island`** dengan state lokal.
   *Contoh: Kartu produk dengan counter qty, accordion dengan state terbuka/tertutup, carousel item.*
 
 ### Decision Tree Naratif
@@ -741,7 +794,7 @@ Berikut adalah contoh yang menggabungkan semua konsep state management yang tela
         <input type="text"
                raa-core:ref="inputTodo"
                raa-bind:model="inputBaru"
-               raa-on:keydown.enter="tambah()"
+               raa-on:keydown="$event.key === 'Enter' ? tambah() : null"
                placeholder="Tulis todo baru... (Enter untuk tambah)">
         <button raa-on:click="tambah()">Tambah</button>
       </div>
@@ -759,7 +812,6 @@ Berikut adalah contoh yang menggabungkan semua konsep state management yang tela
 
     <!-- Daftar Todo -->
     <div class="card">
-
       <template raa-flow:if="daftar.length === 0">
         <p style="text-align:center; color:#94a3b8; padding:16px 0;">
           Belum ada todo. Yuk tambahkan sesuatu! ✨
@@ -778,7 +830,6 @@ Berikut adalah contoh yang menggabungkan semua konsep state management yang tela
                   style="padding:4px 8px; font-size:12px;">✕</button>
         </div>
       </template>
-
     </div>
 
     <!-- Aksi Batch -->
@@ -790,7 +841,7 @@ Berikut adalah contoh yang menggabungkan semua konsep state management yang tela
 
   </div>
 
-  <script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.0/engine/raa.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/dazep01/raajs@3.1.1/engine/raa.min.js"></script>
   <script>
     RaaJS.define('todoApp', () => ({
       state: {
@@ -798,58 +849,47 @@ Berikut adalah contoh yang menggabungkan semua konsep state management yang tela
         filter: 'semua',       // 'semua' | 'aktif' | 'selesai'
         daftar: []             // { id, teks, selesai }
       },
-
       methods: {
         tambah() {
           const teks = this.inputBaru.trim();
           if (!teks) return;
-
           this.daftar.push({
             id: Date.now(),
             teks,
             selesai: false
           });
-
           this.inputBaru = '';
           // Fokus kembali ke input setelah tambah menggunakan $refs
           this.$refs.inputTodo.focus();
         },
-
         hapus(id) {
           this.daftar = this.daftar.filter(item => item.id !== id);
         },
-
         hapusYangSelesai() {
           this.daftar = this.daftar.filter(item => !item.selesai);
         },
-
         tandaiSemuaSelesai() {
           // Ubah semua item — batching otomatis, hanya satu flush ke DOM
           this.daftar.forEach(item => { item.selesai = true; });
           this.simpanSetelahToggle();
         },
-
         simpanSetelahToggle() {
           // raa-eco:persist akan auto-save setelah state berubah
           // Method ini bisa digunakan untuk side-effect tambahan jika perlu
         },
-
         // "Computed" sederhana sebagai method
         jumlahSelesai() {
           return this.daftar.filter(item => item.selesai).length;
         },
-
         jumlahAktif() {
           return this.daftar.filter(item => !item.selesai).length;
         },
-
         itemsTampil() {
           if (this.filter === 'aktif')   return this.daftar.filter(i => !i.selesai);
           if (this.filter === 'selesai') return this.daftar.filter(i => i.selesai);
           return this.daftar;
         }
       },
-
       init() {
         // Fokus ke input saat pertama kali dibuka
         if (this.$refs.inputTodo) {
@@ -863,7 +903,9 @@ Berikut adalah contoh yang menggabungkan semua konsep state management yang tela
 </html>
 ```
 
-> 🎯 *Coba jalankan kode di atas, buka DevTools, dan perhatikan bagaimana state tersimpan di localStorage. Refresh halaman — preferensi dan todo-mu tetap ada! Ini adalah kekuatan `raa-eco:persist` dalam aksi.*
+> **🔧 Penyesuaian diperketat pada contoh ini:** Versi lama memakai `raa-on:keydown.enter="tambah()"`. Setelah diverifikasi terhadap engine, modifier event yang didukung hanyalah `.prevent`, `.stop`, dan `.self` — modifier `.enter` **diabaikan**, sehingga `tambah()` akan terpanggil di *setiap* tombol keyboard, bukan hanya Enter. Contoh di atas sudah diperbaiki menjadi pemeriksaan eksplisit via `$event`: `raa-on:keydown="$event.key === 'Enter' ? tambah() : null"`.
+
+> 🎯 *Coba jalankan kode di atas, buka DevTools, dan perhatikan bagaimana state tersimpan di localStorage. Refresh halaman — preferensi dan todo-mu tetap ada! Ini adalah kekuatan* `raa-eco:persist` *dalam aksi.*
 
 ---
 
@@ -872,28 +914,33 @@ Berikut adalah contoh yang menggabungkan semua konsep state management yang tela
 Berikut adalah gambaran lengkap bagaimana berbagai lapisan state berinteraksi dalam aplikasi RaaJS:
 
 ### Lapisan 1: Global Store (`$store`)
+
 - **Cakupan**: Seluruh halaman, semua aplikasi
 - **Akses**: `this.$store` di method, `$store` di template
 - **Use case**: Konfigurasi global, user sesi, tema, bahasa
 - **Persistensi**: Manual (kamu yang atur jika perlu simpan ke localStorage)
+- **Reaktivitas**: Tidak otomatis — padukan dengan sinyal state lokal atau event bus
 
 ### Lapisan 2: State Aplikasi (`state` di `RaaJS.define()`)
+
 - **Cakupan**: Satu root aplikasi (`raa-core:app`)
 - **Akses**: `this.properti` di method, `properti` langsung di template
 - **Use case**: Data utama aplikasi, state UI lokal, data dari API
 - **Persistensi**: Opsional via `raa-eco:persist`
 
 ### Lapisan 3: State Island (`raa-eco:island`)
+
 - **Cakupan**: Satu elemen island saja
 - **Akses**: `$state` di `raa-core:init`, variabel langsung di template dalam island
 - **Use case**: Komponen berulang dengan state independen (kartu produk, accordion item)
 - **Persistensi**: Tidak didukung (desain yang disengaja untuk state sementara)
 
 ### Lapisan 4: Referensi DOM (`$refs`)
+
 - **Cakupan**: Satu aplikasi atau island
 - **Akses**: `this.$refs.namaRef` di method
 - **Use case**: Fokus input, scroll, integrasi library pihak ketiga
-- **Persistensi**: Tidak pernah (DOM references tidak perlu disimpan)
+- **Persistensi**: Tidak pernah (DOM references tidak perlu disimpan; dikecualikan otomatis oleh `safeSerialize`)
 
 ### Alur Data Antar Lapisan
 
@@ -937,8 +984,10 @@ State Island (raa-eco:island)
 
 7. **Debug dengan console.log di method** — Karena method adalah tempat modifikasi state, log di sana adalah cara termudah melacak perubahan state.
 
+8. **Hindari nama properti yang diblokir** *(baru di v3.1.1)* — Jangan beri nama properti state `constructor`, `prototype`, `__proto__`, atau apa pun berawalan `__raa_`. Ekspresi template yang menyentuhnya akan dihentikan oleh pengaman keamanan engine.
+
 ---
 
-> *Dokumentasi ini adalah bagian dari RaaJS v3.1.0 Official Docs. Kontribusi, koreksi, dan ide perbaikan disambut hangat di repositori resmi. Mari bersama bangun ekosistem yang lebih baik!* 🚀
+> *Dokumentasi ini adalah bagian dari RaaJS v3.1.1 Official Docs. Kontribusi, koreksi, dan ide perbaikan disambut hangat di repositori resmi. Mari bersama bangun ekosistem yang lebih baik!* 🚀
 
 ---
